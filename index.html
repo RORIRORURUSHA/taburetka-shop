@@ -92,7 +92,7 @@
         .category-card {
             background: #fff;
             border-radius: 15px;
-            padding: 20px;
+            padding: 15px;
             text-align: center;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             box-shadow: 0 3px 6px rgba(0,0,0,0.1);
@@ -103,7 +103,16 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s ease-out forwards;
         }
+
+        .category-card:nth-child(1) { animation-delay: 0.1s; }
+        .category-card:nth-child(2) { animation-delay: 0.2s; }
+        .category-card:nth-child(3) { animation-delay: 0.3s; }
+        .category-card:nth-child(4) { animation-delay: 0.4s; }
+        .category-card:nth-child(5) { animation-delay: 0.5s; }
 
         .category-card:hover {
             transform: translateY(-5px) scale(1.03);
@@ -112,7 +121,7 @@
 
         .category-image {
             width: 100%;
-            height: 80px;
+            height: 60px;
             object-fit: cover;
             border-radius: 10px;
             margin-bottom: 10px;
@@ -125,55 +134,77 @@
 
         .category-title {
             color: #0088cc;
-            font-size: 1em;
+            font-size: 0.9em;
             margin: 5px 0;
         }
 
         .category-price {
             color: #333;
-            font-size: 1.2em;
+            font-size: 1em;
             font-weight: bold;
             margin-top: 5px;
         }
 
-        .promo-card {
-            grid-column: span 2;
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .product-card {
             background: #fff;
             border-radius: 15px;
-            padding: 20px;
+            padding: 15px;
             text-align: center;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             box-shadow: 0 3px 6px rgba(0,0,0,0.1);
             cursor: pointer;
             transform: translateZ(0);
+            aspect-ratio: 1 / 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s ease-out forwards;
         }
 
-        .promo-card:hover {
+        .product-card:nth-child(1) { animation-delay: 0.1s; }
+        .product-card:nth-child(2) { animation-delay: 0.2s; }
+        .product-card:nth-child(3) { animation-delay: 0.3s; }
+        .product-card:nth-child(4) { animation-delay: 0.4s; }
+        .product-card:nth-child(5) { animation-delay: 0.5s; }
+
+        .product-card:hover {
             transform: translateY(-5px) scale(1.03);
             box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
 
-        .promo-image {
+        .product-image {
             width: 100%;
-            height: 120px;
+            height: 60px;
             object-fit: cover;
             border-radius: 10px;
             margin-bottom: 10px;
             transition: transform 0.3s ease;
         }
 
-        .promo-card:hover .promo-image {
+        .product-card:hover .product-image {
             transform: scale(1.05);
         }
 
-        .promo-title {
+        .product-title {
             color: #0088cc;
-            font-size: 1.2em;
+            font-size: 0.9em;
             margin: 5px 0;
+        }
+
+        .product-price {
+            color: #333;
+            font-size: 1em;
+            font-weight: bold;
+            margin-top: 5px;
         }
 
         .nav {
@@ -222,7 +253,7 @@
             margin-top: 15px;
         }
 
-        .product-image {
+        .product-image-large {
             width: 100%;
             height: 200px;
             object-fit: cover;
@@ -231,13 +262,13 @@
             transition: transform 0.3s ease;
         }
 
-        .product-title {
+        .product-title-large {
             color: #0088cc;
             font-size: 1.5em;
             margin-bottom: 15px;
         }
 
-        .product-price {
+        .product-price-large {
             color: #333;
             font-size: 1.2em;
             font-weight: bold;
@@ -376,21 +407,21 @@
                 padding-bottom: 70px;
             }
             
-            .category-grid {
+            .category-grid, .product-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 10px;
             }
             
-            .category-card {
-                padding: 15px;
+            .category-card, .product-card {
+                padding: 10px;
             }
             
-            .category-image {
-                height: 70px;
+            .category-image, .product-image {
+                height: 50px;
             }
             
-            .category-title {
-                font-size: 0.9em;
+            .category-title, .product-title {
+                font-size: 0.8em;
             }
             
             .nav-item {
@@ -509,6 +540,58 @@
             background: #006699;
             transform: translateY(-3px);
         }
+
+        .flavor-selector {
+            margin: 10px 0;
+        }
+
+        .flavor-selector label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .flavor-selector select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .flavor-selector select:focus {
+            border-color: #0088cc;
+            box-shadow: 0 0 8px rgba(0,136,204,0.3);
+            outline: none;
+        }
+
+        .quantity-selector {
+            margin: 10px 0;
+        }
+
+        .quantity-selector label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .quantity-selector input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .quantity-selector input:focus {
+            border-color: #0088cc;
+            box-shadow: 0 0 8px rgba(0,136,204,0.3);
+            outline: none;
+        }
     </style>
 </head>
 <body>
@@ -563,19 +646,27 @@
         <!-- Страница категории -->
         <div class="page" id="category">
             <button class="back-button" onclick="showPage('home')">← Назад</button>
-            <div class="product-list"></div>
+            <div class="product-grid"></div>
         </div>
 
         <!-- Страница товара -->
         <div class="page" id="product">
             <button class="back-button" onclick="showPage('category')">← Назад</button>
             <div class="product-page">
-                <img src="" class="product-image" alt="Товар">
-                <h2 class="product-title"></h2>
-                <div class="product-price"></div>
+                <img src="" class="product-image-large" alt="Товар">
+                <h2 class="product-title-large"></h2>
+                <div class="product-price-large"></div>
                 <div class="product-info"></div>
+                <div class="flavor-selector">
+                    <label for="flavor-select">Выберите вкус:</label>
+                    <select id="flavor-select"></select>
+                </div>
+                <div class="quantity-selector">
+                    <label for="quantity-input">Количество:</label>
+                    <input type="number" id="quantity-input" min="1" value="1">
+                </div>
                 <button class="favorite-button" onclick="toggleFavorite()">Добавить в избранное</button>
-                <button class="add-to-cart-button" onclick="toggleCart()">Добавить в корзину</button>
+                <button class="add-to-cart-button" onclick="addToCart()">Добавить в корзину</button>
                 <button class="review-button" onclick="showPage('reviews')">Оставить отзыв</button>
             </div>
         </div>
@@ -746,6 +837,34 @@
                 ],
                 reviews: [],
                 details: "Линейка табачных вкусов"
+            },
+            {
+                id: 6,
+                category: "liquids",
+                name: "XYLINET TEBE PIZDA 30ML 5%",
+                description: "16 вкусов",
+                image: "хулинет.jpg",
+                price: "380 ₽",
+                flavors: [
+                    {name: "Яблочное проникновение", quantity: 1},
+                    {name: "Манговый фроттаж", quantity: 1},
+                    {name: "Виноградный оргазм", quantity: 1},
+                    {name: "Энергичный свинг", quantity: 1},
+                    {name: "Кактусовый канинг", quantity: 1},
+                    {name: "Кинк киви", quantity: 1},
+                    {name: "Кисло-сладкий фленчинг", quantity: 1},
+                    {name: "Мятная ирримация", quantity: 1},
+                    {name: "Ананасовый кашмот", quantity: 1},
+                    {name: "Апельсиновый дождь", quantity: 1},
+                    {name: "Персиковый куни", quantity: 1},
+                    {name: "Малиновый фистинг", quantity: 1},
+                    {name: "Тропический сквирт", quantity: 1},
+                    {name: "Ежевичный бдсм", quantity: 1},
+                    {name: "Клубничный минет", quantity: 1},
+                    {name: "Ягодный гэнг-бэнг", quantity: 1}
+                ],
+                reviews: [],
+                details: "Линейка из 16 вкусов"
             }
         ];
 
@@ -761,12 +880,12 @@
         }
 
         function showCategory(category) {
-            const productList = document.querySelector('.product-list');
-            productList.innerHTML = '';
+            const productGrid = document.querySelector('.product-grid');
+            productGrid.innerHTML = '';
             
             products.filter(p => p.category === category).forEach(product => {
                 const card = document.createElement('div');
-                card.className = 'category-card fade-in';
+                card.className = 'product-card fade-in';
                 let info = '';
                 
                 if(product.flavors) info += `<p>Вкусов: ${product.flavors.length}</p>`;
@@ -774,14 +893,14 @@
                 if(product.quantity) info += `<p>Остаток: ${product.quantity}</p>`;
 
                 card.innerHTML = `
-                    <img src="${product.image}" class="category-image">
-                    <h3 class="category-title">${product.name}</h3>
+                    <img src="${product.image}" class="product-image">
+                    <h3 class="product-title">${product.name}</h3>
                     <p>${product.description}</p>
-                    <div class="category-price">${product.price}</div>
+                    <div class="product-price">${product.price}</div>
                     ${info}
                 `;
                 card.onclick = () => showProduct(product);
-                productList.appendChild(card);
+                productGrid.appendChild(card);
             });
             
             showPage('category');
@@ -790,9 +909,9 @@
         function showProduct(product) {
             currentProduct = product;
             const page = document.querySelector('#product .product-page');
-            page.querySelector('.product-image').src = product.image;
-            page.querySelector('.product-title').textContent = product.name;
-            page.querySelector('.product-price').textContent = product.price;
+            page.querySelector('.product-image-large').src = product.image;
+            page.querySelector('.product-title-large').textContent = product.name;
+            page.querySelector('.product-price-large').textContent = product.price;
             
             let infoHTML = '';
             if(product.flavors) {
@@ -843,7 +962,50 @@
             page.querySelector('.product-info').innerHTML = infoHTML;
             updateFavoriteButton();
             updateCartButton();
+            updateFlavorSelector();
             showPage('product');
+        }
+
+        function updateFlavorSelector() {
+            const flavorSelect = document.getElementById('flavor-select');
+            flavorSelect.innerHTML = '';
+            if(currentProduct.flavors) {
+                currentProduct.flavors.forEach(flavor => {
+                    const option = document.createElement('option');
+                    option.value = flavor.name;
+                    option.textContent = `${flavor.name} (${flavor.quantity} шт.)`;
+                    flavorSelect.appendChild(option);
+                });
+            }
+        }
+
+        function addToCart() {
+            const flavorSelect = document.getElementById('flavor-select');
+            const quantityInput = document.getElementById('quantity-input');
+            const selectedFlavor = flavorSelect.value;
+            const quantity = parseInt(quantityInput.value, 10);
+
+            if(!selectedFlavor || quantity <= 0) {
+                alert('Выберите вкус и количество!');
+                return;
+            }
+
+            const selectedFlavorData = currentProduct.flavors.find(f => f.name === selectedFlavor);
+            if(!selectedFlavorData || quantity > selectedFlavorData.quantity) {
+                alert('Недостаточно товара в наличии!');
+                return;
+            }
+
+            const cartItem = {
+                ...currentProduct,
+                selectedFlavor,
+                quantity,
+                totalPrice: parseInt(currentProduct.price.replace(/\D/g, ''), 10) * quantity
+            };
+
+            cart.push(cartItem);
+            updateCart();
+            showPage('cart');
         }
 
         function toggleFavorite() {
@@ -862,17 +1024,6 @@
             const isFavorite = favorites.some(item => item.id === currentProduct.id);
             button.textContent = isFavorite ? 'Убрать из избранного' : 'Добавить в избранное';
             button.classList.toggle('active', isFavorite);
-        }
-
-        function toggleCart() {
-            const index = cart.findIndex(item => item.id === currentProduct.id);
-            if(index === -1) {
-                cart.push({...currentProduct});
-            } else {
-                cart.splice(index, 1);
-            }
-            updateCartButton();
-            updateCart();
         }
 
         function updateCartButton() {
@@ -895,14 +1046,14 @@
                     <img src="${item.image}" class="cart-item-image">
                     <div class="cart-item-info">
                         <h3>${item.name}</h3>
-                        <p>${item.description}</p>
+                        <p>${item.selectedFlavor} (${item.quantity} шт.)</p>
                     </div>
-                    <div class="cart-item-price">${item.price}</div>
+                    <div class="cart-item-price">${item.totalPrice} ₽</div>
                     <button class="remove-from-cart-button" onclick="removeFromCart(${item.id})">✕</button>
                 `;
                 container.appendChild(element);
                 
-                totalPrice += parseInt(item.price.replace(/\D/g, ''), 10);
+                totalPrice += item.totalPrice;
             });
             
             document.querySelector('.total-price').textContent = `Общая стоимость: ${totalPrice} ₽`;
