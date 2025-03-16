@@ -700,8 +700,8 @@
             <div class="about-page">
                 <h2>О нас</h2>
                 <p>Добро пожаловать в Taburetka Shop! Мы предлагаем лучшие товары для вейпинга с 2025 года.</p>
-                <p>📱 <a href="https://t.me/your_channel" target="_blank">Наш Telegram канал</a></p>
-                <p>Автор сайта: [Ваше имя]</p>
+                <p>📱 <a href="https://t.me/taburetka_shop" target="_blank">Наш Telegram канал</a></p>
+                <p>Автор Rurusha</p>
             </div>
         </div>
 
@@ -928,7 +928,7 @@
             {
                 id: 8,
                 category: "pods",
-                name: "XROS Pod 1",
+                name: "XROS mini",
                 description: "Подсистема XROS",
                 image: "подики.jpg",
                 price: "1500 ₽",
@@ -944,10 +944,10 @@
             {
                 id: 9,
                 category: "pods",
-                name: "XROS Pod 2",
+                name: "XROS 4",
                 description: "Подсистема XROS",
                 image: "подики.jpg",
-                price: "1500 ₽",
+                price: "2700 ₽",
                 colors: [
                     {name: "Черный", quantity: 5},
                     {name: "Белый", quantity: 5},
@@ -960,10 +960,10 @@
             {
                 id: 10,
                 category: "pods",
-                name: "XROS Pod 3",
+                name: "XROS 4 mini",
                 description: "Подсистема XROS",
                 image: "подики.jpg",
-                price: "1500 ₽",
+                price: "2350 ₽",
                 colors: [
                     {name: "Черный", quantity: 5},
                     {name: "Белый", quantity: 5},
@@ -976,10 +976,10 @@
             {
                 id: 11,
                 category: "pods",
-                name: "XROS Pod 4",
+                name: "XROS pro",
                 description: "Подсистема XROS",
                 image: "подики.jpg",
-                price: "1500 ₽",
+                price: "3000 ₽",
                 colors: [
                     {name: "Черный", quantity: 5},
                     {name: "Белый", quantity: 5},
@@ -1378,8 +1378,8 @@
             };
 
             // Отправка заказа в Telegram (заглушка)
-            const botToken = 'YOUR_BOT_TOKEN';
-            const chatId = 'YOUR_CHAT_ID';
+            const botToken = '8006097068:AAGRzfW1DVQ8qVIKKxnBlF3efshqcYWOZqU';
+            const chatId = '7395030282';
             const message = `Новый заказ!\nИмя: ${username}\nТелефон: ${phone}\nАдрес: ${address}\nКомментарий: ${comment}\nТовары: ${cart.map(item => `${item.name} (${item.selectedFlavor}) - ${item.quantity} шт.`).join(', ')}\nОбщая стоимость: ${orderDetails.totalPrice} ₽`;
 
             fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`)
