@@ -763,6 +763,7 @@
                     <input type="text" id="order-username" class="form-input" placeholder="Ваше имя">
                     <input type="text" id="order-phone" class="form-input" placeholder="Ваш номер телефона">
                     <input type="text" id="order-address" class="form-input" placeholder="Адрес доставки">
+                    <input type="text" id="order-tg" class="form-input" placeholder="Ваш Telegram @username">
                     <textarea id="order-comment" class="form-textarea" placeholder="Комментарий к заказу"></textarea>
                     <button class="form-button" onclick="submitOrder()">Подтвердить заказ</button>
                 </div>
@@ -1284,6 +1285,7 @@
             };
             
             currentProduct.reviews.push(review);
+            localStorage.setItem(`reviews_${currentProduct.id}`, JSON.stringify(currentProduct.reviews));
             showProduct(currentProduct);
             alert('Отзыв отправлен!');
             document.getElementById('review-username').value = '';
@@ -1295,7 +1297,10 @@
             const container = document.querySelector('.review-list');
             container.innerHTML = '';
             
-            currentProduct.reviews.forEach(review => {
+            const savedReviews = JSON.parse(localStorage.getItem(`reviews_${currentProduct.id}`)) || [];
+            currentProduct.reviews = savedReviews;
+            
+            savedReviews.forEach(review => {
                 const element = document.createElement('div');
                 element.className = 'review-item fade-in';
                 element.innerHTML = `
@@ -1361,9 +1366,10 @@
             const username = document.getElementById('order-username').value;
             const phone = document.getElementById('order-phone').value;
             const address = document.getElementById('order-address').value;
+            const tg = document.getElementById('order-tg').value;
             const comment = document.getElementById('order-comment').value;
             
-            if(!username || !phone || !address) {
+            if(!username || !phone || !address || !tg) {
                 alert('Заполните все обязательные поля!');
                 return;
             }
@@ -1372,6 +1378,7 @@
                 username,
                 phone,
                 address,
+                tg,
                 comment,
                 cart,
                 totalPrice: cart.reduce((sum, item) => sum + item.totalPrice, 0)
@@ -1380,7 +1387,7 @@
             // Отправка заказа в Telegram (заглушка)
             const botToken = '8006097068:AAGRzfW1DVQ8qVIKKxnBlF3efshqcYWOZqU';
             const chatId = '7395030282';
-            const message = `Новый заказ!\nИмя: ${username}\nТелефон: ${phone}\nАдрес: ${address}\nКомментарий: ${comment}\nТовары: ${cart.map(item => `${item.name} (${item.selectedFlavor}) - ${item.quantity} шт.`).join(', ')}\nОбщая стоимость: ${orderDetails.totalPrice} ₽`;
+            const message = `Новый заказ!\nИмя: ${username}\nТелефон: ${phone}\nАдрес: ${address}\nTelegram: @${tg}\nКомментарий: ${comment}\nТовары: ${cart.map(item => `${item.name} (${item.selectedFlavor}) - ${item.quantity} шт.`).join(', ')}\nОбщая стоимость: ${orderDetails.totalPrice} ₽`;
 
             fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`)
                 .then(response => response.json())
