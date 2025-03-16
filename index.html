@@ -883,14 +883,14 @@
             {
                 id: 6,
                 category: "liquids",
-                name: "XYLINET TEBE PIZDA 30ML 5%",
+                name: "XYLINET TEBE PIZDA 30ML 7%",
                 description: "16 вкусов",
                 image: "хулинет.jpg",
                 price: "380 ₽",
                 flavors: [
                     {name: "Яблочное проникновение", quantity: 1},
                     {name: "Манговый фроттаж", quantity: 1},
-                    {name: "Виноградный оргазм", quantity: 1},
+                    {name: "Виноградный оргазм", quantity: 0},
                     {name: "Энергичный свинг", quantity: 1},
                     {name: "Кактусовый канинг", quantity: 1},
                     {name: "Кинк киви", quantity: 1},
@@ -924,6 +924,22 @@
                 ],
                 reviews: [],
                 details: "Линейка картриджей"
+            },
+            {
+                id: 16,
+                category: "cartridges",
+                name: "Испаритель XROS",
+                description: "Испарители и картриджи",
+                image: "испаритель.jpg",
+                price: "350 ₽",
+                resistances: [
+                    {name: "0.4 Ом", quantity: 0},
+                    {name: "0.6 Ом", quantity: 0},
+                    {name: "0.8 Ом", quantity: 0},
+                    {name: "1.0 Ом", quantity: 0}
+                ],
+                reviews: [],
+                details: "Линейка испарителей"
             },
             // Подсистемы
             {
@@ -981,6 +997,54 @@
                 description: "Подсистема XROS",
                 image: "про.jpg",
                 price: "3000 ₽",
+                colors: [
+                    {name: "Черный", quantity: 0},
+                    {name: "Белый", quantity: 0},
+                    {name: "Синий", quantity: 0},
+                    {name: "Красный", quantity: 0}
+                ],
+                reviews: [],
+                details: "Линейка подсистем"
+            },
+            {
+                id: 17,
+                category: "pods",
+                name: "XROS nano",
+                description: "Подсистема XROS",
+                image: "нано.jpg",
+                price: "2000 ₽",
+                colors: [
+                    {name: "Черный", quantity: 0},
+                    {name: "Белый", quantity: 0},
+                    {name: "Синий", quantity: 0},
+                    {name: "Красный", quantity: 0}
+                ],
+                reviews: [],
+                details: "Линейка подсистем"
+            },
+            {
+                id: 18,
+                category: "pods",
+                name: "XROS 3",
+                description: "Подсистема XROS",
+                image: "3.jpg",
+                price: "2500 ₽",
+                colors: [
+                    {name: "Черный", quantity: 0},
+                    {name: "Белый", quantity: 0},
+                    {name: "Синий", quantity: 0},
+                    {name: "Красный", quantity: 0}
+                ],
+                reviews: [],
+                details: "Линейка подсистем"
+            },
+            {
+                id: 19,
+                category: "pods",
+                name: "XROS 2",
+                description: "Подсистема XROS",
+                image: "2.jpg",
+                price: "2200 ₽",
                 colors: [
                     {name: "Черный", quantity: 0},
                     {name: "Белый", quantity: 0},
@@ -1220,6 +1284,7 @@
             }
             updateFavoriteButton();
             updateFavorites();
+            localStorage.setItem('favorites', JSON.stringify(favorites));
         }
 
         function updateFavoriteButton() {
@@ -1250,6 +1315,10 @@
                     <div class="cart-item-info">
                         <h3>${item.name}</h3>
                         <p>${item.selectedFlavor} (${item.quantity} шт.)</p>
+                        <div class="quantity-selector">
+                            <label for="quantity-input-${item.id}">Количество:</label>
+                            <input type="number" id="quantity-input-${item.id}" min="1" value="${item.quantity}" onchange="updateCartItemQuantity(${item.id}, this.value)">
+                        </div>
                     </div>
                     <div class="cart-item-price">${item.totalPrice} ₽</div>
                     <button class="remove-from-cart-button" onclick="removeFromCart(${item.id})">✕</button>
@@ -1260,6 +1329,15 @@
             });
             
             document.querySelector('.total-price').textContent = `Общая стоимость: ${totalPrice} ₽`;
+        }
+
+        function updateCartItemQuantity(productId, quantity) {
+            const cartItem = cart.find(item => item.id === productId);
+            if(cartItem) {
+                cartItem.quantity = parseInt(quantity, 10);
+                cartItem.totalPrice = parseInt(cartItem.price.replace(/\D/g, ''), 10) * cartItem.quantity;
+                updateCart();
+            }
         }
 
         function removeFromCart(productId) {
@@ -1330,6 +1408,7 @@
                     <div class="favorite-item-price">${item.price}</div>
                     <button class="remove-from-favorites-button" onclick="removeFromFavorites(${item.id})">✕</button>
                 `;
+                element.onclick = () => showProduct(item);
                 container.appendChild(element);
             });
         }
@@ -1337,6 +1416,7 @@
         function removeFromFavorites(productId) {
             favorites = favorites.filter(item => item.id !== productId);
             updateFavorites();
+            localStorage.setItem('favorites', JSON.stringify(favorites));
         }
 
         function showSoonModal(category) {
@@ -1410,6 +1490,7 @@
         // Инициализация
         document.addEventListener('DOMContentLoaded', () => {
             products = exampleProducts;
+            favorites = JSON.parse(localStorage.getItem('favorites')) || [];
             showPage('home');
         });
     </script>
