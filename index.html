@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Taburetka Shop</title>
     <style>
+        /* Основные стили */
         * {
             margin: 0;
             padding: 0;
@@ -13,25 +14,30 @@
         }
 
         body {
-            background: #f5f5f5;
+            background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
             color: #333;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .container {
-            max-width: 100%;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 15px 10px 100px 10px;
+            padding: 20px;
+            padding-bottom: 100px;
         }
 
         .header {
-            background: #fff;
-            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(0, 136, 204, 0.9), rgba(0, 102, 153, 0.9)), url('pattern.png');
+            background-size: cover;
+            padding: 2rem;
             text-align: center;
-            margin-bottom: 20px;
-            border-bottom: 3px solid #0088cc;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
+            animation: slideInDown 0.8s ease-out;
         }
 
         .header h1 {
@@ -40,47 +46,54 @@
             justify-content: center;
             gap: 15px;
             transform-style: preserve-3d;
+            font-size: 2.5rem;
+            color: white;
         }
 
         .taburetka {
-            width: 50px;
-            height: 35px;
-            background: #0088cc;
+            width: 60px;
+            height: 45px;
+            background: white;
             position: relative;
-            border-radius: 8px;
-            animation: float 3s ease-in-out infinite;
+            border-radius: 10px;
+            animation: float 4s ease-in-out infinite;
             transform-style: preserve-3d;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         }
 
         .taburetka::before {
             content: '';
             position: absolute;
-            top: -15px;
+            top: -20px;
             left: 50%;
             transform: translateX(-50%);
-            width: 12px;
-            height: 25px;
+            width: 15px;
+            height: 30px;
             background: #006699;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            border-radius: 5px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
 
         .taburetka::after {
             content: '';
             position: absolute;
-            bottom: -5px;
+            bottom: -10px;
             left: 50%;
             transform: translateX(-50%);
-            width: 40px;
-            height: 8px;
+            width: 50px;
+            height: 10px;
             background: #006699;
-            border-radius: 3px;
+            border-radius: 5px;
         }
 
         @keyframes float {
             0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-10px) rotate(5deg); }
+            50% { transform: translateY(-15px) rotate(8deg); }
+        }
+
+        @keyframes slideInDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .category-grid, .product-grid {
@@ -90,12 +103,12 @@
         }
 
         .category-card, .product-card {
-            background: #fff;
+            background: white;
             border-radius: 15px;
             padding: 15px;
             text-align: center;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
             cursor: pointer;
             transform: translateZ(0);
             aspect-ratio: 1 / 1;
@@ -106,6 +119,7 @@
             opacity: 0;
             transform: translateY(20px);
             animation: fadeInUp 0.5s ease-out forwards;
+            position: relative;
         }
 
         .category-card:nth-child(1), .product-card:nth-child(1) { animation-delay: 0.1s; }
@@ -116,7 +130,7 @@
 
         .category-card:hover, .product-card:hover {
             transform: translateY(-5px) scale(1.03);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
 
         .category-image, .product-image {
@@ -145,13 +159,26 @@
             margin-top: 5px;
         }
 
+        .favorite-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #ff4444;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .favorite-icon.active {
+            color: #cc0000;
+        }
+
         .promo-card {
-            background: #fff;
+            background: white;
             border-radius: 15px;
             padding: 15px;
             text-align: center;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
             cursor: pointer;
             transform: translateZ(0);
             display: flex;
@@ -167,7 +194,7 @@
 
         .promo-card:hover {
             transform: translateY(-5px) scale(1.03);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
 
         .promo-image {
@@ -193,12 +220,12 @@
             position: fixed;
             bottom: 0;
             width: 100%;
-            background: #fff;
+            background: white;
             padding: 10px;
             display: flex;
             justify-content: space-around;
             border-top: 1px solid #ddd;
-            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
             z-index: 1000;
         }
 
@@ -212,7 +239,7 @@
         }
 
         .nav-item:hover {
-            background: rgba(0,136,204,0.1);
+            background: rgba(0, 136, 204, 0.1);
             transform: translateY(-3px);
         }
 
@@ -227,11 +254,11 @@
             opacity: 1;
         }
 
-        .product-page, .about-page, .cart-page, .favorites-page, .promo-page, .reviews-page {
-            background: #fff;
+        .product-page, .about-page, .cart-page, .favorites-page, .promo-page, .reviews-page, .order-page {
+            background: white;
             padding: 20px;
             border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             margin-top: 15px;
         }
 
@@ -279,12 +306,12 @@
             justify-content: space-between;
             margin: 10px 0;
             padding: 10px;
-            background: #fff;
+            background: white;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
-        .favorite-button, .add-to-cart-button, .back-button, .review-button {
+        .favorite-button, .add-to-cart-button, .back-button, .review-button, .order-button {
             border: none;
             padding: 12px 20px;
             border-radius: 12px;
@@ -302,7 +329,7 @@
         .favorite-button {
             background: linear-gradient(135deg, #0088cc, #006699);
             color: white;
-            box-shadow: 0 4px 12px rgba(0,136,204,0.3);
+            box-shadow: 0 4px 12px rgba(0, 136, 204, 0.3);
         }
 
         .favorite-button.active {
@@ -312,7 +339,7 @@
         .add-to-cart-button {
             background: linear-gradient(135deg, #00cc88, #009966);
             color: white;
-            box-shadow: 0 4px 12px rgba(0,204,136,0.3);
+            box-shadow: 0 4px 12px rgba(0, 204, 136, 0.3);
         }
 
         .add-to-cart-button.in-cart {
@@ -322,17 +349,23 @@
         .back-button {
             background: linear-gradient(135deg, #eeeeee, #cccccc);
             color: #333;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .review-button {
             background: linear-gradient(135deg, #ffcc00, #ff9900);
             color: white;
-            box-shadow: 0 4px 12px rgba(255,204,0,0.3);
+            box-shadow: 0 4px 12px rgba(255, 204, 0, 0.3);
+        }
+
+        .order-button {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
         }
 
         .cart-item, .favorite-item, .review-item {
-            background: #fff;
+            background: white;
             padding: 15px;
             border-radius: 12px;
             margin-bottom: 15px;
@@ -340,7 +373,7 @@
             align-items: center;
             justify-content: space-between;
             transition: transform 0.3s ease;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
         }
 
         .cart-item:hover, .favorite-item:hover, .review-item:hover {
@@ -424,7 +457,7 @@
 
         .form-input:focus {
             border-color: #0088cc;
-            box-shadow: 0 0 8px rgba(0,136,204,0.3);
+            box-shadow: 0 0 8px rgba(0, 136, 204, 0.3);
             outline: none;
         }
 
@@ -441,7 +474,7 @@
 
         .form-textarea:focus {
             border-color: #0088cc;
-            box-shadow: 0 0 8px rgba(0,136,204,0.3);
+            box-shadow: 0 0 8px rgba(0, 136, 204, 0.3);
             outline: none;
         }
 
@@ -460,12 +493,12 @@
             font-size: 0.9em;
             background: linear-gradient(135deg, #0088cc, #006699);
             color: white;
-            box-shadow: 0 4px 12px rgba(0,136,204,0.3);
+            box-shadow: 0 4px 12px rgba(0, 136, 204, 0.3);
         }
 
         .form-button:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(0,136,204,0.4);
+            box-shadow: 0 6px 16px rgba(0, 136, 204, 0.4);
         }
 
         .total-price {
@@ -490,7 +523,7 @@
         }
 
         .modal-content {
-            background: #fff;
+            background: white;
             padding: 20px;
             border-radius: 15px;
             text-align: center;
@@ -516,6 +549,7 @@
             border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
+            margin: 5px;
         }
 
         .modal-content button:hover {
@@ -541,11 +575,13 @@
             border-radius: 8px;
             font-size: 1em;
             transition: all 0.3s ease;
+            background: #f9f9f9;
+            color: #333;
         }
 
         .flavor-selector select:focus {
             border-color: #0088cc;
-            box-shadow: 0 0 8px rgba(0,136,204,0.3);
+            box-shadow: 0 0 8px rgba(0, 136, 204, 0.3);
             outline: none;
         }
 
@@ -571,7 +607,7 @@
 
         .quantity-selector input:focus {
             border-color: #0088cc;
-            box-shadow: 0 0 8px rgba(0,136,204,0.3);
+            box-shadow: 0 0 8px rgba(0, 136, 204, 0.3);
             outline: none;
         }
     </style>
@@ -589,6 +625,7 @@
         <!-- Главная страница -->
         <div class="page active" id="home">
             <div class="category-grid">
+                <!-- Жидкости -->
                 <div class="category-card" onclick="showCategory('liquids')">
                     <img src="монашки.jpg" class="category-image" alt="Жижи">
                     <h3 class="category-title">ЖИДКОСТИ</h3>
@@ -596,31 +633,35 @@
                     <div class="category-price">от 350 ₽</div>
                 </div>
 
-                <div class="category-card" onclick="showSoonModal()">
+                <!-- Одноразки -->
+                <div class="category-card" onclick="showSoonModal('disposable')">
                     <img src="одноразка.jpg" class="category-image" alt="Одноразки">
                     <h3 class="category-title">ОДНОРАЗКИ</h3>
                     <p>Популярные бренды</p>
                     <div class="category-price">от 600 ₽</div>
                 </div>
 
-                <div class="category-card" onclick="showSoonModal()">
+                <!-- Поды -->
+                <div class="category-card" onclick="showSoonModal('pods')">
                     <img src="подики.jpg" class="category-image" alt="Поды">
                     <h3 class="category-title">ПОДСИСТЕМЫ</h3>
                     <p>Поды</p>
                     <div class="category-price">от 1500 ₽</div>
                 </div>
 
-                <div class="category-card" onclick="showSoonModal()">
+                <!-- Картриджи -->
+                <div class="category-card" onclick="showSoonModal('cartridges')">
                     <img src="картридж.jpg" class="category-image" alt="Картриджи">
                     <h3 class="category-title">КАРТРИДЖИ</h3>
                     <p>Испарители и картриджи</p>
                     <div class="category-price">от 300 ₽</div>
                 </div>
 
-                <div class="promo-card" onclick="showSoonModal()">
+                <!-- Акции -->
+                <div class="promo-card" onclick="showSoonModal('promo')">
                     <img src="табуретка1.jpg" class="promo-image" alt="Акции">
                     <h3 class="promo-title">АКЦИИ</h3>
-                    <p>Специальные предложения</p>
+                    <p>Скоро</p>
                 </div>
             </div>
         </div>
@@ -659,8 +700,8 @@
             <div class="about-page">
                 <h2>О нас</h2>
                 <p>Добро пожаловать в Taburetka Shop! Мы предлагаем лучшие товары для вейпинга с 2025 года.</p>
-                <p>📧 01taburetka10@gmail.com</p>
-                <p>📱 +7 (999) 999-99-99</p>
+                <p>📱 <a href="https://t.me/your_channel" target="_blank">Наш Telegram канал</a></p>
+                <p>Автор сайта: [Ваше имя]</p>
             </div>
         </div>
 
@@ -671,6 +712,7 @@
                 <h2>🛒 Корзина</h2>
                 <div class="cart-items"></div>
                 <div class="total-price">Общая стоимость: 0 ₽</div>
+                <button class="order-button" onclick="showPage('order')">Оформить заказ</button>
             </div>
         </div>
 
@@ -711,6 +753,21 @@
                 <div class="review-list"></div>
             </div>
         </div>
+
+        <!-- Страница оформления заказа -->
+        <div class="page" id="order">
+            <button class="back-button" onclick="showPage('cart')">← Назад</button>
+            <div class="order-page">
+                <h2>🚚 Оформление заказа</h2>
+                <div class="order-form">
+                    <input type="text" id="order-username" class="form-input" placeholder="Ваше имя">
+                    <input type="text" id="order-phone" class="form-input" placeholder="Ваш номер телефона">
+                    <input type="text" id="order-address" class="form-input" placeholder="Адрес доставки">
+                    <textarea id="order-comment" class="form-textarea" placeholder="Комментарий к заказу"></textarea>
+                    <button class="form-button" onclick="submitOrder()">Подтвердить заказ</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Модальное окно -->
@@ -719,6 +776,7 @@
             <h2>Скоро будет!</h2>
             <p>Мы работаем над этим разделом. Следите за обновлениями!</p>
             <button onclick="closeSoonModal()">Закрыть</button>
+            <button id="futureProductsButton" onclick="showFutureProducts()">Посмотреть будущие товары</button>
         </div>
     </div>
 
@@ -734,6 +792,7 @@
         let cart = [];
         let favorites = [];
         let currentProduct = null;
+        let currentCategory = null;
 
         const exampleProducts = [
             // Жидкости
@@ -847,6 +906,153 @@
                 ],
                 reviews: [],
                 details: "Линейка из 16 вкусов"
+            },
+            // Картриджи
+            {
+                id: 7,
+                category: "cartridges",
+                name: "Картридж XROS",
+                description: "Испарители и картриджи",
+                image: "картридж.jpg",
+                price: "300 ₽",
+                resistances: [
+                    {name: "1.0 Ом", quantity: 10},
+                    {name: "1.2 Ом", quantity: 10},
+                    {name: "1.5 Ом", quantity: 10},
+                    {name: "2.0 Ом", quantity: 10}
+                ],
+                reviews: [],
+                details: "Линейка картриджей"
+            },
+            // Подсистемы
+            {
+                id: 8,
+                category: "pods",
+                name: "XROS Pod 1",
+                description: "Подсистема XROS",
+                image: "подики.jpg",
+                price: "1500 ₽",
+                colors: [
+                    {name: "Черный", quantity: 5},
+                    {name: "Белый", quantity: 5},
+                    {name: "Синий", quantity: 5},
+                    {name: "Красный", quantity: 5}
+                ],
+                reviews: [],
+                details: "Линейка подсистем"
+            },
+            {
+                id: 9,
+                category: "pods",
+                name: "XROS Pod 2",
+                description: "Подсистема XROS",
+                image: "подики.jpg",
+                price: "1500 ₽",
+                colors: [
+                    {name: "Черный", quantity: 5},
+                    {name: "Белый", quantity: 5},
+                    {name: "Синий", quantity: 5},
+                    {name: "Красный", quantity: 5}
+                ],
+                reviews: [],
+                details: "Линейка подсистем"
+            },
+            {
+                id: 10,
+                category: "pods",
+                name: "XROS Pod 3",
+                description: "Подсистема XROS",
+                image: "подики.jpg",
+                price: "1500 ₽",
+                colors: [
+                    {name: "Черный", quantity: 5},
+                    {name: "Белый", quantity: 5},
+                    {name: "Синий", quantity: 5},
+                    {name: "Красный", quantity: 5}
+                ],
+                reviews: [],
+                details: "Линейка подсистем"
+            },
+            {
+                id: 11,
+                category: "pods",
+                name: "XROS Pod 4",
+                description: "Подсистема XROS",
+                image: "подики.jpg",
+                price: "1500 ₽",
+                colors: [
+                    {name: "Черный", quantity: 5},
+                    {name: "Белый", quantity: 5},
+                    {name: "Синий", quantity: 5},
+                    {name: "Красный", quantity: 5}
+                ],
+                reviews: [],
+                details: "Линейка подсистем"
+            },
+            // Одноразки
+            {
+                id: 12,
+                category: "disposable",
+                name: "Одноразка 1",
+                description: "Популярные бренды",
+                image: "одноразка.jpg",
+                price: "600 ₽",
+                flavors: [
+                    {name: "Мята", quantity: 10},
+                    {name: "Клубника", quantity: 10},
+                    {name: "Манго", quantity: 10},
+                    {name: "Ледяная вишня", quantity: 10}
+                ],
+                reviews: [],
+                details: "Линейка одноразок"
+            },
+            {
+                id: 13,
+                category: "disposable",
+                name: "Одноразка 2",
+                description: "Популярные бренды",
+                image: "одноразка.jpg",
+                price: "600 ₽",
+                flavors: [
+                    {name: "Мята", quantity: 10},
+                    {name: "Клубника", quantity: 10},
+                    {name: "Манго", quantity: 10},
+                    {name: "Ледяная вишня", quantity: 10}
+                ],
+                reviews: [],
+                details: "Линейка одноразок"
+            },
+            {
+                id: 14,
+                category: "disposable",
+                name: "Одноразка 3",
+                description: "Популярные бренды",
+                image: "одноразка.jpg",
+                price: "600 ₽",
+                flavors: [
+                    {name: "Мята", quantity: 10},
+                    {name: "Клубника", quantity: 10},
+                    {name: "Манго", quantity: 10},
+                    {name: "Ледяная вишня", quantity: 10}
+                ],
+                reviews: [],
+                details: "Линейка одноразок"
+            },
+            {
+                id: 15,
+                category: "disposable",
+                name: "Одноразка 4",
+                description: "Популярные бренды",
+                image: "одноразка.jpg",
+                price: "600 ₽",
+                flavors: [
+                    {name: "Мята", quantity: 10},
+                    {name: "Клубника", quantity: 10},
+                    {name: "Манго", quantity: 10},
+                    {name: "Ледяная вишня", quantity: 10}
+                ],
+                reviews: [],
+                details: "Линейка одноразок"
             }
         ];
 
@@ -862,6 +1068,7 @@
         }
 
         function showCategory(category) {
+            currentCategory = category;
             const productGrid = document.querySelector('.product-grid');
             productGrid.innerHTML = '';
             
@@ -872,6 +1079,7 @@
                 
                 if(product.flavors) info += `<p>Вкусов: ${product.flavors.length}</p>`;
                 if(product.colors) info += `<p>Цветов: ${product.colors.length}</p>`;
+                if(product.resistances) info += `<p>Сопротивлений: ${product.resistances.length}</p>`;
                 if(product.quantity) info += `<p>Остаток: ${product.quantity}</p>`;
 
                 card.innerHTML = `
@@ -908,13 +1116,25 @@
                 </div>`;
             }
             
-            if(product.category !== "disposable" && product.colors) {
+            if(product.colors) {
                 infoHTML += `<div class="info-section">
                     <h4>Доступные цвета:</h4>
                     ${product.colors.map(c => `
                         <div class="info-item">
                             <span>${c.name}</span>
                             <span>${c.quantity} шт.</span>
+                        </div>
+                    `).join('')}
+                </div>`;
+            }
+            
+            if(product.resistances) {
+                infoHTML += `<div class="info-section">
+                    <h4>Доступные сопротивления:</h4>
+                    ${product.resistances.map(r => `
+                        <div class="info-item">
+                            <span>${r.name}</span>
+                            <span>${r.quantity} шт.</span>
                         </div>
                     `).join('')}
                 </div>`;
@@ -1114,12 +1334,70 @@
             updateFavorites();
         }
 
-        function showSoonModal() {
-            document.getElementById('soonModal').style.display = 'flex';
+        function showSoonModal(category) {
+            currentCategory = category;
+            const modal = document.getElementById('soonModal');
+            const futureProductsButton = document.getElementById('futureProductsButton');
+            
+            if (category === 'promo') {
+                futureProductsButton.style.display = 'none';
+            } else {
+                futureProductsButton.style.display = 'inline-block';
+            }
+            
+            modal.style.display = 'flex';
         }
 
         function closeSoonModal() {
             document.getElementById('soonModal').style.display = 'none';
+        }
+
+        function showFutureProducts() {
+            closeSoonModal();
+            showCategory(currentCategory);
+        }
+
+        function submitOrder() {
+            const username = document.getElementById('order-username').value;
+            const phone = document.getElementById('order-phone').value;
+            const address = document.getElementById('order-address').value;
+            const comment = document.getElementById('order-comment').value;
+            
+            if(!username || !phone || !address) {
+                alert('Заполните все обязательные поля!');
+                return;
+            }
+
+            const orderDetails = {
+                username,
+                phone,
+                address,
+                comment,
+                cart,
+                totalPrice: cart.reduce((sum, item) => sum + item.totalPrice, 0)
+            };
+
+            // Отправка заказа в Telegram (заглушка)
+            const botToken = 'YOUR_BOT_TOKEN';
+            const chatId = 'YOUR_CHAT_ID';
+            const message = `Новый заказ!\nИмя: ${username}\nТелефон: ${phone}\nАдрес: ${address}\nКомментарий: ${comment}\nТовары: ${cart.map(item => `${item.name} (${item.selectedFlavor}) - ${item.quantity} шт.`).join(', ')}\nОбщая стоимость: ${orderDetails.totalPrice} ₽`;
+
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if(data.ok) {
+                        alert('Заказ успешно оформлен!');
+                        cart = [];
+                        updateCart();
+                        showPage('home');
+                    } else {
+                        alert('Ошибка при отправке заказа. Попробуйте снова.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert('Ошибка при отправке заказа. Попробуйте снова.');
+                });
         }
 
         // Инициализация
