@@ -122,11 +122,14 @@
             position: relative;
         }
 
-        .category-card:nth-child(1), .product-card:nth-child(1) { animation-delay: 0.1s; }
-        .category-card:nth-child(2), .product-card:nth-child(2) { animation-delay: 0.2s; }
-        .category-card:nth-child(3), .product-card:nth-child(3) { animation-delay: 0.3s; }
-        .category-card:nth-child(4), .product-card:nth-child(4) { animation-delay: 0.4s; }
-        .category-card:nth-child(5), .product-card:nth-child(5) { animation-delay: 0.5s; }
+        /* Синие тени для карточки жидкостей */
+        .category-card[onclick*="liquids"] {
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1), 0 0 20px rgba(0, 136, 204, 0.5);
+        }
+
+        .category-card[onclick*="liquids"]:hover {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 30px rgba(0, 136, 204, 0.7);
+        }
 
         .category-card:hover, .product-card:hover {
             transform: translateY(-5px) scale(1.03);
@@ -913,7 +916,7 @@
                 id: 7,
                 category: "cartridges",
                 name: "Картридж XROS",
-                description: "Испарители и картриджи",
+                description: "картриджи",
                 image: "картридж.jpg",
                 price: "300 ₽",
                 resistances: [
@@ -928,15 +931,15 @@
             {
                 id: 16,
                 category: "cartridges",
-                name: "Испаритель XROS",
-                description: "Испарители и картриджи",
-                image: "испаритель.jpg",
-                price: "350 ₽",
+                name: "Испарители hero",
+                description: "Испарители",
+                image: "испарик.jpg",
+                price: "300 ₽",
                 resistances: [
+                    {name: "0.2 Ом", quantity: 0},
                     {name: "0.4 Ом", quantity: 0},
                     {name: "0.6 Ом", quantity: 0},
-                    {name: "0.8 Ом", quantity: 0},
-                    {name: "1.0 Ом", quantity: 0}
+                    {name: "0.8 Ом", quantity: 0}
                 ],
                 reviews: [],
                 details: "Линейка испарителей"
@@ -947,7 +950,7 @@
                 category: "pods",
                 name: "XROS mini",
                 description: "Подсистема XROS",
-                image: "мини.jpg",
+                image: "хмини.jpg",
                 price: "1500 ₽",
                 colors: [
                     {name: "Черный", quantity: 0},
@@ -963,7 +966,7 @@
                 category: "pods",
                 name: "XROS 4",
                 description: "Подсистема XROS",
-                image: "иксрос 4.jpg",
+                image: "х4.jpg",
                 price: "2700 ₽",
                 colors: [
                     {name: "Черный", quantity: 0},
@@ -979,7 +982,7 @@
                 category: "pods",
                 name: "XROS 4 mini",
                 description: "Подсистема XROS",
-                image: "4 мини.jpg",
+                image: "х4мини.jpg",
                 price: "2350 ₽",
                 colors: [
                     {name: "Черный", quantity: 0},
@@ -995,7 +998,7 @@
                 category: "pods",
                 name: "XROS pro",
                 description: "Подсистема XROS",
-                image: "про.jpg",
+                image: "хпро.jpg",
                 price: "3000 ₽",
                 colors: [
                     {name: "Черный", quantity: 0},
@@ -1009,10 +1012,10 @@
             {
                 id: 17,
                 category: "pods",
-                name: "XROS nano",
-                description: "Подсистема XROS",
-                image: "нано.jpg",
-                price: "2000 ₽",
+                name: "Aegis hero",
+                description: "Подсистема ",
+                image: "хиро1.jpg",
+                price: "2850 ₽",
                 colors: [
                     {name: "Черный", quantity: 0},
                     {name: "Белый", quantity: 0},
@@ -1025,10 +1028,10 @@
             {
                 id: 18,
                 category: "pods",
-                name: "XROS 3",
-                description: "Подсистема XROS",
-                image: "3.jpg",
-                price: "2500 ₽",
+                name: "Aegis h45",
+                description: "Подсистема ",
+                image: "хиро2.jpg",
+                price: "3100 ₽",
                 colors: [
                     {name: "Черный", quantity: 0},
                     {name: "Белый", quantity: 0},
@@ -1041,10 +1044,10 @@
             {
                 id: 19,
                 category: "pods",
-                name: "XROS 2",
-                description: "Подсистема XROS",
-                image: "2.jpg",
-                price: "2200 ₽",
+                name: "Aegis h45 classic",
+                description: "Подсистема ",
+                image: "хиро3.jpg",
+                price: "3000 ₽",
                 colors: [
                     {name: "Черный", quantity: 0},
                     {name: "Белый", quantity: 0},
