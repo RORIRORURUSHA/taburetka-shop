@@ -131,6 +131,21 @@
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 30px rgba(0, 136, 204, 0.7);
         }
 
+        /* Красные тени для карточек категорий */
+        .category-card[onclick*="disposable"],
+        .category-card[onclick*="cartridges"],
+        .category-card[onclick*="pods"],
+        .category-card[onclick*="promo"] {
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1), 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+
+        .category-card[onclick*="disposable"]:hover,
+        .category-card[onclick*="cartridges"]:hover,
+        .category-card[onclick*="pods"]:hover,
+        .category-card[onclick*="promo"]:hover {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 30px rgba(255, 0, 0, 0.7);
+        }
+
         .category-card:hover, .product-card:hover {
             transform: translateY(-5px) scale(1.03);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
@@ -1316,7 +1331,7 @@
                 element.innerHTML = `
                     <img src="${item.image}" class="cart-item-image">
                     <div class="cart-item-info">
-                        <h3>${item.name}</h3>
+                        <h3 onclick="showProductFromCart(${item.id})">${item.name}</h3>
                         <p>${item.selectedFlavor} (${item.quantity} шт.)</p>
                         <div class="quantity-selector">
                             <label for="quantity-input-${item.id}">Количество:</label>
