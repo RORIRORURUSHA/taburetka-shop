@@ -5,1651 +5,289 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Taburetka Shop</title>
     <style>
-        /* Основные стили */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-family: 'Inter', system-ui;
         }
 
         body {
-            background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
-            color: #333;
+            background: #f8fafc;
             min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            padding-bottom: 100px;
-        }
-
-        .header {
-            background: linear-gradient(135deg, rgba(0, 136, 204, 0.9), rgba(0, 102, 153, 0.9)), url('pattern.png');
-            background-size: cover;
-            padding: 2rem;
-            text-align: center;
-            margin-bottom: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
-            animation: slideInDown 0.8s ease-out;
-        }
-
-        .header h1 {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            transform-style: preserve-3d;
-            font-size: 2.5rem;
-            color: white;
-        }
-
-        .taburetka {
-            width: 60px;
-            height: 45px;
-            background: white;
-            position: relative;
-            border-radius: 10px;
-            animation: float 4s ease-in-out infinite;
-            transform-style: preserve-3d;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .taburetka::before {
-            content: '';
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 15px;
-            height: 30px;
-            background: #006699;
-            border-radius: 5px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .taburetka::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 50px;
-            height: 10px;
-            background: #006699;
-            border-radius: 5px;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-15px) rotate(8deg); }
-        }
-
-        @keyframes slideInDown {
-            from { transform: translateY(-100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .category-grid, .product-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-        }
-
-        .category-card, .product-card {
-            background: white;
-            border-radius: 15px;
-            padding: 15px;
-            text-align: center;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            transform: translateZ(0);
-            aspect-ratio: 1 / 1;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 0.5s ease-out forwards;
-            position: relative;
-        }
-
-        .category-card[onclick*="liquids"] {
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1), 0 0 20px rgba(0, 136, 204, 0.5);
-        }
-
-        .category-card[onclick*="liquids"]:hover {
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 30px rgba(0, 136, 204, 0.7);
-        }
-
-        .category-card:hover, .product-card:hover {
-            transform: translateY(-5px) scale(1.03);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .category-image, .product-image {
-            width: 100%;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            transition: transform 0.3s ease;
-        }
-
-        .category-card:hover .category-image, .product-card:hover .product-image {
-            transform: scale(1.05);
-        }
-
-        .category-title, .product-title {
-            color: #0088cc;
-            font-size: 0.9em;
-            margin: 5px 0;
-        }
-
-        .category-price, .product-price {
-            color: #333;
-            font-size: 1em;
-            font-weight: bold;
-            margin-top: 5px;
-        }
-
-        .favorite-icon {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            color: #ff4444;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .favorite-icon.active {
-            color: #cc0000;
-        }
-
-        .promo-card {
-            background: white;
-            border-radius: 15px;
-            padding: 15px;
-            text-align: center;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            transform: translateZ(0);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 0.5s ease-out forwards;
-            animation-delay: 0.6s;
-            grid-column: span 2;
-        }
-
-        .promo-card:hover {
-            transform: translateY(-5px) scale(1.03);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .promo-image {
-            width: 100%;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            transition: transform 0.3s ease;
-        }
-
-        .promo-card:hover .promo-image {
-            transform: scale(1.05);
-        }
-
-        .promo-title {
-            color: #0088cc;
-            font-size: 1.1em;
-            margin: 5px 0;
-        }
-
-        .nav {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: white;
-            padding: 10px;
-            display: flex;
-            justify-content: space-around;
-            border-top: 1px solid #ddd;
-            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-        }
-
-        .nav-item {
-            color: #0088cc;
-            padding: 8px 10px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9em;
-        }
-
-        .nav-item:hover {
-            background: rgba(0, 136, 204, 0.1);
-            transform: translateY(-3px);
-        }
-
-        .page {
-            display: none;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-
-        .page.active {
-            display: block;
-            opacity: 1;
-        }
-
-        .product-page, .about-page, .cart-page, .favorites-page, .promo-page, .reviews-page, .order-page {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            margin-top: 15px;
-        }
-
-        .product-image-large {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            transition: transform 0.3s ease;
-        }
-
-        .product-title-large {
-            color: #0088cc;
-            font-size: 1.5em;
-            margin-bottom: 15px;
-        }
-
-        .product-price-large {
-            color: #333;
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-
-        .product-info {
-            margin: 20px 0;
-            padding: 15px;
-            background: #f9f9f9;
-            border-radius: 12px;
-        }
-
-        .info-section {
-            margin-bottom: 20px;
-        }
-
-        .info-section h4 {
-            color: #666;
-            margin-bottom: 10px;
-            font-size: 1em;
-        }
-
-        .info-item {
-            display: flex;
-            justify-content: space-between;
-            margin: 10px 0;
-            padding: 10px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-
-        .favorite-button, .add-to-cart-button, .back-button, .review-button, .order-button {
-            border: none;
-            padding: 12px 20px;
-            border-radius: 12px;
-            cursor: pointer;
-            margin: 10px 0;
-            width: 100%;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            position: relative;
             overflow: hidden;
-            font-size: 0.9em;
         }
 
-        .favorite-button {
-            background: linear-gradient(135deg, #0088cc, #006699);
-            color: white;
-            box-shadow: 0 4px 12px rgba(0, 136, 204, 0.3);
-        }
-
-        .favorite-button.active {
-            background: linear-gradient(135deg, #ff4444, #cc0000);
-        }
-
-        .add-to-cart-button {
-            background: linear-gradient(135deg, #00cc88, #009966);
-            color: white;
-            box-shadow: 0 4px 12px rgba(0, 204, 136, 0.3);
-        }
-
-        .add-to-cart-button.in-cart {
-            background: linear-gradient(135deg, #ff4444, #cc0000);
-        }
-
-        .back-button {
-            background: linear-gradient(135deg, #eeeeee, #cccccc);
-            color: #333;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .review-button {
-            background: linear-gradient(135deg, #ffcc00, #ff9900);
-            color: white;
-            box-shadow: 0 4px 12px rgba(255, 204, 0, 0.3);
-        }
-
-        .order-button {
-            background: linear-gradient(135deg, #ff4444, #cc0000);
-            color: white;
-            box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
-        }
-
-        .cart-item, .favorite-item, .review-item {
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: transform 0.3s ease;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .cart-item:hover, .favorite-item:hover, .review-item:hover {
-            transform: translateY(-3px);
-        }
-
-        .cart-item-image, .favorite-item-image, .review-item-image {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-
-        .cart-item-info, .favorite-item-info, .review-item-info {
-            flex: 1;
-            margin-left: 15px;
-        }
-
-        .cart-item-price, .favorite-item-price, .review-item-rating {
-            font-weight: bold;
-            color: #0088cc;
-        }
-
-        .review-item-rating {
-            color: #ffcc00;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .fade-in {
-            animation: fadeInUp 0.6s ease-out both;
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 10px;
-                padding-bottom: 70px;
-            }
-
-            .category-grid, .product-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
-            }
-
-            .category-card, .product-card, .promo-card {
-                padding: 10px;
-            }
-
-            .category-image, .product-image, .promo-image {
-                height: 50px;
-            }
-
-            .category-title, .product-title, .promo-title {
-                font-size: 0.8em;
-            }
-
-            .nav-item {
-                padding: 6px 8px;
-                font-size: 0.8em;
-            }
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: all 0.3s ease;
-        }
-
-        .form-input:focus {
-            border-color: #0088cc;
-            box-shadow: 0 0 8px rgba(0, 136, 204, 0.3);
-            outline: none;
-        }
-
-        .form-textarea {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: all 0.3s ease;
-            resize: vertical;
-        }
-
-        .form-textarea:focus {
-            border-color: #0088cc;
-            box-shadow: 0 0 8px rgba(0, 136, 204, 0.3);
-            outline: none;
-        }
-
-        .form-button {
-            border: none;
-            padding: 12px 20px;
-            border-radius: 12px;
-            cursor: pointer;
-            margin: 10px 0;
-            width: 100%;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            position: relative;
-            overflow: hidden;
-            font-size: 0.9em;
-            background: linear-gradient(135deg, #0088cc, #006699);
-            color: white;
-            box-shadow: 0 4px 12px rgba(0, 136, 204, 0.3);
-        }
-
-        .form-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(0, 136, 204, 0.4);
-        }
-
-        .total-price {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #0088cc;
-            margin-top: 20px;
-            text-align: right;
-        }
-
-        .modal {
-            display: none;
+        .age-modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1001;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            animation: fadeInUp 0.5s ease-out;
-        }
-
-        .modal-content h2 {
-            color: #0088cc;
-            margin-bottom: 15px;
-        }
-
-        .modal-content p {
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        .modal-content button {
-            background: #0088cc;
             color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .age-content {
+            background: #1e293b;
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 400px;
+        }
+
+        .age-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .age-btn {
+            padding: 0.8rem 1.5rem;
             border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 5px;
-        }
-
-        .modal-content button:hover {
-            background: #006699;
-            transform: translateY(-3px);
-        }
-
-        .flavor-selector {
-            margin: 10px 0;
-        }
-
-        .flavor-selector label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .flavor-selector select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: all 0.3s ease;
-            background: #f9f9f9;
-            color: #333;
-        }
-
-        .flavor-selector select:focus {
-            border-color: #0088cc;
-            box-shadow: 0 0 8px rgba(0, 136, 204, 0.3);
-            outline: none;
-        }
-
-        .quantity-selector {
-            margin: 10px 0;
-        }
-
-        .quantity-selector label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .quantity-selector input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: all 0.3s ease;
-        }
-
-        .quantity-selector input:focus {
-            border-color: #0088cc;
-            box-shadow: 0 0 8px rgba(0, 136, 204, 0.3);
-            outline: none;
-        }
-
-        .review-item {
-            background: white;
-            padding: 15px;
             border-radius: 12px;
-            margin-bottom: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .age-btn.confirm {
+            background: #4a69bd;
+            color: white;
+        }
+
+        .age-btn.deny {
+            background: #dc2626;
+            color: white;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4a69bd 0%, #1e3799 100%);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+            position: relative;
+            z-index: 10;
+        }
+
+        .logo {
+            color: #fff;
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border-radius: 12px;
+            transform: rotate(45deg);
+        }
+
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 120px;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            padding: 1rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .category-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 1rem;
+            box-shadow: 0 6px 20px rgba(74, 105, 189, 0.1);
+            transition: all 0.3s;
+            aspect-ratio: 1/1;
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            transition: transform 0.3s ease;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .review-item:hover {
-            transform: translateY(-3px);
-        }
-
-        .review-item h3 {
-            color: #0088cc;
-            font-size: 1.1em;
-            margin-bottom: 5px;
-        }
-
-        .review-item h3 a {
-            color: #0088cc;
+            justify-content: center;
+            align-items: center;
             text-decoration: none;
         }
 
-        .review-item h3 a:hover {
-            text-decoration: underline;
+        .category-card.promo-button {
+            aspect-ratio: unset;
+            grid-column: span 2;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            color: white;
+            font-size: 1.2rem;
+            border-radius: 20px;
+            margin-top: 0.5rem;
         }
 
-        .review-item p {
-            color: #333;
-            font-size: 0.9em;
-            margin-bottom: 5px;
+        .category-card img {
+            width: 70%;
+            height: 140px;
+            object-fit: contain;
+            margin-bottom: 1rem;
         }
 
-        .review-item small {
-            color: #666;
-            font-size: 0.8em;
+        .category-title {
+            font-size: 1.1rem;
+            color: #1e3799;
+            font-weight: 600;
+            text-align: center;
         }
 
-        .cart-item {
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 15px;
+        .promo-button .category-title {
+            color: white !important;
+            font-size: 1.3rem;
+        }
+
+        .nav-footer {
+            background: #fff;
+            padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+            border-radius: 24px 24px 0 0;
+        }
+
+        .nav-menu {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .nav-item {
+            color: #4a69bd;
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 0.8rem;
+            border-radius: 16px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            transition: transform 0.3s ease;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            gap: 8px;
+            transition: all 0.3s;
+            background: #f8fafc;
         }
 
-        .cart-item:hover {
-            transform: translateY(-3px);
+        @media (min-width: 768px) {
+            .categories-grid {
+                grid-template-columns: repeat(4, 1fr);
+                padding: 2rem;
+                gap: 1.5rem;
+            }
+            .category-card.promo-button {
+                grid-column: span 4;
+                padding: 2.5rem;
+                font-size: 1.5rem;
+            }
         }
 
-        .cart-item-image {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-
-        .cart-item-info {
-            flex: 1;
-            margin-left: 15px;
-        }
-
-        .cart-item-info h3 {
-            color: #0088cc;
-            font-size: 1.1em;
-            margin-bottom: 5px;
-        }
-
-        .cart-item-info p {
-            color: #333;
-            font-size: 0.9em;
-            margin-bottom: 5px;
-        }
-
-        .cart-item-price {
-            font-weight: bold;
-            color: #0088cc;
-        }
-
-        .remove-from-cart-button {
-            background: #ff4444;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .remove-from-cart-button:hover {
-            background: #cc0000;
-            transform: translateY(-2px);
-        }
-
-        .no-reviews {
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .no-reviews button {
-            background: linear-gradient(135deg, #ffcc00, #ff9900);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 12px;
-            cursor: pointer;
-            margin: 10px 0;
-            width: 100%;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            position: relative;
-            overflow: hidden;
-            font-size: 0.9em;
-        }
-
-        .no-reviews button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(255, 204, 0, 0.4);
+        @media (max-width: 400px) {
+            .nav-item span {
+                display: none;
+            }
+            .logo {
+                font-size: 1.4rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>
-            <div class="taburetka"></div>
-            Taburetka Shop
-        </h1>
-        <p>Лучшие в юзр</p>
-    </div>
-
-    <div class="container">
-        <!-- Главная страница -->
-        <div class="page active" id="home">
-            <div class="category-grid">
-                <!-- Жидкости -->
-                <div class="category-card" onclick="showCategory('liquids')">
-                    <img src="монашки.jpg" class="category-image" alt="Жижи">
-                    <h3 class="category-title">ЖИДКОСТИ</h3>
-                    <p>Солевые</p>
-                    <div class="category-price">от 350 ₽</div>
-                </div>
-
-                <!-- Одноразки -->
-                <div class="category-card" onclick="showSoonModal('disposable')">
-                    <img src="одноразка.jpg" class="category-image" alt="Одноразки">
-                    <h3 class="category-title">ОДНОРАЗКИ</h3>
-                    <p>Популярные бренды</p>
-                    <div class="category-price">от 600 ₽</div>
-                </div>
-
-                <!-- Поды -->
-                <div class="category-card" onclick="showSoonModal('pods')">
-                    <img src="подики.jpg" class="category-image" alt="Поды">
-                    <h3 class="category-title">ПОДСИСТЕМЫ</h3>
-                    <p>Поды</p>
-                    <div class="category-price">от 1500 ₽</div>
-                </div>
-
-                <!-- Картриджи -->
-                <div class="category-card" onclick="showSoonModal('cartridges')">
-                    <img src="картридж.jpg" class="category-image" alt="Картриджи">
-                    <h3 class="category-title">КАРТРИДЖИ</h3>
-                    <p>Испарители и картриджи</p>
-                    <div class="category-price">от 300 ₽</div>
-                </div>
-
-                <!-- Акции -->
-                <div class="promo-card" onclick="showSoonModal('promo')">
-                    <img src="табуретка1.jpg" class="promo-image" alt="Акции">
-                    <h3 class="promo-title">АКЦИИ</h3>
-                    <p>Скоро</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Страница категории -->
-        <div class="page" id="category">
-            <button class="back-button" onclick="showPage('home')">← Назад</button>
-            <div class="product-grid"></div>
-        </div>
-
-        <!-- Страница товара -->
-        <div class="page" id="product">
-            <button class="back-button" onclick="showPage('category')">← Назад</button>
-            <div class="product-page">
-                <img src="" class="product-image-large" alt="Товар">
-                <h2 class="product-title-large"></h2>
-                <div class="product-price-large"></div>
-                <div class="product-info"></div>
-                <div class="flavor-selector">
-                    <label for="flavor-select">Выберите вкус:</label>
-                    <select id="flavor-select"></select>
-                </div>
-                <div class="quantity-selector">
-                    <label for="quantity-input">Количество:</label>
-                    <input type="number" id="quantity-input" min="1" value="1">
-                </div>
-                <button class="favorite-button" onclick="toggleFavorite()">Добавить в избранное</button>
-                <button class="add-to-cart-button" onclick="addToCart()">Добавить в корзину</button>
-            </div>
-        </div>
-
-        <!-- Страница "О нас" -->
-        <div class="page" id="about">
-            <button class="back-button" onclick="showPage('home')">← Назад</button>
-            <div class="about-page">
-                <h2>О нас</h2>
-                <p>Добро пожаловать в Taburetka Shop! Работаем по юзр.</p>
-                <p>📱 <a href="https://t.me/taburetka_shop" target="_blank">Наш Telegram канал</a></p>
-                <p>Автор Rurusha</p>
-            </div>
-        </div>
-
-        <!-- Страница корзины -->
-        <div class="page" id="cart">
-            <button class="back-button" onclick="showPage('home')">← Назад</button>
-            <div class="cart-page">
-                <h2>🛒 Корзина</h2>
-                <div class="cart-items"></div>
-                <div class="total-price">Общая стоимость: 0 ₽</div>
-                <button class="order-button" onclick="showPage('order')">Оформить заказ</button>
-            </div>
-        </div>
-
-        <!-- Страница избранного -->
-        <div class="page" id="favorites">
-            <button class="back-button" onclick="showPage('home')">← Назад</button>
-            <div class="favorites-page">
-                <h2>❤️ Избранное</h2>
-                <div class="favorite-items"></div>
-            </div>
-        </div>
-
-        <!-- Страница акций -->
-        <div class="page" id="promo">
-            <button class="back-button" onclick="showPage('home')">← Назад</button>
-            <div class="promo-page">
-                <h2>🎉 Акции</h2>
-                <div class="promo-list">
-                    <div class="promo-item">
-                        <h3>Скоро будет!</h3>
-                        <p>Мы работаем над этим разделом. Следите за обновлениями!</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Страница отзывов -->
-        <div class="page" id="reviews">
-            <button class="back-button" onclick="showPage('product')">← Назад</button>
-            <div class="reviews-page">
-                <h2>📝 Отзывы</h2>
-                <div class="review-form">
-                    <input type="text" id="review-username" class="form-input" placeholder="Ваше имя">
-                    <input type="text" id="review-tg" class="form-input" placeholder="Ваш Telegram @username">
-                    <textarea id="review-text" class="form-textarea" placeholder="Ваш отзыв"></textarea>
-                    <button class="form-button" onclick="submitReview()">Отправить отзыв</button>
-                </div>
-                <div class="review-list"></div>
-                <div class="no-reviews">
-                    <button onclick="showPage('reviews')">Оставить отзыв</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Страница оформления заказа -->
-        <div class="page" id="order">
-            <button class="back-button" onclick="showPage('cart')">← Назад</button>
-            <div class="order-page">
-                <h2>🚚 Оформление заказа</h2>
-                <div class="order-form">
-                    <input type="text" id="order-username" class="form-input" placeholder="Ваше имя">
-                    <input type="text" id="order-phone" class="form-input" placeholder="Ваш номер телефона">
-                    <input type="text" id="order-address" class="form-input" placeholder="Адрес доставки">
-                    <input type="text" id="order-tg" class="form-input" placeholder="Ваш Telegram @username">
-                    <textarea id="order-comment" class="form-textarea" placeholder="Комментарий к заказу"></textarea>
-                    <button class="form-button" onclick="submitOrder()">Подтвердить заказ</button>
-                </div>
+    <div class="age-modal">
+        <div class="age-content">
+            <h2>Внимание!</h2>
+            <p>Этот сайт содержит информацию о товарах, предназначенных только для лиц старше 18 лет.</p>
+            <div class="age-buttons">
+                <button class="age-btn confirm" onclick="confirmAge()">Мне есть 18</button>
+                <button class="age-btn deny" onclick="denyAccess()">Мне нет 18</button>
             </div>
         </div>
     </div>
 
-    <!-- Модальное окно -->
-    <div class="modal" id="soonModal">
-        <div class="modal-content">
-            <h2>Скоро будет!</h2>
-            <p>Мы работаем над этим разделом. Следите за обновлениями!</p>
-            <button onclick="closeSoonModal()">Закрыть</button>
-            <button id="futureProductsButton" onclick="showFutureProducts()">Посмотреть будущие товары</button>
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon"></div>
+            VAPE UNIVERSE
         </div>
-    </div>
+    </header>
 
-    <div class="nav">
-        <div class="nav-item" onclick="showPage('home')">🏠 Каталог</div>
-        <div class="nav-item" onclick="showPage('favorites')">❤️ Избранное</div>
-        <div class="nav-item" onclick="showPage('cart')">🛒 Корзина</div>
-        <div class="nav-item" onclick="showPage('about')">📘 О нас</div>
-    </div>
+    <main class="main-content">
+        <div class="categories-grid">
+            <a href="zhidkosti.html" class="category-card">
+                <img src="IMG_URL_HERE" alt="Жидкости">
+                <h2 class="category-title">Жидкости</h2>
+            </a>
+
+            <a href="odnorazki.html" class="category-card">
+                <img src="IMG_URL_HERE" alt="Одноразки">
+                <h2 class="category-title">Одноразки</h2>
+            </a>
+
+            <a href="podsistemy.html" class="category-card">
+                <img src="IMG_URL_HERE" alt="Подсистемы">
+                <h2 class="category-title">Подсистемы</h2>
+            </a>
+
+            <a href="kartridzhi.html" class="category-card">
+                <img src="IMG_URL_HERE" alt="Картриджи">
+                <h2 class="category-title">Картриджи</h2>
+            </a>
+
+            <a href="aktsii.html" class="category-card promo-button">
+                <h2 class="category-title">🔥 Горячие акции и скидки!</h2>
+            </a>
+        </div>
+    </main>
+
+    <nav class="nav-footer">
+        <div class="nav-menu">
+            <a href="index.html" class="nav-item">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M10 3H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1zm10 0h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1zM10 13H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1zm10 0h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1z"/>
+                </svg>
+                <span>Каталог</span>
+            </a>
+            <a href="korzina.html" class="nav-item">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+                </svg>
+                <span>Корзина</span>
+            </a>
+            <a href="o-nas.html" class="nav-item">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                </svg>
+                <span>О нас</span>
+            </a>
+        </div>
+    </nav>
 
     <script>
-        let products = [];
-        let cart = [];
-        let favorites = [];
-        let currentProduct = null;
-        let currentCategory = null;
-
-        const exampleProducts = [
-            // Жидкости
-            {
-                id: 1,
-                category: "liquids",
-                name: "Злая монашка 7%",
-                description: "Кислые вкусы",
-                image: "монашки.jpg",
-                price: "395 ₽",
-                flavors: [
-                    {name: "Кислая виноградная конфета", quantity: 1},
-                    {name: "Кислые лесные ягоды", quantity: 2},
-                    {name: "Кислая яблочная шипучка", quantity: 2},
-                    {name: "Кислая малина личи", quantity: 2},
-                    {name: "Кислые вишневые червячки", quantity: 1}
-                ],
-                reviews: [],
-                details: "Линейка кислых вкусов"
-            },
-            {
-                id: 2,
-                category: "liquids",
-                name: "Дуалл 5%",
-                description: "Фруктовые вкусы",
-                image: "duall1.webp",
-                price: "360 ₽",
-                flavors: [
-                    {name: "лимонные леденцы", quantity: 1},
-                    {name: "персиковый чай", quantity: 1},
-                    {name: "ледяное манго апельсин", quantity: 1},
-                    {name: "морозное яблоко", quantity: 1},
-                    {name: "кола лимон", quantity: 1},
-                    {name: "ледяная кола", quantity: 1},
-                    {name: "яблоко малина", quantity: 1}
-                ],
-                reviews: [],
-                details: "Линейка фруктовых вкусов"
-            },
-            {
-                id: 3,
-                category: "liquids",
-                name: "Trava 5%",
-                description: "Освежающие вкусы",
-                image: "trava.jpg",
-                price: "370 ₽",
-                flavors: [
-                    {name: "Orange Ice Cream", quantity: 1},
-                    {name: "Blueberry Mint", quantity: 1},
-                    {name: "Energy Drink", quantity: 1},
-                    {name: "Aloe Mint", quantity: 1},
-                    {name: "Raspberry Schweppes", quantity: 1},
-                    {name: "Lemon Yogurt", quantity: 1},
-                    {name: "Cola Cherry", quantity: 1}
-                ],
-                reviews: [],
-                details: "Линейка освежающих вкусов"
-            },
-            {
-                id: 4,
-                category: "liquids",
-                name: "Dabler 2%",
-                description: "Легкие вкусы",
-                image: "dabbler.jpg",
-                price: "350 ₽",
-                flavors: [
-                    {name: "Кислое личи", quantity: 1},
-                    {name: "Абрикос", quantity: 1}
-                ],
-                reviews: [],
-                details: "Линейка легких вкусов"
-            },
-            {
-                id: 5,
-                category: "liquids",
-                name: "Chapman 5%",
-                description: "Табачные вкусы",
-                image: "Chapman.jpg",
-                price: "360 ₽",
-                flavors: [
-                    {name: "яблочный табак", quantity: 1},
-                    {name: "кокосовый табак", quantity: 1}
-                ],
-                reviews: [],
-                details: "Линейка табачных вкусов"
-            },
-            {
-                id: 6,
-                category: "liquids",
-                name: "XYLINET TEBE PIZDA 30ML 7%",
-                description: "16 вкусов",
-                image: "хулинет.jpg",
-                price: "380 ₽",
-                flavors: [
-                    {name: "Яблочное проникновение", quantity: 1},
-                    {name: "Манговый фроттаж", quantity: 1},
-                    {name: "Виноградный оргазм", quantity: 0},
-                    {name: "Энергичный свинг", quantity: 1},
-                    {name: "Кактусовый канинг", quantity: 1},
-                    {name: "Кинк киви", quantity: 1},
-                    {name: "Кисло-сладкий фленчинг", quantity: 1},
-                    {name: "Мятная ирримация", quantity: 1},
-                    {name: "Ананасовый кашмот", quantity: 1},
-                    {name: "Апельсиновый дождь", quantity: 1},
-                    {name: "Персиковый куни", quantity: 1},
-                    {name: "Малиновый фистинг", quantity: 1},
-                    {name: "Тропический сквирт", quantity: 1},
-                    {name: "Ежевичный бдсм", quantity: 0},
-                    {name: "Клубничный минет", quantity: 1},
-                    {name: "Ягодный гэнг-бэнг", quantity: 1}
-                ],
-                reviews: [],
-                details: "Линейка из 16 вкусов"
-            },
-            // Новая жидкость "Анима Лав"
-            {
-                id: 20,
-                category: "liquids",
-                name: "Anima love 2%",
-                description: "2 вкуса",
-                image: "анима_лав2.jpg",
-                price: "430 ₽",
-                flavors: [
-                    {name: "Кислый скитлс", quantity: 0},
-                    {name: "Морс из диких ягод", quantity: 0}
-                ],
-                reviews: [],
-                details: "Линейка из 2 вкусов"
-            },
-            // Картриджи
-            {
-                id: 7,
-                category: "cartridges",
-                name: "Картридж XROS",
-                description: "картриджи",
-                image: "картридж.jpg",
-                price: "300 ₽",
-                resistances: [
-                    {name: "0.4 Ом", quantity: 0},
-                    {name: "0.6 Ом", quantity: 0},
-                    {name: "0.8 Ом", quantity: 0},
-                    {name: "1.0 Ом", quantity: 0}
-                ],
-                reviews: [],
-                details: "Линейка картриджей"
-            },
-            {
-                id: 16,
-                category: "cartridges",
-                name: "Испарители hero",
-                description: "Испарители",
-                image: "испарик.jpg",
-                price: "300 ₽",
-                resistances: [
-                    {name: "0.2 Ом", quantity: 0},
-                    {name: "0.4 Ом", quantity: 0},
-                    {name: "0.6 Ом", quantity: 0},
-                    {name: "0.8 Ом", quantity: 0}
-                ],
-                reviews: [],
-                details: "Линейка испарителей"
-            },
-            // Подсистемы
-            {
-                id: 8,
-                category: "pods",
-                name: "XROS mini",
-                description: "Подсистема XROS",
-                image: "хмини.jpg",
-                price: "1500 ₽",
-                colors: [
-                    {name: "Черный", quantity: 0},
-                    {name: "Белый", quantity: 0},
-                    {name: "Синий", quantity: 0},
-                    {name: "Красный", quantity: 0}
-                ],
-                reviews: [],
-                details: "Линейка подсистем"
-            },
-            {
-                id: 9,
-                category: "pods",
-                name: "XROS 4",
-                description: "Подсистема XROS",
-                image: "х4.jpg",
-                price: "2700 ₽",
-                colors: [
-                    {name: "Черный", quantity: 0},
-                    {name: "Белый", quantity: 0},
-                    {name: "Синий", quantity: 0},
-                    {name: "Красный", quantity: 0}
-                ],
-                reviews: [],
-                details: "Линейка подсистем"
-            },
-            {
-                id: 10,
-                category: "pods",
-                name: "XROS 4 mini",
-                description: "Подсистема XROS",
-                image: "х4мини.jpg",
-                price: "2350 ₽",
-                colors: [
-                    {name: "Черный", quantity: 0},
-                    {name: "Белый", quantity: 0},
-                    {name: "Синий", quantity: 0},
-                    {name: "Красный", quantity: 0}
-                ],
-                reviews: [],
-                details: "Линейка подсистем"
-            },
-            {
-                id: 11,
-                category: "pods",
-                name: "XROS pro",
-                description: "Подсистема XROS",
-                image: "хпро.jpg",
-                price: "3000 ₽",
-                colors: [
-                    {name: "Черный", quantity: 0},
-                    {name: "Белый", quantity: 0},
-                    {name: "Синий", quantity: 0},
-                    {name: "Красный", quantity: 0}
-                ],
-                reviews: [],
-                details: "Линейка подсистем"
-            },
-            {
-                id: 17,
-                category: "pods",
-                name: "Aegis hero",
-                description: "Подсистема ",
-                image: "хиро1.jpg",
-                price: "2850 ₽",
-                colors: [
-                    {name: "Черный", quantity: 0},
-                    {name: "Белый", quantity: 0},
-                    {name: "Синий", quantity: 0},
-                    {name: "Красный", quantity: 0}
-                ],
-                reviews: [],
-                details: "Линейка подсистем"
-            },
-            {
-                id: 18,
-                category: "pods",
-                name: "Aegis h45",
-                description: "Подсистема ",
-                image: "хиро2.jpg",
-                price: "3100 ₽",
-                colors: [
-                    {name: "Черный", quantity: 0},
-                    {name: "Белый", quantity: 0},
-                    {name: "Синий", quantity: 0},
-                    {name: "Красный", quantity: 0}
-                ],
-                reviews: [],
-                details: "Линейка подсистем"
-            },
-            {
-                id: 19,
-                category: "pods",
-                name: "Aegis h45 classic",
-                description: "Подсистема ",
-                image: "хиро3.jpg",
-                price: "3000 ₽",
-                colors: [
-                    {name: "Черный", quantity: 0},
-                    {name: "Белый", quantity: 0},
-                    {name: "Синий", quantity: 0},
-                    {name: "Красный", quantity: 0}
-                ],
-                reviews: [],
-                details: "Линейка подсистем"
-            },
-            // Одноразки
-            {
-                id: 12,
-                category: "disposable",
-                name: "Одноразка 1",
-                description: "Популярные бренды",
-                image: "одноразка.jpg",
-                price: "600 ₽",
-                flavors: [
-                    {name: "Мята", quantity: 0},
-                    {name: "Клубника", quantity: 0},
-                    {name: "Манго", quantity: 0},
-                    {name: "Ледяная вишня", quantity: 0}
-                ],
-                reviews: [],
-                details: "Линейка одноразок"
-            },
-            {
-                id: 13,
-                category: "disposable",
-                name: "Одноразка 2",
-                description: "Популярные бренды",
-                image: "одноразка.jpg",
-                price: "600 ₽",
-                flavors: [
-                    {name: "Мята", quantity: 0},
-                    {name: "Клубника", quantity: 0},
-                    {name: "Манго", quantity: 0},
-                    {name: "Ледяная вишня", quantity: 0}
-                ],
-                reviews: [],
-                details: "Линейка одноразок"
-            },
-            {
-                id: 14,
-                category: "disposable",
-                name: "Одноразка 3",
-                description: "Популярные бренды",
-                image: "одноразка.jpg",
-                price: "600 ₽",
-                flavors: [
-                    {name: "Мята", quantity: 0},
-                    {name: "Клубника", quantity: 0},
-                    {name: "Манго", quantity: 0},
-                    {name: "Ледяная вишня", quantity: 0}
-                ],
-                reviews: [],
-                details: "Линейка одноразок"
-            },
-            {
-                id: 15,
-                category: "disposable",
-                name: "Одноразка 4",
-                description: "Популярные бренды",
-                image: "одноразка.jpg",
-                price: "600 ₽",
-                flavors: [
-                    {name: "Мята", quantity: 0},
-                    {name: "Клубника", quantity: 0},
-                    {name: "Манго", quantity: 0},
-                    {name: "Ледяная вишня", quantity: 0}
-                ],
-                reviews: [],
-                details: "Линейка одноразок"
-            }
-        ];
-
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
-            document.getElementById(pageId).classList.add('active');
-
-            if(pageId === 'cart') updateCart();
-            if(pageId === 'favorites') updateFavorites();
-            if(pageId === 'reviews') updateReviews();
+        const ageModal = document.querySelector('.age-modal');
+        function confirmAge() {
+            ageModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
         }
-
-        function showCategory(category) {
-            currentCategory = category;
-            const productGrid = document.querySelector('.product-grid');
-            productGrid.innerHTML = '';
-
-            products.filter(p => p.category === category).forEach(product => {
-                const card = document.createElement('div');
-                card.className = 'product-card fade-in';
-                let info = '';
-
-                if(product.flavors) info += `<p>Вкусов: ${product.flavors.length}</p>`;
-                if(product.colors) info += `<p>Цветов: ${product.colors.length}</p>`;
-                if(product.resistances) info += `<p>Сопротивлений: ${product.resistances.length}</p>`;
-                if(product.quantity) info += `<p>Остаток: ${product.quantity}</p>`;
-
-                card.innerHTML = `
-                    <img src="${product.image}" class="product-image">
-                    <h3 class="product-title">${product.name}</h3>
-                    <p>${product.description}</p>
-                    <div class="product-price">${product.price}</div>
-                    ${info}
-                `;
-                card.onclick = () => showProduct(product);
-                productGrid.appendChild(card);
-            });
-
-            showPage('category');
+        function denyAccess() {
+            window.location.href = 'https://www.google.com';
         }
-
-        function showProduct(product) {
-            currentProduct = product;
-            const page = document.querySelector('#product .product-page');
-            page.querySelector('.product-image-large').src = product.image;
-            page.querySelector('.product-title-large').textContent = product.name;
-            page.querySelector('.product-price-large').textContent = product.price;
-
-            let infoHTML = '';
-            if(product.flavors) {
-                infoHTML += `<div class="info-section">
-                    <h4>Доступные вкусы:</h4>
-                    ${product.flavors.map(f => `
-                        <div class="info-item">
-                            <span>${f.name}</span>
-                            <span>${f.quantity} шт.</span>
-                        </div>
-                    `).join('')}
-                </div>`;
-            }
-
-            if(product.colors) {
-                infoHTML += `<div class="info-section">
-                    <h4>Доступные цвета:</h4>
-                    ${product.colors.map(c => `
-                        <div class="info-item">
-                            <span>${c.name}</span>
-                            <span>${c.quantity} шт.</span>
-                        </div>
-                    `).join('')}
-                </div>`;
-            }
-
-            if(product.resistances) {
-                infoHTML += `<div class="info-section">
-                    <h4>Доступные сопротивления:</h4>
-                    ${product.resistances.map(r => `
-                        <div class="info-item">
-                            <span>${r.name}</span>
-                            <span>${r.quantity} шт.</span>
-                        </div>
-                    `).join('')}
-                </div>`;
-            }
-
-            if(product.details) {
-                infoHTML += `<div class="info-section">
-                    <h4>Описание:</h4>
-                    <p>${product.details}</p>
-                </div>`;
-            }
-
-            if(product.reviews) {
-                infoHTML += `<div class="info-section">
-                    <h4>Отзывы:</h4>
-                    ${product.reviews.map(r => `
-                        <div class="review-item">
-                            <h3><a href="https://t.me/${r.tg}" target="_blank">${r.username} (@${r.tg})</a></h3>
-                            <p>${r.text}</p>
-                            <small>${r.date}</small>
-                        </div>
-                    `).join('')}
-                    ${product.reviews.length === 0 ? '<div class="no-reviews"><button onclick="showPage(\'reviews\')">Оставить отзыв</button></div>' : ''}
-                </div>`;
-            }
-
-            page.querySelector('.product-info').innerHTML = infoHTML;
-            updateFavoriteButton();
-            updateCartButton();
-            updateFlavorSelector();
-            showPage('product');
-        }
-
-        function updateFlavorSelector() {
-            const flavorSelect = document.getElementById('flavor-select');
-            flavorSelect.innerHTML = '';
-            if(currentProduct.flavors) {
-                currentProduct.flavors.forEach(flavor => {
-                    const option = document.createElement('option');
-                    option.value = flavor.name;
-                    option.textContent = `${flavor.name} (${flavor.quantity} шт.)`;
-                    flavorSelect.appendChild(option);
-                });
-            }
-        }
-
-        function addToCart() {
-            const flavorSelect = document.getElementById('flavor-select');
-            const quantityInput = document.getElementById('quantity-input');
-            const selectedFlavor = flavorSelect.value;
-            const quantity = parseInt(quantityInput.value, 10);
-
-            if(!selectedFlavor || quantity <= 0) {
-                alert('Выберите вкус и количество!');
-                return;
-            }
-
-            const selectedFlavorData = currentProduct.flavors.find(f => f.name === selectedFlavor);
-            if(!selectedFlavorData || quantity > selectedFlavorData.quantity) {
-                alert('Недостаточно товара в наличии!');
-                return;
-            }
-
-            const cartItem = {
-                ...currentProduct,
-                selectedFlavor,
-                quantity,
-                totalPrice: parseInt(currentProduct.price.replace(/\D/g, ''), 10) * quantity
-            };
-
-            cart.push(cartItem);
-            updateCart();
-            showPage('cart');
-            localStorage.setItem('cart', JSON.stringify(cart));
-        }
-
-        function toggleFavorite() {
-            const index = favorites.findIndex(item => item.id === currentProduct.id);
-            if(index === -1) {
-                favorites.push({...currentProduct});
-            } else {
-                favorites.splice(index, 1);
-            }
-            updateFavoriteButton();
-            updateFavorites();
-            localStorage.setItem('favorites', JSON.stringify(favorites));
-        }
-
-        function updateFavoriteButton() {
-            const button = document.querySelector('.favorite-button');
-            const isFavorite = favorites.some(item => item.id === currentProduct.id);
-            button.textContent = isFavorite ? 'Убрать из избранного' : 'Добавить в избранное';
-            button.classList.toggle('active', isFavorite);
-        }
-
-        function updateCartButton() {
-            const button = document.querySelector('.add-to-cart-button');
-            const isInCart = cart.some(item => item.id === currentProduct.id);
-            button.textContent = isInCart ? 'Убрать из корзины' : 'Добавить в корзину';
-            button.classList.toggle('in-cart', isInCart);
-        }
-
-        function updateCart() {
-            const container = document.querySelector('.cart-items');
-            container.innerHTML = '';
-
-            let totalPrice = 0;
-
-            cart.forEach(item => {
-                const element = document.createElement('div');
-                element.className = 'cart-item fade-in';
-                element.innerHTML = `
-                    <img src="${item.image}" class="cart-item-image">
-                    <div class="cart-item-info">
-                        <h3 onclick="showProductFromCart(${item.id})">${item.name}</h3>
-                        <p>${item.selectedFlavor} (${item.quantity} шт.)</p>
-                        <div class="quantity-selector">
-                            <label for="quantity-input-${item.id}">Количество:</label>
-                            <input type="number" id="quantity-input-${item.id}" min="1" value="${item.quantity}" onchange="updateCartItemQuantity(${item.id}, this.value)">
-                        </div>
-                    </div>
-                    <div class="cart-item-price">${item.totalPrice} ₽</div>
-                    <button class="remove-from-cart-button" onclick="removeFromCart(${item.id})">✕</button>
-                `;
-                container.appendChild(element);
-
-                totalPrice += item.totalPrice;
-            });
-
-            document.querySelector('.total-price').textContent = `Общая стоимость: ${totalPrice} ₽`;
-        }
-
-        function updateCartItemQuantity(productId, quantity) {
-            const cartItem = cart.find(item => item.id === productId);
-            if(cartItem) {
-                cartItem.quantity = parseInt(quantity, 10);
-                cartItem.totalPrice = parseInt(cartItem.price.replace(/\D/g, ''), 10) * cartItem.quantity;
-                updateCart();
-                localStorage.setItem('cart', JSON.stringify(cart));
-            }
-        }
-
-        function removeFromCart(productId) {
-            cart = cart.filter(item => item.id !== productId);
-            updateCart();
-            localStorage.setItem('cart', JSON.stringify(cart));
-        }
-
-        function showProductFromCart(productId) {
-            const product = products.find(p => p.id === productId);
-            if (product) {
-                showProduct(product);
-            }
-        }
-
-        function submitReview() {
-            const username = document.getElementById('review-username').value;
-            const tg = document.getElementById('review-tg').value;
-            const text = document.getElementById('review-text').value;
-
-            if(!username || !tg || !text) {
-                alert('Заполните все поля!');
-                return;
-            }
-
-            const review = {
-                username,
-                tg,
-                text,
-                date: new Date().toLocaleDateString()
-            };
-
-            currentProduct.reviews.push(review);
-            localStorage.setItem(`reviews_${currentProduct.id}`, JSON.stringify(currentProduct.reviews));
-            showProduct(currentProduct);
-            alert('Отзыв отправлен!');
-            document.getElementById('review-username').value = '';
-            document.getElementById('review-tg').value = '';
-            document.getElementById('review-text').value = '';
-        }
-
-        function updateReviews() {
-            const container = document.querySelector('.review-list');
-            container.innerHTML = '';
-
-            const savedReviews = JSON.parse(localStorage.getItem(`reviews_${currentProduct.id}`)) || [];
-            currentProduct.reviews = savedReviews;
-
-            savedReviews.forEach(review => {
-                const element = document.createElement('div');
-                element.className = 'review-item fade-in';
-                element.innerHTML = `
-                    <h3><a href="https://t.me/${review.tg}" target="_blank">${review.username} (@${review.tg})</a></h3>
-                    <p>${review.text}</p>
-                    <small>${review.date}</small>
-                `;
-                container.appendChild(element);
-            });
-        }
-
-        function updateFavorites() {
-            const container = document.querySelector('.favorite-items');
-            container.innerHTML = '';
-
-            favorites.forEach(item => {
-                const element = document.createElement('div');
-                element.className = 'favorite-item fade-in';
-                element.innerHTML = `
-                    <img src="${item.image}" class="favorite-item-image">
-                    <div class="favorite-item-info">
-                        <h3>${item.name}</h3>
-                        <p>${item.description}</p>
-                    </div>
-                    <div class="favorite-item-price">${item.price}</div>
-                    <button class="remove-from-favorites-button" onclick="removeFromFavorites(${item.id})">✕</button>
-                `;
-                element.onclick = () => showProduct(item);
-                container.appendChild(element);
-            });
-        }
-
-        function removeFromFavorites(productId) {
-            favorites = favorites.filter(item => item.id !== productId);
-            updateFavorites();
-            localStorage.setItem('favorites', JSON.stringify(favorites));
-        }
-
-        function showSoonModal(category) {
-            currentCategory = category;
-            const modal = document.getElementById('soonModal');
-            const futureProductsButton = document.getElementById('futureProductsButton');
-
-            if (category === 'promo') {
-                futureProductsButton.style.display = 'none';
-            } else {
-                futureProductsButton.style.display = 'inline-block';
-            }
-
-            modal.style.display = 'flex';
-        }
-
-        function closeSoonModal() {
-            document.getElementById('soonModal').style.display = 'none';
-        }
-
-        function showFutureProducts() {
-            closeSoonModal();
-            showCategory(currentCategory);
-        }
-
-        function submitOrder() {
-            const username = document.getElementById('order-username').value;
-            const phone = document.getElementById('order-phone').value;
-            const address = document.getElementById('order-address').value;
-            const tg = document.getElementById('order-tg').value;
-            const comment = document.getElementById('order-comment').value;
-
-            if(!username || !phone || !address || !tg) {
-                alert('Заполните все обязательные поля!');
-                return;
-            }
-
-            const orderDetails = {
-                username,
-                phone,
-                address,
-                tg,
-                comment,
-                cart,
-                totalPrice: cart.reduce((sum, item) => sum + item.totalPrice, 0)
-            };
-
-            // Отправка заказа в Telegram (заглушка)
-            const botToken = '8006097068:AAGRzfW1DVQ8qVIKKxnBlF3efshqcYWOZqU';
-            const chatId = '7395030282';
-            const message = `Новый заказ!\nИмя: ${username}\nТелефон: ${phone}\nАдрес: ${address}\nTelegram: @${tg}\nКомментарий: ${comment}\nТовары: ${cart.map(item => `${item.name} (${item.selectedFlavor}) - ${item.quantity} шт.`).join(', ')}\nОбщая стоимость: ${orderDetails.totalPrice} ₽`;
-
-            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`)
-                .then(response => response.json())
-                .then(data => {
-                    if(data.ok) {
-                        alert('Заказ успешно оформлен!');
-                        cart = [];
-                        updateCart();
-                        showPage('home');
-                    } else {
-                        alert('Ошибка при отправке заказа. Попробуйте снова.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Ошибка:', error);
-                    alert('Ошибка при отправке заказа. Попробуйте снова.');
-                });
-        }
-
-        // Инициализация
-        document.addEventListener('DOMContentLoaded', () => {
-            products = exampleProducts;
-            favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-            cart = JSON.parse(localStorage.getItem('cart')) || [];
-            showPage('home');
-        });
+        document.body.style.overflow = 'hidden';
     </script>
 </body>
 </html>
