@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Отзывы - Vape Universe</title>
+    <title>Vape Universe</title>
     <style>
+        /* Общие стили */
         :root {
             --primary: #4a69bd;
             --secondary: #1e3799;
@@ -12,16 +13,19 @@
             --text: #1e293b;
             --bg: #f8fafc;
             --card-bg: #ffffff;
-            --radius: 16px;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
+            --radius: 24px;
+            --shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+            --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+            --gradient-hover: linear-gradient(135deg, var(--secondary), var(--primary));
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -30,555 +34,702 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
 
+        /* Шапка */
         .header {
-            background: var(--primary);
+            background: var(--gradient);
             padding: 1rem;
-            text-align: center;
-            color: white;
-            font-size: 1.5rem;
-            font-weight: bold;
             box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: slideDown 0.6s ease-out;
         }
 
-        .main-content {
-            flex: 1;
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+
+        .logo {
+            color: #fff;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border-radius: 12px;
+            animation: rotate 25s linear infinite;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes rotate {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Сетка товаров */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* На мобильных устройствах 2 колонки */
+            gap: 1rem;
             padding: 1rem;
-            max-width: 800px;
+            max-width: 1400px;
             margin: 0 auto;
             width: 100%;
+            padding-bottom: 80px; /* Отступ снизу для панели навигации */
         }
 
-        .product-info {
-            text-align: center;
-            margin-bottom: 1.5rem;
+        @media (min-width: 768px) {
+            .products-grid {
+                grid-template-columns: repeat(4, 1fr); /* На планшетах и ПК 4 колонки */
+                padding: 2rem;
+                gap: 1.5rem;
+            }
         }
 
-        .product-info img {
-            width: 120px;
-            height: 120px;
-            object-fit: contain;
+        .product-card {
+            background: var(--card-bg);
             border-radius: var(--radius);
-            margin-bottom: 0.5rem;
+            padding: 1rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
-        .product-info h1 {
-            font-size: 1.5rem;
+        .product-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0) 60%, rgba(0,0,0,0.03) 100%);
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 180px;
+            object-fit: contain;
+            margin-bottom: 1rem;
+            transition: var(--transition);
+            border-radius: 12px;
+        }
+
+        .product-title {
+            font-size: 1.25rem;
             color: var(--secondary);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 800;
+            line-height: 1.4;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .product-info p {
+        .product-category {
             font-size: 0.9rem;
             color: var(--text);
             opacity: 0.8;
+            margin-bottom: 0.5rem;
         }
 
-        .product-rating {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-        }
-
-        .product-rating span {
-            font-size: 1.2rem;
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: 900;
             color: var(--accent);
-            font-weight: bold;
+            margin-top: auto;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .review-form {
+        /* Навигационная панель */
+        .nav-footer {
             background: var(--card-bg);
-            border-radius: var(--radius);
             padding: 1rem;
-            box-shadow: var(--shadow);
-            margin-bottom: 1.5rem;
-        }
-
-        .review-form h2 {
-            font-size: 1.2rem;
-            color: var(--secondary);
-            margin-bottom: 1rem;
-        }
-
-        .review-form input,
-        .review-form textarea,
-        .review-form select {
+            position: fixed;
+            bottom: 0;
             width: 100%;
-            padding: 0.8rem;
-            margin-bottom: 1rem;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: var(--transition);
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+            border-radius: 24px 24px 0 0;
+            z-index: 100;
         }
 
-        .review-form input:focus,
-        .review-form textarea:focus,
-        .review-form select:focus {
-            border-color: var(--primary);
-            outline: none;
-        }
-
-        .review-form textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .review-form button {
-            width: 100%;
-            padding: 0.8rem;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .review-form button:hover {
-            background: var(--secondary);
-        }
-
-        .reviews-list {
+        .nav-menu {
             display: flex;
-            flex-direction: column;
-            gap: 1rem;
+            justify-content: space-around;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        .review-card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 1rem;
-            box-shadow: var(--shadow);
-        }
-
-        .review-header {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            margin-bottom: 1rem;
-        }
-
-        .review-header img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .review-header h3 {
-            font-size: 1rem;
-            color: var(--secondary);
-        }
-
-        .review-header a {
+        .nav-item {
             color: var(--primary);
             text-decoration: none;
-            font-size: 0.9rem;
-        }
-
-        .review-rating {
+            padding: 0.8rem 1rem;
+            border-radius: 16px;
             display: flex;
-            gap: 0.3rem;
-            margin-bottom: 1rem;
-        }
-
-        .review-rating span {
-            font-size: 1.2rem;
-            color: var(--accent);
-        }
-
-        .review-content {
-            font-size: 0.9rem;
-            color: var(--text);
-            margin-bottom: 1rem;
-        }
-
-        .review-images {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .review-images img {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
+            align-items: center;
+            gap: 8px;
             transition: var(--transition);
-            cursor: pointer;
+            position: relative;
+            background: rgba(74, 105, 189, 0.05);
         }
 
-        .review-images img:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        .nav-item:hover {
+            background: rgba(74, 105, 189, 0.1);
+            transform: translateY(-2px);
         }
 
-        .review-date {
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--accent);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 0.8rem;
-            color: var(--text);
-            opacity: 0.7;
+            font-weight: 700;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        /* Модальное окно для фотографий */
-        .modal {
-            display: none;
+        @media (max-width: 400px) {
+            .nav-item span {
+                display: none;
+            }
+            .logo {
+                font-size: 1.4rem;
+            }
+        }
+
+        /* Модальное окно товара */
+        .modal-overlay {
             position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
             justify-content: center;
             align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .modal img {
-            max-width: 90%;
-            max-height: 90%;
-            border-radius: 8px;
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: translateY(50px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 600px) {
+            .modal-content {
+                width: 90%;
+                max-height: 90vh;
+                padding: 1rem;
+            }
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+            opacity: 1;
         }
 
         .modal-close {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            color: white;
-            font-size: 2rem;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            color: var(--text);
             cursor: pointer;
+            transition: var(--transition);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        @media (max-width: 600px) {
-            .header {
-                font-size: 1.2rem;
-            }
+        .modal-close:hover {
+            transform: rotate(90deg);
+            background: rgba(0, 0, 0, 0.05);
+        }
 
-            .product-info img {
-                width: 100px;
-                height: 100px;
-            }
+        .flavor-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            background: rgba(0,0,0,0.03);
+            border-radius: 12px;
+            transition: var(--transition);
+            cursor: pointer;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
 
-            .product-info h1 {
-                font-size: 1.2rem;
-            }
+        .flavor-item:hover {
+            background: rgba(74, 105, 189, 0.1);
+            transform: translateY(-2px);
+        }
 
-            .product-info p {
-                font-size: 0.8rem;
-            }
+        .flavor-item.selected {
+            background: rgba(74, 105, 189, 0.1);
+            border: 2px solid var(--primary);
+        }
 
-            .review-form h2 {
-                font-size: 1rem;
-            }
+        .quantity-badge {
+            background: var(--accent);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
 
-            .review-form input,
-            .review-form textarea,
-            .review-form select {
-                padding: 0.6rem;
-                font-size: 0.9rem;
-            }
+        .action-button {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 1rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
 
-            .review-form button {
-                padding: 0.6rem;
-                font-size: 0.9rem;
-            }
+        .add-to-cart {
+            background: var(--gradient);
+            color: white;
+        }
 
-            .review-header h3 {
-                font-size: 0.9rem;
-            }
+        .add-to-cart:hover {
+            background: var(--gradient-hover);
+            transform: translateY(-2px);
+        }
 
-            .review-content {
-                font-size: 0.8rem;
-            }
+        .reviews-button {
+            background: var(--card-bg);
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
 
-            .review-images img {
-                width: 80px;
-                height: 80px;
-            }
+        .reviews-button:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background: var(--card-bg);
+            color: var(--text);
+            padding: 1rem 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transform: translateY(100%);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 3000;
+        }
+
+        .notification.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .notification.error {
+            background: #fee2e2;
+            color: #dc2626;
         }
     </style>
 </head>
 <body>
     <header class="header">
-        VAPE UNIVERSE
+        <div class="logo">
+            <div class="logo-icon"></div>
+            VAPE UNIVERSE
+        </div>
     </header>
 
     <main class="main-content">
-        <div class="product-info">
-            <img id="productImage" src="" alt="Товар">
-            <h1 id="productName"></h1>
-            <p id="productDescription"></p>
-            <div class="product-rating">
-                <span>★</span>
-                <span id="averageRating">0.0</span>
-                <span>(<span id="totalReviews">0</span> отзывов)</span>
-            </div>
-        </div>
-
-        <div class="review-form">
-            <h2>Оставить отзыв</h2>
-            <input type="text" id="username" placeholder="Ваш никнейм" required>
-            <input type="text" id="telegram" placeholder="Ваш Telegram" required>
-            <select id="rating">
-                <option value="5">5 звезд</option>
-                <option value="4">4 звезды</option>
-                <option value="3">3 звезды</option>
-                <option value="2">2 звезды</option>
-                <option value="1">1 звезда</option>
-            </select>
-            <textarea id="review-text" placeholder="Ваш отзыв"></textarea>
-            <input type="file" id="review-images" multiple accept="image/*">
-            <button onclick="submitReview()">Отправить отзыв</button>
-        </div>
-
-        <div class="reviews-list" id="reviews-list">
-            <!-- Отзывы будут добавляться сюда динамически -->
+        <div class="products-grid" id="productsGrid">
+            <!-- Товары будут добавлены через JavaScript -->
         </div>
     </main>
 
-    <!-- Модальное окно для фотографий -->
-    <div id="imageModal" class="modal">
-        <span class="modal-close">&times;</span>
-        <img id="modalImage" src="" alt="Фото отзыва">
+    <nav class="nav-footer">
+        <div class="nav-menu">
+            <a href="index.html" class="nav-item">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M10 3H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1zm10 0h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1zM10 13H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1zm10 0h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1z"/>
+                </svg>
+                <span>Каталог</span>
+            </a>
+            <a href="korzina.html" class="nav-item">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+                </svg>
+                <span>Корзина</span>
+                <div class="cart-count">0</div>
+            </a>
+            <a href="o-nas.html" class="nav-item">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                </svg>
+                <span>О нас</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Модальное окно товара -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <img id="modalImage" class="product-image" src="" alt="Товар">
+            <h2 id="modalTitle" class="product-title"></h2>
+            <p id="modalCategory" class="product-category"></p>
+            <div id="modalPrice" class="product-price"></div>
+            
+            <!-- Выбор цвета или вкуса -->
+            <div id="flavorSelect" class="flavor-select">
+                <!-- Список вкусов или цветов будет добавлен сюда -->
+            </div>
+            
+            <input type="number" class="quantity-input" id="quantity" min="1" value="1" placeholder="Количество">
+            
+            <button class="action-button add-to-cart" onclick="addToCart()">
+                Добавить в корзину
+            </button>
+            <button class="action-button reviews-button" onclick="goToReviews()">
+                Отзывы
+            </button>
+        </div>
     </div>
 
-    <script>
-        // 1. Инициализация данных
-        const urlParams = new URLSearchParams(window.location.search);
-        const productId = urlParams.get('productId');
+    <!-- Уведомление -->
+    <div class="notification" id="notification"></div>
 
-        // 2. Загрузка информации о товаре
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+
+    <script>
+        // Инициализация Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyClHAAMfkfvhD63Np6aoRG0nLYiz7JQxZI",
+            authDomain: "taburetka-shop.firebaseapp.com",
+            databaseURL: "taburetka-shop",
+            projectId: "taburetka-shop.firebasestorage.app",
+            storageBucket: "taburetka-shop.firebasestorage.app",
+            messagingSenderId: "722686458212",
+            appId: "1:722686458212:web:863b3c76a22f67a5b1a271"
+        };
+
+        // Инициализация Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Корзина
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const cartCount = document.querySelector('.cart-count');
+
+        function updateCart() {
+            cartCount.textContent = cart.length;
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        // Товары
         const products = [
+            // Жидкости
             {
                 id: 1,
+                category: "liquids",
                 name: "Злая монашка 7%",
                 description: "Кислые вкусы",
-                image: "images/zhidkost1.jpg"
+                image: "images/zhidkost1.jpg",
+                price: 395,
+                flavors: [
+                    {name: "Кислая виноградная конфета", quantity: 1},
+                    {name: "Кислые лесные ягоды", quantity: 2},
+                    {name: "Кислая яблочная шипучка", quantity: 2},
+                    {name: "Кислая малина личи", quantity: 2},
+                    {name: "Кислые вишневые червячки", quantity: 1}
+                ]
+            },
+            // Подсистемы
+            {
+                id: 8,
+                category: "pods",
+                name: "XROS mini",
+                description: "Подсистема XROS",
+                image: "хмини.jpg",
+                price: 1500,
+                colors: [
+                    {name: "Черный", quantity: 0},
+                    {name: "Белый", quantity: 0},
+                    {name: "Синий", quantity: 0},
+                    {name: "Красный", quantity: 0}
+                ]
             },
             {
-                id: 2,
-                name: "Дуалл 5%",
-                description: "Фруктовые вкусы",
-                image: "images/duall1.webp"
+                id: 9,
+                category: "pods",
+                name: "XROS 4",
+                description: "Подсистема XROS",
+                image: "х4.jpg",
+                price: 2700,
+                colors: [
+                    {name: "Черный", quantity: 0},
+                    {name: "Белый", quantity: 0},
+                    {name: "Синий", quantity: 0},
+                    {name: "Красный", quantity: 0}
+                ]
             },
             {
-                id: 3,
-                name: "Trava 5%",
-                description: "Освежающие вкусы",
-                image: "images/trava.jpg"
+                id: 10,
+                category: "pods",
+                name: "XROS 4 mini",
+                description: "Подсистема XROS",
+                image: "х4мини.jpg",
+                price: 2350,
+                colors: [
+                    {name: "Черный", quantity: 0},
+                    {name: "Белый", quantity: 0},
+                    {name: "Синий", quantity: 0},
+                    {name: "Красный", quantity: 0}
+                ]
             },
             {
-                id: 4,
-                name: "Dabler 2%",
-                description: "Легкие вкусы",
-                image: "images/dabbler.jpg"
+                id: 11,
+                category: "pods",
+                name: "XROS pro",
+                description: "Подсистема XROS",
+                image: "хпро.jpg",
+                price: 3000,
+                colors: [
+                    {name: "Черный", quantity: 0},
+                    {name: "Белый", quantity: 0},
+                    {name: "Синий", quantity: 0},
+                    {name: "Красный", quantity: 0}
+                ]
             },
             {
-                id: 5,
-                name: "Chapman 5%",
-                description: "Табачные вкусы",
-                image: "images/Chapman.jpg"
+                id: 17,
+                category: "pods",
+                name: "Aegis hero",
+                description: "Подсистема",
+                image: "хиро1.jpg",
+                price: 2850,
+                colors: [
+                    {name: "Черный", quantity: 0},
+                    {name: "Белый", quantity: 0},
+                    {name: "Синий", quantity: 0},
+                    {name: "Красный", quantity: 0}
+                ]
             },
             {
-                id: 6,
-                name: "XYLINET TEBE PIZDA 30ML 7%",
-                description: "16 вкусов",
-                image: "images/хулинет.jpg"
+                id: 18,
+                category: "pods",
+                name: "Aegis h45",
+                description: "Подсистема",
+                image: "хиро2.jpg",
+                price: 3100,
+                colors: [
+                    {name: "Черный", quantity: 0},
+                    {name: "Белый", quantity: 0},
+                    {name: "Синий", quantity: 0},
+                    {name: "Красный", quantity: 0}
+                ]
             },
             {
-                id: 20,
-                name: "Anima love 2%",
-                description: "2 вкуса",
-                image: "images/анима_лав2.jpg"
+                id: 19,
+                category: "pods",
+                name: "Aegis h45 classic",
+                description: "Подсистема",
+                image: "хиро3.jpg",
+                price: 3000,
+                colors: [
+                    {name: "Черный", quantity: 0},
+                    {name: "Белый", quantity: 0},
+                    {name: "Синий", quantity: 0},
+                    {name: "Красный", quantity: 0}
+                ]
             }
         ];
 
-        const product = products.find(p => p.id === parseInt(productId));
-        if (product) {
-            document.getElementById('productImage').src = product.image;
-            document.getElementById('productName').textContent = product.name;
-            document.getElementById('productDescription').textContent = product.description;
-        } else {
-            console.error('Товар не найден');
-        }
+        // Открытие модального окна
+        function openProductModal(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
 
-        // 3. Работа с отзывами
-        let reviews = JSON.parse(localStorage.getItem(`reviews_${productId}`)) || [];
+            document.getElementById('modalImage').src = product.image;
+            document.getElementById('modalTitle').textContent = product.name;
+            document.getElementById('modalCategory').textContent = product.description;
+            document.getElementById('modalPrice').textContent = `${product.price} ₽`;
 
-        // 4. Функция для расчета среднего рейтинга
-        function calculateAverageRating() {
-            if (reviews.length === 0) return 0;
-            const total = reviews.reduce((sum, review) => sum + parseInt(review.rating), 0);
-            return (total / reviews.length).toFixed(1);
-        }
-
-        // 5. Обновление рейтинга на странице
-        function updateRating() {
-            const averageRating = calculateAverageRating();
-            document.getElementById('averageRating').textContent = averageRating;
-            document.getElementById('totalReviews').textContent = reviews.length;
-        }
-
-        // 6. Отправка отзыва
-        async function submitReview() {
-            try {
-                const username = document.getElementById('username').value.trim();
-                const telegram = document.getElementById('telegram').value.trim();
-                const rating = document.getElementById('rating').value;
-                const reviewText = document.getElementById('review-text').value.trim();
-                const imagesInput = document.getElementById('review-images');
-                
-                if (!username || !telegram || !rating || !reviewText) {
-                    throw new Error('Заполните все обязательные поля!');
-                }
-
-                const images = [];
-                for (const file of imagesInput.files) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => images.push(e.target.result);
-                    reader.readAsDataURL(file);
-                }
-
-                const review = {
-                    username,
-                    telegram,
-                    rating,
-                    reviewText,
-                    images,
-                    date: new Date().toLocaleString()
-                };
-                
-                reviews.push(review);
-                localStorage.setItem(`reviews_${productId}`, JSON.stringify(reviews));
-                renderReviews();
-                updateRating();
-                
-                await sendToTelegram(review, imagesInput.files);
-                
-                document.getElementById('username').value = '';
-                document.getElementById('telegram').value = '';
-                document.getElementById('rating').value = '5';
-                document.getElementById('review-text').value = '';
-                document.getElementById('review-images').value = '';
-                
-                alert('Отзыв успешно отправлен!');
-                
-            } catch (error) {
-                console.error('Ошибка:', error);
-                alert(error.message);
+            const flavorSelect = document.getElementById('flavorSelect');
+            if (product.category === "pods") {
+                // Отображаем цвета для подсистем
+                flavorSelect.innerHTML = product.colors.map(color => `
+                    <div class="flavor-item" data-quantity="${color.quantity}" onclick="selectFlavor(this)">
+                        <span>${color.name}</span>
+                        <span class="quantity-badge">${color.quantity} шт.</span>
+                    </div>
+                `).join('');
+            } else {
+                // Отображаем вкусы для жидкостей
+                flavorSelect.innerHTML = product.flavors.map(flavor => `
+                    <div class="flavor-item" data-quantity="${flavor.quantity}" onclick="selectFlavor(this)">
+                        <span>${flavor.name}</span>
+                        <span class="quantity-badge">${flavor.quantity} шт.</span>
+                    </div>
+                `).join('');
             }
+
+            document.getElementById('modalOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
         }
 
-        // 7. Отправка в Telegram
-        async function sendToTelegram(review, files = []) {
-            const botToken = '8006097068:AAGRzfW1DVQ8qVIKKxnBlF3efshqcYWOZqU';
-            const chatId = '7395030282';
-            
-            const message = [
-                `Новый отзыв!`,
-                `Товар: ${product.name}`,
-                `Никнейм: ${review.username}`,
-                `Telegram: @${review.telegram}`,
-                `Рейтинг: ${review.rating}/5`,
-                `Отзыв: ${review.reviewText}`
-            ].join('\n');
+        // Закрытие модального окна
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
 
-            const textUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
-            const textResponse = await fetch(textUrl, {
+        // Выбор вкуса или цвета
+        function selectFlavor(element) {
+            const items = document.querySelectorAll('.flavor-item');
+            items.forEach(item => item.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
+        // Добавление в корзину
+        function addToCart() {
+            const selectedFlavor = document.querySelector('.flavor-item.selected');
+            if (!selectedFlavor) {
+                showNotification('Выберите цвет или вкус!', 'error');
+                return;
+            }
+
+            const flavor = selectedFlavor.querySelector('span').textContent;
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const available = parseInt(selectedFlavor.dataset.quantity);
+
+            if (quantity > available) {
+                showNotification(`Доступно только ${available} шт.`, 'error');
+                return;
+            }
+
+            const item = {
+                title: document.getElementById('modalTitle').textContent,
+                flavor,
+                price: parseInt(document.getElementById('modalPrice').textContent),
+                quantity,
+                image: document.getElementById('modalImage').src
+            };
+
+            cart.push(item);
+            updateCart();
+            showNotification('Товар добавлен в корзину!');
+            closeModal();
+        }
+
+        // Переход на страницу отзывов
+        function goToReviews() {
+            const productId = products.find(p => p.name === document.getElementById('modalTitle').textContent).id;
+            window.location.href = `reviews.html?productId=${productId}`;
+        }
+
+        // Показать уведомление
+        function showNotification(text, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = text;
+            notification.className = `notification ${type} active`;
+            setTimeout(() => notification.classList.remove('active'), 3000);
+        }
+
+        // Отправка отзыва в Telegram
+        async function sendToTelegram(review) {
+            const botToken = '8006097068:AAGRzfW1DVQ8qVIKKxnBlF3efshqcYWOZqU'; // Замените на токен вашего бота
+            const chatId = '7395030282'; // Замените на ваш chat_id
+            const message = `Новый отзыв!\n\nТовар: ${review.productName}\nНикнейм: ${review.username}\nTelegram: @${review.telegram}\nРейтинг: ${review.rating}/5\nОтзыв: ${review.reviewText}`;
+
+            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+            const response = await fetch(url, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     chat_id: chatId,
                     text: message
                 })
             });
 
-            if (!textResponse.ok) {
-                throw new Error('Ошибка при отправке текста в Telegram');
-            }
-
-            if (files.length > 0) {
-                for (const file of files) {
-                    const formData = new FormData();
-                    formData.append('chat_id', chatId);
-                    formData.append('photo', file);
-                    
-                    const photoResponse = await fetch(
-                        `https://api.telegram.org/bot${botToken}/sendPhoto`,
-                        {
-                            method: 'POST',
-                            body: formData
-                        }
-                    );
-
-                    if (!photoResponse.ok) {
-                        throw new Error('Ошибка при отправке фото в Telegram');
-                    }
-                }
+            if (!response.ok) {
+                throw new Error('Ошибка при отправке сообщения в Telegram');
             }
         }
 
-        // 8. Рендер отзывов
-        function renderReviews() {
-            const reviewsList = document.getElementById('reviews-list');
-            if (!reviews || !Array.isArray(reviews)) {
-                reviews = [];
-            }
-            reviewsList.innerHTML = reviews.map(review => `
-                <div class="review-card">
-                    <div class="review-header">
-                        <img src="https://via.placeholder.com/50" alt="Аватар">
-                        <div>
-                            <h3>${review.username}</h3>
-                            <a href="https://t.me/${review.telegram}" target="_blank">@${review.telegram}</a>
-                        </div>
-                    </div>
-                    <div class="review-rating">
-                        ${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}
-                    </div>
-                    <div class="review-content">
-                        ${review.reviewText}
-                    </div>
-                    ${review.images && review.images.length > 0 ? `
-                        <div class="review-images">
-                            ${review.images.map(img => `<img src="${img}" alt="Фото отзыва" onclick="openModal('${img}')">`).join('')}
-                        </div>
-                    ` : ''}
-                    <div class="review-date">
-                        ${review.date}
-                    </div>
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCart();
+            renderProducts();
+        });
+
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = products.map(product => `
+                <div class="product-card" onclick="openProductModal(${product.id})">
+                    <img src="${product.image}" class="product-image" alt="${product.name}">
+                    <h2 class="product-title">${product.name}</h2>
+                    <div class="product-price">${product.price} ₽</div>
                 </div>
             `).join('');
         }
-
-        // 9. Модальное окно для фотографий
-        const modal = document.getElementById('imageModal');
-        const modalImage = document.getElementById('modalImage');
-        const modalClose = document.querySelector('.modal-close');
-
-        function openModal(imageSrc) {
-            modalImage.src = imageSrc;
-            modal.style.display = 'flex';
-        }
-
-        modalClose.onclick = () => {
-            modal.style.display = 'none';
-        };
-
-        window.onclick = (event) => {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        };
-
-        // Инициализация
-        renderReviews();
-        updateRating();
     </script>
 </body>
 </html>
