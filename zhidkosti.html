@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vape Universe</title>
+    <style>
+        /* Общие стили */
+        :root {
+            --primary: #4a69bd;
+            --secondary: #1e3799;
+            --accent: #f59e0b;
+            --text: #1e293b;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --radius: 24px;
+            --shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+            --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+            --gradient-hover: linear-gradient(135deg, var(--secondary), var(--primary));
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Шапка */
+        .header {
+            background: var(--gradient);
+            padding: 1.5rem 2rem;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+
+        .logo {
+            color: #fff;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border-radius: 12px;
+            animation: rotate 25s linear infinite;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes rotate {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Сетка товаров */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            padding: 1rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .products-grid {
+                grid-template-columns: repeat(4, 1fr);
+                padding: 2rem;
+                gap: 1.5rem;
+            }
+        }
+
+        .product-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .product-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0) 60%, rgba(0,0,0,0.03) 100%);
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 180px;
+            object-fit: contain;
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+            border-radius: 12px;
+        }
+
+        .product-title {
+            font-size: 1.25rem;
+            color: var(--secondary);
+            margin-bottom: 0.75rem;
+            font-weight: 800;
+            line-height: 1.4;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-category {
+            font-size: 0.9rem;
+            color: var(--text);
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--accent);
+            margin-top: auto;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Навигационная панель */
+        .nav-footer {
+            background: var(--card-bg);
+            padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+            border-radius: 24px 24px 0 0;
+            z-index: 100;
+        }
+
+        .nav-menu {
+            display: flex;
+            justify-content: space-around;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .nav-item {
+            color: var(--primary);
+            text-decoration: none;
+            padding: 0.8rem 1.2rem;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            position: relative;
+            background: rgba(74, 105, 189, 0.05);
+        }
+
+        .nav-item:hover {
+            background: rgba(74, 105, 189, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--accent);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 400px) {
+            .nav-item span {
+                display: none;
+            }
+            .logo {
+                font-size: 1.4rem;
+            }
+        }
+
+        /* Модальное окно товара */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 2rem;
+            width: 95%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(50px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            color: var(--text);
+            cursor: pointer;
+            transition: var(--transition);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-close:hover {
+            transform: rotate(90deg);
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .flavor-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            background: rgba(0,0,0,0.03);
+            border-radius: 12px;
+            transition: var(--transition);
+            cursor: pointer;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .flavor-item:hover {
+            background: rgba(74, 105, 189, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .flavor-item.selected {
+            background: rgba(74, 105, 189, 0.1);
+            border: 2px solid var(--primary);
+        }
+
+        .quantity-badge {
+            background: var(--accent);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-button {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 1rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .add-to-cart {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .add-to-cart:hover {
+            background: var(--gradient-hover);
+            transform: translateY(-2px);
+        }
+
+        .reviews-button {
+            background: var(--card-bg);
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .reviews-button:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background: var(--card-bg);
+            color: var(--text);
+            padding: 1rem 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transform: translateY(100%);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 3000;
+        }
+
+        .notification.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .notification.error {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon"></div>
+            VAPE UNIVERSE
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="products-grid" id="productsGrid">
+            <!-- Товары будут добавлены через JavaScript -->
+        </div>
+    </main>
+
+    <nav class="nav-footer">
+        <div class="nav-menu">
+            <a href="index.html" class="nav-item">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M10 3H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1zm10 0h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1zM10 13H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1zm10 0h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1z"/>
+                </svg>
+                <span>Каталог</span>
+            </a>
+            <a href="korzina.html" class="nav-item">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+                </svg>
+                <span>Корзина</span>
+                <div class="cart-count">0</div>
+            </a>
+            <a href="o-nas.html" class="nav-item">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                </svg>
+                <span>О нас</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Модальное окно товара -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <img id="modalImage" class="product-image" src="" alt="Товар">
+            <h2 id="modalTitle" class="product-title"></h2>
+            <p id="modalCategory" class="product-category"></p>
+            <div id="modalPrice" class="product-price"></div>
+            
+            <div id="flavorSelect" class="flavor-select">
+                <!-- Список вкусов будет добавлен сюда -->
+            </div>
+            
+            <input type="number" class="quantity-input" id="quantity" min="1" value="1" placeholder="Количество">
+            
+            <button class="action-button add-to-cart" onclick="addToCart()">
+                Добавить в корзину
+            </button>
+            <button class="action-button reviews-button" onclick="goToReviews()">
+                Отзывы
+            </button>
+        </div>
+    </div>
+
+    <!-- Уведомление -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Корзина
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const cartCount = document.querySelector('.cart-count');
+
+        function updateCart() {
+            cartCount.textContent = cart.length;
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        // Товары
+        const products = [
+            {
+                id: 1,
+                category: "liquids",
+                name: "Злая монашка 7%",
+                description: "Кислые вкусы",
+                image: "images/zhidkost1.jpg",
+                price: 395,
+                flavors: [
+                    {name: "Кислая виноградная конфета", quantity: 1},
+                    {name: "Кислые лесные ягоды", quantity: 2},
+                    {name: "Кислая яблочная шипучка", quantity: 2},
+                    {name: "Кислая малина личи", quantity: 2},
+                    {name: "Кислые вишневые червячки", quantity: 1}
+                ]
+            },
+            {
+                id: 2,
+                category: "liquids",
+                name: "Дуалл 5%",
+                description: "Фруктовые вкусы",
+                image: "images/duall1.webp",
+                price: 360,
+                flavors: [
+                    {name: "Лимонные леденцы", quantity: 1},
+                    {name: "Персиковый чай", quantity: 1},
+                    {name: "Ледяное манго апельсин", quantity: 1},
+                    {name: "Морозное яблоко", quantity: 1},
+                    {name: "Кола лимон", quantity: 1},
+                    {name: "Ледяная кола", quantity: 1},
+                    {name: "Яблоко малина", quantity: 1}
+                ]
+            },
+            {
+                id: 3,
+                category: "liquids",
+                name: "Trava 5%",
+                description: "Освежающие вкусы",
+                image: "images/trava.jpg",
+                price: 370,
+                flavors: [
+                    {name: "Orange Ice Cream", quantity: 1},
+                    {name: "Blueberry Mint", quantity: 1},
+                    {name: "Energy Drink", quantity: 1},
+                    {name: "Aloe Mint", quantity: 1},
+                    {name: "Raspberry Schweppes", quantity: 1},
+                    {name: "Lemon Yogurt", quantity: 1},
+                    {name: "Cola Cherry", quantity: 1}
+                ]
+            },
+            {
+                id: 4,
+                category: "liquids",
+                name: "Dabler 2%",
+                description: "Легкие вкусы",
+                image: "images/dabbler.jpg",
+                price: 350,
+                flavors: [
+                    {name: "Кислое личи", quantity: 1},
+                    {name: "Абрикос", quantity: 1}
+                ]
+            },
+            {
+                id: 5,
+                category: "liquids",
+                name: "Chapman 5%",
+                description: "Табачные вкусы",
+                image: "images/Chapman.jpg",
+                price: 360,
+                flavors: [
+                    {name: "Яблочный табак", quantity: 1},
+                    {name: "Кокосовый табак", quantity: 1}
+                ]
+            },
+            {
+                id: 6,
+                category: "liquids",
+                name: "XYLINET TEBE PIZDA 30ML 7%",
+                description: "16 вкусов",
+                image: "images/хулинет.jpg",
+                price: 380,
+                flavors: [
+                    {name: "Яблочное проникновение", quantity: 1},
+                    {name: "Манговый фроттаж", quantity: 1},
+                    {name: "Виноградный оргазм", quantity: 0},
+                    {name: "Энергичный свинг", quantity: 1},
+                    {name: "Кактусовый канинг", quantity: 1},
+                    {name: "Кинк киви", quantity: 1},
+                    {name: "Кисло-сладкий фленчинг", quantity: 1},
+                    {name: "Мятная ирримация", quantity: 1},
+                    {name: "Ананасовый кашмот", quantity: 1},
+                    {name: "Апельсиновый дождь", quantity: 1},
+                    {name: "Персиковый куни", quantity: 1},
+                    {name: "Малиновый фистинг", quantity: 1},
+                    {name: "Тропический сквирт", quantity: 1},
+                    {name: "Ежевичный бдсм", quantity: 0},
+                    {name: "Клубничный минет", quantity: 1},
+                    {name: "Ягодный гэнг-бэнг", quantity: 1}
+                ]
+            },
+            {
+                id: 20,
+                category: "liquids",
+                name: "Anima love 2%",
+                description: "2 вкуса",
+                image: "images/анима_лав2.jpg",
+                price: 430,
+                flavors: [
+                    {name: "Кислый скитлс", quantity: 0},
+                    {name: "Морс из диких ягод", quantity: 0}
+                ]
+            }
+        ];
+
+        // Открытие модального окна
+        function openProductModal(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            document.getElementById('modalImage').src = product.image;
+            document.getElementById('modalTitle').textContent = product.name;
+            document.getElementById('modalCategory').textContent = product.description;
+            document.getElementById('modalPrice').textContent = `${product.price} ₽`;
+
+            const flavorSelect = document.getElementById('flavorSelect');
+            flavorSelect.innerHTML = product.flavors.map(flavor => `
+                <div class="flavor-item" data-quantity="${flavor.quantity}" onclick="selectFlavor(this)">
+                    <span>${flavor.name}</span>
+                    <span class="quantity-badge">${flavor.quantity} шт.</span>
+                </div>
+            `).join('');
+
+            document.getElementById('modalOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Закрытие модального окна
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Выбор вкуса
+        function selectFlavor(element) {
+            const items = document.querySelectorAll('.flavor-item');
+            items.forEach(item => item.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
+        // Добавление в корзину
+        function addToCart() {
+            const selectedFlavor = document.querySelector('.flavor-item.selected');
+            if (!selectedFlavor) {
+                showNotification('Выберите вкус!', 'error');
+                return;
+            }
+
+            const flavor = selectedFlavor.querySelector('span').textContent;
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const available = parseInt(selectedFlavor.dataset.quantity);
+
+            if (quantity > available) {
+                showNotification(`Доступно только ${available} шт.`, 'error');
+                return;
+            }
+
+            const item = {
+                title: document.getElementById('modalTitle').textContent,
+                flavor,
+                price: parseInt(document.getElementById('modalPrice').textContent),
+                quantity,
+                image: document.getElementById('modalImage').src
+            };
+
+            cart.push(item);
+            updateCart();
+            showNotification('Товар добавлен в корзину!');
+            closeModal();
+        }
+
+        // Переход на страницу отзывов
+        function goToReviews() {
+            const productId = products.find(p => p.name === document.getElementById('modalTitle').textContent).id;
+            window.location.href = `reviews.html?productId=${productId}`;
+        }
+
+        // Показать уведомление
+        function showNotification(text, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = text;
+            notification.className = `notification ${type} active`;
+            setTimeout(() => notification.classList.remove('active'), 3000);
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCart();
+            renderProducts();
+        });
+
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = products.map(product => `
+                <div class="product-card" onclick="openProductModal(${product.id})">
+                    <img src="${product.image}" class="product-image" alt="${product.name}">
+                    <h2 class="product-title">${product.name}</h2>
+                    <div class="product-price">${product.price} ₽</div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

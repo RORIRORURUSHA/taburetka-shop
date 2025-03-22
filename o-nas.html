@@ -1,0 +1,265 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0">
+    <title>О нас - VAPE UNIVERSE</title>
+    <style>
+        :root {
+            --primary: #4a69bd;
+            --secondary: #1e3799;
+            --accent: #f59e0b;
+            --text: #1e293b;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Шапка */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            animation: headerSlide 0.5s ease;
+        }
+
+        @keyframes headerSlide {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+
+        .logo {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: opacity 0.3s;
+        }
+
+        .logo:hover {
+            opacity: 0.9;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border-radius: 10px;
+            transform: rotate(45deg);
+            animation: logoRotate 20s linear infinite;
+        }
+
+        @keyframes logoRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Основной контент */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            animation: contentFade 0.5s ease;
+        }
+
+        @keyframes contentFade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .about-section {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .about-section h1 {
+            font-size: 2rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+
+        .about-section p {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .team-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .team-member {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .team-member:hover {
+            transform: translateY(-5px);
+        }
+
+        .team-member img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+            object-fit: cover;
+        }
+
+        .team-member h3 {
+            font-size: 1.2rem;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .team-member p {
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        /* Навигация */
+        .nav-footer {
+            background: var(--card-bg);
+            padding: 1rem;
+            position: sticky;
+            bottom: 0;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+        }
+
+        .nav-menu {
+            display: flex;
+            justify-content: space-around;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .nav-item {
+            color: var(--primary);
+            text-decoration: none;
+            padding: 0.8rem;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.3s;
+        }
+
+        .nav-item:hover {
+            background: rgba(74, 105, 189, 0.1);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+
+            .about-section {
+                padding: 1rem;
+            }
+
+            .team-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon"></div>
+            VAPE UNIVERSE
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="about-section">
+            <h1>О нас</h1>
+            <p>
+                Добро пожаловать в VAPE UNIVERSE! Мы — команда энтузиастов, которые создали этот магазин для всех, кто ценит качественные жидкости для вейпинга. Наша миссия — предоставить вам лучшие продукты по доступным ценам.
+            </p>
+            <p>
+                Мы тщательно отбираем каждый товар, чтобы вы могли наслаждаться только лучшими вкусами. Наш ассортимент включает в себя жидкости от ведущих мировых производителей, а также уникальные линейки, разработанные специально для нас.
+            </p>
+        </section>
+
+        <section class="about-section">
+            <h2>Наша команда</h2>
+            <div class="team-section">
+                <div class="team-member">
+                    <img src="https://via.placeholder.com/100" alt="Иван Иванов">
+                    <h3>Иван Иванов</h3>
+                    <p>Основатель и CEO</p>
+                </div>
+                <div class="team-member">
+                    <img src="https://via.placeholder.com/100" alt="Анна Петрова">
+                    <h3>Анна Петрова</h3>
+                    <p>Менеджер по продажам</p>
+                </div>
+                <div class="team-member">
+                    <img src="https://via.placeholder.com/100" alt="Сергей Сидоров">
+                    <h3>Сергей Сидоров</h3>
+                    <p>Технический специалист</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Навигация -->
+    <nav class="nav-footer">
+        <div class="nav-menu">
+            <a href="index.html" class="nav-item">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M10 3H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1zm10 0h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1zM10 13H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1zm10 0h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1z"/>
+                </svg>
+                <span>Каталог</span>
+            </a>
+            <a href="korzina.html" class="nav-item">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+                </svg>
+                <span>Корзина</span>
+            </a>
+            <a href="o-nas.html" class="nav-item">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                </svg>
+                <span>О нас</span>
+            </a>
+        </div>
+    </nav>
+</body>
+</html>
