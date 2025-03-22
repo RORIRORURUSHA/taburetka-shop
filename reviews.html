@@ -75,6 +75,20 @@
             opacity: 0.8;
         }
 
+        .product-rating {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .product-rating span {
+            font-size: 1.2rem;
+            color: var(--accent);
+            font-weight: bold;
+        }
+
         .review-form {
             background: var(--card-bg);
             border-radius: var(--radius);
@@ -299,6 +313,11 @@
             <img id="productImage" src="" alt="Товар">
             <h1 id="productName"></h1>
             <p id="productDescription"></p>
+            <div class="product-rating">
+                <span>★</span>
+                <span id="averageRating">0.0</span>
+                <span>(<span id="totalReviews">0</span> отзывов)</span>
+            </div>
         </div>
 
         <div class="review-form">
@@ -384,14 +403,30 @@
             document.getElementById('productImage').src = product.image;
             document.getElementById('productName').textContent = product.name;
             document.getElementById('productDescription').textContent = product.description;
+        } else {
+            console.error('Товар не найден');
         }
 
         // 3. Работа с отзывами
         let reviews = JSON.parse(localStorage.getItem(`reviews_${productId}`)) || [];
 
+        // 4. Функция для расчета среднего рейтинга
+        function calculateAverageRating() {
+            if (reviews.length === 0) return 0;
+            const total = reviews.reduce((sum, review) => sum + parseInt(review.rating), 0);
+            return (total / reviews.length).toFixed(1);
+        }
+
+        // 5. Обновление рейтинга на странице
+        function updateRating() {
+            const averageRating = calculateAverageRating();
+            document.getElementById('averageRating').textContent = averageRating;
+            document.getElementById('totalReviews').textContent = reviews.length;
+        }
+
+        // 6. Отправка отзыва
         async function submitReview() {
             try {
-                // 4. Валидация данных
                 const username = document.getElementById('username').value.trim();
                 const telegram = document.getElementById('telegram').value.trim();
                 const rating = document.getElementById('rating').value;
@@ -402,7 +437,6 @@
                     throw new Error('Заполните все обязательные поля!');
                 }
 
-                // 5. Обработка изображений
                 const images = [];
                 for (const file of imagesInput.files) {
                     const reader = new FileReader();
@@ -410,7 +444,6 @@
                     reader.readAsDataURL(file);
                 }
 
-                // 6. Сохранение отзыва
                 const review = {
                     username,
                     telegram,
@@ -423,11 +456,10 @@
                 reviews.push(review);
                 localStorage.setItem(`reviews_${productId}`, JSON.stringify(reviews));
                 renderReviews();
+                updateRating();
                 
-                // 7. Отправка в Telegram
                 await sendToTelegram(review, imagesInput.files);
                 
-                // 8. Очистка формы
                 document.getElementById('username').value = '';
                 document.getElementById('telegram').value = '';
                 document.getElementById('rating').value = '5';
@@ -442,11 +474,11 @@
             }
         }
 
-        async function sendToTelegram(review, files) {
+        // 7. Отправка в Telegram
+        async function sendToTelegram(review, files = []) {
             const botToken = '8006097068:AAGRzfW1DVQ8qVIKKxnBlF3efshqcYWOZqU';
             const chatId = '7395030282';
             
-            // 9. Формирование сообщения
             const message = [
                 `Новый отзыв!`,
                 `Товар: ${product.name}`,
@@ -456,7 +488,6 @@
                 `Отзыв: ${review.reviewText}`
             ].join('\n');
 
-            // 10. Отправка текста
             const textUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
             const textResponse = await fetch(textUrl, {
                 method: 'POST',
@@ -471,7 +502,6 @@
                 throw new Error('Ошибка при отправке текста в Telegram');
             }
 
-            // 11. Отправка изображений
             if (files.length > 0) {
                 for (const file of files) {
                     const formData = new FormData();
@@ -493,8 +523,12 @@
             }
         }
 
+        // 8. Рендер отзывов
         function renderReviews() {
             const reviewsList = document.getElementById('reviews-list');
+            if (!reviews || !Array.isArray(reviews)) {
+                reviews = [];
+            }
             reviewsList.innerHTML = reviews.map(review => `
                 <div class="review-card">
                     <div class="review-header">
@@ -510,7 +544,7 @@
                     <div class="review-content">
                         ${review.reviewText}
                     </div>
-                    ${review.images.length > 0 ? `
+                    ${review.images && review.images.length > 0 ? `
                         <div class="review-images">
                             ${review.images.map(img => `<img src="${img}" alt="Фото отзыва" onclick="openModal('${img}')">`).join('')}
                         </div>
@@ -522,7 +556,7 @@
             `).join('');
         }
 
-        // Модальное окно для фотографий
+        // 9. Модальное окно для фотографий
         const modal = document.getElementById('imageModal');
         const modalImage = document.getElementById('modalImage');
         const modalClose = document.querySelector('.modal-close');
@@ -544,6 +578,7 @@
 
         // Инициализация
         renderReviews();
+        updateRating();
     </script>
 </body>
 </html>
