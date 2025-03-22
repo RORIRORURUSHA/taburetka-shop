@@ -2,14 +2,15 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taburetka Shop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vape Universe</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Inter', system-ui;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -18,44 +19,57 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            opacity: 0;
+            animation: fadeIn 1s ease-in-out forwards;
         }
 
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Модальное окно возраста */
         .age-modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             z-index: 1000;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: white;
-            text-align: center;
-            padding: 1rem;
+            animation: modalAppear 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes modalAppear {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .age-content {
             background: #1e293b;
-            padding: 2rem;
+            padding: 1.5rem;
             border-radius: 20px;
-            max-width: 400px;
+            max-width: 320px;
+            margin: 0 15px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
         }
 
         .age-buttons {
             display: flex;
-            gap: 1rem;
-            margin-top: 1.5rem;
+            gap: 12px;
+            margin-top: 1.2rem;
         }
 
         .age-btn {
-            padding: 0.8rem 1.5rem;
+            padding: 12px 20px;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             cursor: pointer;
             font-weight: 600;
             flex: 1;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .age-btn.confirm {
@@ -68,154 +82,211 @@
             color: white;
         }
 
+        /* Хедер */
         .header {
             background: linear-gradient(135deg, #4a69bd 0%, #1e3799 100%);
-            padding: 1.5rem 2rem;
+            padding: 1rem;
             box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
-            position: relative;
-            z-index: 10;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: transform 0.3s ease;
         }
 
         .logo {
             color: #fff;
-            font-size: 1.8rem;
-            font-weight: 700;
+            font-size: 1.4rem;
             display: flex;
             align-items: center;
-            gap: 12px;
-            letter-spacing: -0.5px;
+            gap: 10px;
         }
 
         .logo-icon {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             background: #fff;
-            border-radius: 12px;
+            border-radius: 8px;
             transform: rotate(45deg);
+            animation: logoPulse 2s ease-in-out infinite;
         }
 
+        @keyframes logoPulse {
+            0%, 100% { transform: rotate(45deg) scale(1); }
+            50% { transform: rotate(45deg) scale(1.1); }
+        }
+
+        /* Основной контент */
         .main-content {
             flex: 1;
             overflow-y: auto;
-            padding-bottom: 120px;
+            padding: 1rem 0.5rem 80px;
         }
 
         .categories-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            padding: 1rem;
-            max-width: 1400px;
+            gap: 0.8rem;
+            max-width: 500px;
             margin: 0 auto;
-            width: 100%;
+            width: 95%;
         }
 
         .category-card {
             background: #fff;
-            border-radius: 20px;
+            border-radius: 18px;
             padding: 1rem;
             box-shadow: 0 6px 20px rgba(74, 105, 189, 0.1);
-            transition: all 0.3s;
-            aspect-ratio: 1/1;
+            transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
             text-decoration: none;
+            position: relative;
+            overflow: hidden;
         }
 
-        .category-card.promo-button {
-            aspect-ratio: unset;
-            grid-column: span 2;
-            padding: 2rem;
-            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
-            color: white;
-            font-size: 1.2rem;
-            border-radius: 20px;
-            margin-top: 0.5rem;
+        .category-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .category-card:hover::after {
+            opacity: 1;
         }
 
         .category-card img {
             width: 70%;
-            height: 140px;
+            height: 100px;
             object-fit: contain;
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
+            transition: transform 0.3s ease;
         }
 
         .category-title {
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: #1e3799;
             font-weight: 600;
             text-align: center;
         }
 
-        .promo-button .category-title {
-            color: white !important;
-            font-size: 1.3rem;
+        /* Акционная карточка */
+        .promo-card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 1rem;
+            box-shadow: 0 6px 20px rgba(74, 105, 189, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            grid-column: span 2;
         }
 
+        .promo-card .category-title {
+            color: #f59e0b;
+        }
+
+        /* Нижняя навигация */
         .nav-footer {
             background: #fff;
-            padding: 1rem;
+            padding: 0.8rem;
             position: fixed;
             bottom: 0;
             width: 100%;
             box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
-            border-radius: 24px 24px 0 0;
+            border-radius: 20px 20px 0 0;
         }
 
         .nav-menu {
             display: flex;
-            justify-content: center;
-            gap: 1rem;
-            max-width: 600px;
+            justify-content: space-around;
+            max-width: 500px;
             margin: 0 auto;
         }
 
         .nav-item {
             color: #4a69bd;
             text-decoration: none;
-            font-size: 0.9rem;
-            padding: 0.8rem;
-            border-radius: 16px;
+            font-size: 0.85rem;
+            padding: 0.6rem 1rem;
+            border-radius: 14px;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
-            background: #f8fafc;
+            gap: 4px;
+            transition: all 0.3s ease;
         }
 
-        @media (min-width: 768px) {
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item.active {
+            background: #4a69bd;
+            color: white;
+        }
+
+        /* Адаптация для планшетов */
+        @media (min-width: 480px) {
             .categories-grid {
-                grid-template-columns: repeat(4, 1fr);
-                padding: 2rem;
-                gap: 1.5rem;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+                width: 90%;
             }
-            .category-card.promo-button {
-                grid-column: span 4;
-                padding: 2.5rem;
-                font-size: 1.5rem;
+            
+            .nav-item {
+                font-size: 0.9rem;
+                padding: 0.8rem 1.2rem;
             }
         }
 
-        @media (max-width: 400px) {
-            .nav-item span {
-                display: none;
-            }
-            .logo {
-                font-size: 1.4rem;
-            }
+        /* Анимации */
+        @keyframes cardAppear {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .category-card {
+            animation: cardAppear 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+            opacity: 0;
+        }
+
+        .category-card:nth-child(1) { animation-delay: 0.1s; }
+        .category-card:nth-child(2) { animation-delay: 0.2s; }
+        .category-card:nth-child(3) { animation-delay: 0.3s; }
+        .category-card:nth-child(4) { animation-delay: 0.4s; }
+        .promo-card { animation-delay: 0.5s; }
+
+        /* Интерактивность */
+        button:active, .nav-item:active {
+            transform: scale(0.95);
+        }
+
+        .nav-item:hover svg {
+            transform: translateY(-3px);
         }
     </style>
 </head>
 <body>
     <div class="age-modal">
         <div class="age-content">
-            <h2>Внимание!</h2>
-            <p>Этот сайт содержит информацию о товарах, предназначенных только для лиц старше 18 лет.</p>
+            <h2 style="margin-bottom: 0.8rem;">Подтвердите возраст</h2>
+            <p style="font-size: 0.9rem; margin-bottom: 1.2rem;">Сайт содержит информацию для лиц старше 18 лет</p>
             <div class="age-buttons">
-                <button class="age-btn confirm" onclick="confirmAge()">Мне есть 18</button>
-                <button class="age-btn deny" onclick="denyAccess()">Мне нет 18</button>
+                <button class="age-btn confirm" onclick="confirmAge()">Да, мне 18+</button>
+                <button class="age-btn deny" onclick="denyAccess()">Нет, мне меньше</button>
             </div>
         </div>
     </div>
@@ -223,33 +294,33 @@
     <header class="header">
         <div class="logo">
             <div class="logo-icon"></div>
-            Taburetka Shop
+            VAPE UNIVERSE
         </div>
     </header>
 
     <main class="main-content">
         <div class="categories-grid">
             <a href="zhidkosti.html" class="category-card">
-                <img src="IMG_URL_HERE" alt="Жидкости">
-                <h2 class="category-title">Жидкости</h2>
+                <img src="liquid.png" alt="Жидкости">
+                <h2 class="category-title">Электронные жидкости</h2>
             </a>
 
             <a href="odnorazki.html" class="category-card">
-                <img src="IMG_URL_HERE" alt="Одноразки">
-                <h2 class="category-title">Одноразки</h2>
+                <img src="disposable.png" alt="Одноразки">
+                <h2 class="category-title">Одноразовые устройства</h2>
             </a>
 
             <a href="podsistemy.html" class="category-card">
-                <img src="IMG_URL_HERE" alt="Подсистемы">
-                <h2 class="category-title">Подсистемы</h2>
+                <img src="pod.png" alt="Подсистемы">
+                <h2 class="category-title">Pod-системы</h2>
             </a>
 
             <a href="kartridzhi.html" class="category-card">
-                <img src="IMG_URL_HERE" alt="Картриджи">
-                <h2 class="category-title">Картриджи</h2>
+                <img src="cartridge.png" alt="Картриджи">
+                <h2 class="category-title">Сменные картриджи</h2>
             </a>
 
-            <a href="aktsii.html" class="category-card promo-button">
+            <a href="aktsii.html" class="promo-card">
                 <h2 class="category-title">🔥 Горячие акции и скидки!</h2>
             </a>
         </div>
@@ -257,37 +328,87 @@
 
     <nav class="nav-footer">
         <div class="nav-menu">
-            <a href="index.html" class="nav-item">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <a href="index.html" class="nav-item active">
+                <svg viewBox="0 0 24 24" fill="currentColor">
                     <path d="M10 3H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1zm10 0h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1zM10 13H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1zm10 0h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1z"/>
                 </svg>
-                <span>Каталог</span>
+                Каталог
             </a>
             <a href="korzina.html" class="nav-item">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <svg viewBox="0 0 24 24" fill="currentColor">
                     <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
                 </svg>
-                <span>Корзина</span>
+                Корзина
             </a>
             <a href="o-nas.html" class="nav-item">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <svg viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
                 </svg>
-                <span>О нас</span>
+                О нас
             </a>
         </div>
     </nav>
 
     <script>
+        // Возрастное подтверждение
         const ageModal = document.querySelector('.age-modal');
         function confirmAge() {
             ageModal.style.display = 'none';
             document.body.style.overflow = 'auto';
+            localStorage.setItem('ageVerified', 'true');
         }
         function denyAccess() {
-            window.location.href = 'https://www.google.com';
+            window.location.href = 'https://yandex.ru';
         }
-        document.body.style.overflow = 'hidden';
+
+        // Проверка подтверждения
+        if(localStorage.getItem('ageVerified')) {
+            ageModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        } else {
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Параллакс эффект для хедера
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('.header');
+            header.style.transform = `translateY(${window.pageYOffset * 0.3}px)`;
+        });
+
+        // Анимация при скролле
+        const cards = document.querySelectorAll('.category-card');
+        window.addEventListener('scroll', checkCards);
+        checkCards();
+
+        function checkCards() {
+            cards.forEach(card => {
+                const cardTop = card.getBoundingClientRect().top;
+                if(cardTop < window.innerHeight * 0.8) {
+                    card.style.opacity = '1';
+                }
+            });
+        }
+
+        // Вибрация при клике
+        document.querySelectorAll('button, a').forEach(el => {
+            el.addEventListener('click', () => {
+                if(navigator.vibrate) navigator.vibrate(20);
+            });
+        });
+
+        // Плавные переходы
+        document.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                if(this.href === window.location.href) {
+                    e.preventDefault();
+                    return;
+                }
+                
+                e.preventDefault();
+                document.body.style.opacity = '0';
+                setTimeout(() => window.location.href = this.href, 300);
+            });
+        });
     </script>
 </body>
 </html>
