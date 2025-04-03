@@ -291,11 +291,11 @@
             opacity: 0.8;
         }
 
-        .category-card.promo-button {
+        .category-card.profile-button {
             aspect-ratio: unset;
             grid-column: span 2;
             padding: 2rem;
-            background: var(--gradient-accent);
+            background: var(--gradient);
             color: white;
             font-size: 1.2rem;
             border-radius: var(--radius);
@@ -334,11 +334,38 @@
             color: var(--primary);
         }
 
-        .promo-button .category-title {
+        .profile-button .category-title {
             color: white !important;
             font-size: 1.3rem;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
+
+        /* Анимации */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(5deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(-5deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .shake-animation {
+            animation: shake 1s ease-in-out infinite;
+        }
+
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
 
         /* Нижняя навигация */
         .nav-footer {
@@ -409,7 +436,7 @@
                 padding: 1.5rem;
             }
             
-            .category-card.promo-button {
+            .category-card.profile-button {
                 grid-column: span 3;
                 padding: 2.5rem;
             }
@@ -425,7 +452,7 @@
                 grid-template-columns: repeat(4, 1fr);
             }
             
-            .category-card.promo-button {
+            .category-card.profile-button {
                 grid-column: span 4;
                 padding: 3rem;
                 font-size: 1.5rem;
@@ -484,28 +511,28 @@
 
     <main class="main-content">
         <div class="categories-grid">
-            <a href="zhidkosti.html" class="category-card">
+            <a href="zhidkosti.html" class="category-card float-animation">
                 <img src="images/liquids.png" alt="Жидкости">
                 <h2 class="category-title">Жидкости</h2>
             </a>
 
-            <a href="odnorazki.html" class="category-card">
+            <a href="odnorazki.html" class="category-card float-animation delay-1">
                 <img src="images/disposable.png" alt="Одноразки">
                 <h2 class="category-title">Одноразки</h2>
             </a>
 
-            <a href="podsistemy.html" class="category-card">
+            <a href="podsistemy.html" class="category-card float-animation delay-2">
                 <img src="images/pod-systems.png" alt="Подсистемы">
                 <h2 class="category-title">Подсистемы</h2>
             </a>
 
-            <a href="kartridzhi.html" class="category-card">
+            <a href="kartridzhi.html" class="category-card float-animation delay-3">
                 <img src="images/cartridges.png" alt="Картриджи">
                 <h2 class="category-title">Картриджи</h2>
             </a>
 
-            <a href="aktsii.html" class="category-card promo-button">
-                <h2 class="category-title">🔥 Горячие акции и скидки!</h2>
+            <a href="profile.html" class="category-card profile-button shake-animation">
+                <h2 class="category-title">👤 Мой профиль</h2>
             </a>
         </div>
     </main>
