@@ -201,6 +201,11 @@
             margin-bottom: 1rem;
             box-shadow: var(--shadow);
             border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .product-image:hover {
+            transform: scale(1.05);
         }
 
         .product-title {
@@ -249,6 +254,12 @@
             box-shadow: var(--shadow);
             border: 1px solid var(--border);
             animation: fadeIn 0.6s ease-out 0.2s both;
+            transition: var(--transition);
+        }
+
+        .review-form:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
         }
 
         .form-group {
@@ -288,6 +299,7 @@
             display: flex;
             gap: 0.5rem;
             margin-bottom: 1rem;
+            justify-content: center;
         }
 
         .rating-star {
@@ -295,11 +307,36 @@
             color: var(--text-light);
             cursor: pointer;
             transition: var(--transition-fast);
+            position: relative;
         }
 
-        .rating-star:hover, .rating-star.active {
+        .rating-star:hover {
+            transform: scale(1.2);
+        }
+
+        .rating-star.active {
             color: var(--accent);
-            transform: scale(1.1);
+            animation: starBounce 0.5s ease;
+        }
+
+        @keyframes starBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+        }
+
+        .rating-star::after {
+            content: '★';
+            position: absolute;
+            top: 0;
+            left: 0;
+            color: var(--accent);
+            width: 0;
+            overflow: hidden;
+            transition: width 0.3s ease;
+        }
+
+        .rating-star.active::after {
+            width: 100%;
         }
 
         .file-upload {
@@ -326,6 +363,7 @@
 
         .file-label:hover {
             background: rgba(74, 105, 189, 0.2);
+            transform: translateY(-2px);
         }
 
         .file-preview {
@@ -342,6 +380,12 @@
             border-radius: var(--radius-sm);
             overflow: hidden;
             border: 1px solid var(--border);
+            animation: fadeIn 0.3s ease-out;
+            transition: var(--transition);
+        }
+
+        .file-preview-item:hover {
+            transform: scale(1.05);
         }
 
         .file-preview-img {
@@ -387,6 +431,8 @@
             gap: 0.5rem;
             margin-top: 1rem;
             box-shadow: 0 4px 12px rgba(74, 105, 189, 0.2);
+            width: 100%;
+            justify-content: center;
         }
 
         .submit-btn:hover {
@@ -417,10 +463,17 @@
             border: 1px solid var(--border);
             animation: fadeIn 0.6s ease-out;
             transition: var(--transition);
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .review-card.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .review-card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-5px) !important;
             box-shadow: var(--shadow-hover);
         }
 
@@ -450,6 +503,11 @@
         .review-rating-star {
             color: var(--accent);
             font-size: 1rem;
+            transition: var(--transition-fast);
+        }
+
+        .review-rating-star:hover {
+            transform: scale(1.2);
         }
 
         .review-text {
@@ -477,6 +535,7 @@
 
         .review-image:hover {
             transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
         .no-reviews {
@@ -595,6 +654,12 @@
             position: relative;
             max-width: 90%;
             max-height: 90%;
+            animation: zoomIn 0.3s ease-out;
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
 
         .image-modal-img {
@@ -602,12 +667,6 @@
             max-height: 90vh;
             object-fit: contain;
             border-radius: var(--radius-sm);
-            animation: zoomIn 0.3s ease-out;
-        }
-
-        @keyframes zoomIn {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
         }
 
         .image-modal-close {
@@ -707,6 +766,14 @@
             .product-image {
                 margin-bottom: 0;
             }
+            
+            .rating-container {
+                justify-content: flex-start;
+            }
+            
+            .submit-btn {
+                width: auto;
+            }
         }
 
         @media (min-width: 640px) {
@@ -727,6 +794,11 @@
             .review-image {
                 width: 150px;
                 height: 150px;
+            }
+            
+            .file-preview-item {
+                width: 100px;
+                height: 100px;
             }
         }
     </style>
@@ -851,6 +923,11 @@
         <div class="notification-text" id="notificationText"></div>
     </div>
 
+    <!-- Подключаем Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+
     <script>
         // Firebase конфигурация
         const firebaseConfig = {
@@ -866,6 +943,7 @@
         // Инициализация Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        const storage = firebase.storage();
 
         // Текущий товар и отзывы
         let currentProduct = null;
@@ -1033,35 +1111,29 @@
             loadReviews();
         }
 
-        // Загрузка отзывов
+        // Загрузка отзывов из Firebase
         function loadReviews() {
-            // В реальном приложении нужно загружать отзывы из Firebase
-            // Здесь используем моковые данные
-            reviews = [
-                {
-                    id: 1,
-                    productId: currentProduct.id,
-                    author: "Иван Иванов",
-                    rating: 5,
-                    text: "Отличный товар! Пользуюсь уже месяц, все очень нравится. Вкус насыщенный, батарея держит долго.",
-                    date: "2023-05-15",
-                    images: ["images/review1.jpg", "images/review2.jpg"]
-                },
-                {
-                    id: 2,
-                    productId: currentProduct.id,
-                    author: "Петр Петров",
-                    rating: 4,
-                    text: "Хороший продукт, но есть небольшие недочеты. В целом рекомендую.",
-                    date: "2023-05-10",
-                    images: []
+            const reviewsRef = database.ref('reviews').orderByChild('productId').equalTo(parseInt(currentProduct.id));
+            
+            reviewsRef.on('value', (snapshot) => {
+                reviews = [];
+                const data = snapshot.val();
+                
+                if (data) {
+                    reviews = Object.keys(data).map(key => ({
+                        id: key,
+                        ...data[key]
+                    }));
+                    
+                    // Сортируем отзывы по дате (новые сначала)
+                    reviews.sort((a, b) => new Date(b.date) - new Date(a.date));
                 }
-            ].filter(r => r.productId == currentProduct.id);
-
-            renderReviews();
+                
+                renderReviews();
+            });
         }
 
-        // Отображение отзывов
+        // Отображение отзывов с анимациями
         function renderReviews() {
             const reviewsList = document.getElementById('reviewsList');
             
@@ -1070,8 +1142,12 @@
                 return;
             }
 
-            reviewsList.innerHTML = reviews.map(review => `
-                <div class="review-card fade-in">
+            reviewsList.innerHTML = '';
+            
+            reviews.forEach((review, index) => {
+                const reviewCard = document.createElement('div');
+                reviewCard.className = 'review-card';
+                reviewCard.innerHTML = `
                     <div class="review-header">
                         <div class="review-author">${review.author}</div>
                         <div class="review-date">${formatDate(review.date)}</div>
@@ -1080,13 +1156,20 @@
                         ${'★'.repeat(review.rating).split('').map(() => `<span class="review-rating-star">★</span>`).join('')}
                     </div>
                     <div class="review-text">${review.text}</div>
-                    ${review.images.length > 0 ? `
+                    ${review.images && review.images.length > 0 ? `
                         <div class="review-images">
                             ${review.images.map(img => `<img src="${img}" class="review-image" onclick="openImageModal('${img}')">`).join('')}
                         </div>
                     ` : ''}
-                </div>
-            `).join('');
+                `;
+                
+                reviewsList.appendChild(reviewCard);
+                
+                // Добавляем анимацию появления с задержкой
+                setTimeout(() => {
+                    reviewCard.classList.add('visible');
+                }, index * 100);
+            });
         }
 
         // Форматирование даты
@@ -1142,17 +1225,45 @@
             document.getElementById('moonIcon').style.display = isDark ? 'block' : 'none';
         }
 
-        // Инициализация
-        document.addEventListener('DOMContentLoaded', () => {
-            // Проверяем сохранённую тему
-            if (localStorage.getItem('darkMode') === 'true') {
-                document.body.classList.add('dark-mode');
+        // Загрузка изображений в Firebase Storage
+        async function uploadImages(files) {
+            const uploadPromises = [];
+            
+            for (let i = 0; i < Math.min(files.length, 3); i++) {
+                const file = files[i];
+                if (!file.type.match('image.*')) continue;
+                
+                const storageRef = storage.ref(`reviews/${Date.now()}_${file.name}`);
+                const uploadTask = storageRef.put(file);
+                
+                uploadPromises.push(
+                    new Promise((resolve, reject) => {
+                        uploadTask.on(
+                            'state_changed',
+                            null,
+                            (error) => {
+                                console.error('Ошибка загрузки изображения:', error);
+                                reject(error);
+                            },
+                            async () => {
+                                try {
+                                    const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                                    resolve(downloadURL);
+                                } catch (error) {
+                                    console.error('Ошибка получения URL изображения:', error);
+                                    reject(error);
+                                }
+                            }
+                        );
+                    })
+                );
             }
-            updateThemeIcon();
+            
+            return Promise.all(uploadPromises);
+        }
 
-            // Назначаем обработчики
-            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-
+        // Инициализация обработчиков событий
+        function initEventHandlers() {
             // Обработчик звезд рейтинга
             const stars = document.querySelectorAll('.rating-star');
             stars.forEach(star => {
@@ -1166,6 +1277,24 @@
                             s.classList.add('active');
                         } else {
                             s.classList.remove('active');
+                        }
+                    });
+                });
+                
+                // Анимация при наведении
+                star.addEventListener('mouseenter', function() {
+                    const hoverRating = parseInt(this.dataset.rating);
+                    stars.forEach((s, i) => {
+                        if (i < hoverRating && !s.classList.contains('active')) {
+                            s.style.transform = 'scale(1.2)';
+                        }
+                    });
+                });
+                
+                star.addEventListener('mouseleave', function() {
+                    stars.forEach((s, i) => {
+                        if (!s.classList.contains('active')) {
+                            s.style.transform = 'scale(1)';
                         }
                     });
                 });
@@ -1201,7 +1330,8 @@
                         filePreview.appendChild(previewItem);
                         
                         // Обработчик удаления превью
-                        previewItem.querySelector('.file-preview-remove').addEventListener('click', function() {
+                        previewItem.querySelector('.file-preview-remove').addEventListener('click', function(e) {
+                            e.stopPropagation();
                             const index = parseInt(this.dataset.index);
                             selectedFiles.splice(index, 1);
                             filePreview.removeChild(previewItem);
@@ -1212,7 +1342,7 @@
             });
 
             // Обработчик формы отзыва
-            document.getElementById('reviewForm').addEventListener('submit', function(e) {
+            document.getElementById('reviewForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 const name = document.getElementById('reviewName').value.trim();
@@ -1224,36 +1354,96 @@
                     return;
                 }
                 
-                // В реальном приложении нужно сохранять отзыв в Firebase
-                const newReview = {
-                    id: Date.now(),
-                    productId: currentProduct.id,
-                    author: name,
-                    rating: rating,
-                    text: text,
-                    date: new Date().toISOString().split('T')[0],
-                    images: [] // В реальном приложении нужно загружать изображения в Firebase Storage
-                };
+                // Блокируем кнопку отправки
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" class="loading-spinner">
+                        <path d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z"/>
+                    </svg>
+                    Отправка...
+                `;
                 
-                reviews.unshift(newReview);
-                renderReviews();
-                
-                // Очищаем форму
-                this.reset();
-                selectedRating = 0;
-                selectedFiles = [];
-                document.getElementById('filePreview').innerHTML = '';
-                stars.forEach(star => star.classList.remove('active'));
-                
-                showNotification('Спасибо за ваш отзыв!', 'success');
-                
-                // Прокручиваем к новому отзыву
-                document.getElementById('reviewsList').scrollIntoView({ behavior: 'smooth' });
+                try {
+                    // Загружаем изображения, если они есть
+                    let imageUrls = [];
+                    if (selectedFiles.length > 0) {
+                        try {
+                            imageUrls = await uploadImages(selectedFiles);
+                            console.log('Изображения успешно загружены:', imageUrls);
+                        } catch (error) {
+                            console.error('Ошибка загрузки изображений:', error);
+                            showNotification('Ошибка загрузки изображений', 'error');
+                            throw error;
+                        }
+                    }
+                    
+                    // Создаем новый отзыв
+                    const newReview = {
+                        productId: parseInt(currentProduct.id),
+                        author: name,
+                        rating: rating,
+                        text: text,
+                        images: imageUrls,
+                        date: new Date().toISOString()
+                    };
+                    
+                    console.log('Отправка отзыва:', newReview);
+                    
+                    // Сохраняем отзыв в Firebase
+                    const newReviewRef = database.ref('reviews').push();
+                    await newReviewRef.set(newReview);
+                    console.log('Отзыв успешно сохранен');
+                    
+                    // Очищаем форму
+                    this.reset();
+                    selectedRating = 0;
+                    selectedFiles = [];
+                    document.getElementById('filePreview').innerHTML = '';
+                    document.querySelectorAll('.rating-star').forEach(star => star.classList.remove('active'));
+                    
+                    showNotification('Спасибо за ваш отзыв!', 'success');
+                    
+                    // Прокручиваем к новому отзыву
+                    setTimeout(() => {
+                        document.getElementById('reviewsList').scrollIntoView({ behavior: 'smooth' });
+                    }, 500);
+                    
+                } catch (error) {
+                    console.error('Ошибка при отправке отзыва:', error);
+                    showNotification('Произошла ошибка при отправке отзыва', 'error');
+                } finally {
+                    // Разблокируем кнопку
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                        Отправить отзыв
+                    `;
+                }
             });
+
+            // Обработчик переключения темы
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            // Проверяем сохранённую тему
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+            }
+            updateThemeIcon();
 
             updateCart();
             loadProductInfo();
+            initEventHandlers();
         });
+
+        // Глобальные функции для вызова из HTML
+        window.openImageModal = openImageModal;
+        window.closeImageModal = closeImageModal;
     </script>
 </body>
 </html>
