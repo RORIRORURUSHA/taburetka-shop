@@ -7,12 +7,22 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="particles-container" id="particles"></div>
+    
     <div class="game-container">
         <div class="game-header">
-            <h1 class="game-title">TABURETKA TAP</h1>
+            <div class="header-left">
+                <h1 class="game-title">TABURETKA TAP</h1>
+                <div class="prestige-badge">
+                    <span>🌟</span>
+                    <span id="prestigeBadge">0</span>
+                </div>
+            </div>
+            
             <div class="stats-container">
                 <div class="stat-box">
                     <span class="stat-label">Баланс</span>
@@ -26,12 +36,18 @@
                     <span class="stat-label">За клик</span>
                     <span id="clickValue" class="stat-value">1 ₽</span>
                 </div>
+                <div class="stat-box">
+                    <span class="stat-label">Кликов</span>
+                    <span id="totalClicks" class="stat-value">0</span>
+                </div>
             </div>
         </div>
 
         <div class="main-game-area">
             <div id="vape" class="vape-container pulse-animation">
+                <div class="vape-glow"></div>
                 <img src="assets/vape-main.png" alt="Вейп" class="vape-image float-animation">
+                <div class="vape-smoke"></div>
                 <div class="click-effect"></div>
                 <div class="click-area" id="clickArea"></div>
             </div>
@@ -39,9 +55,34 @@
             
             <!-- Мультитач панель -->
             <div class="multitouch-panel">
-                <div class="touch-zone" id="touchZone1"></div>
-                <div class="touch-zone" id="touchZone2"></div>
-                <div class="touch-zone" id="touchZone3"></div>
+                <div class="touch-zone" id="touchZone1">
+                    <div class="touch-indicator"></div>
+                </div>
+                <div class="touch-zone" id="touchZone2">
+                    <div class="touch-indicator"></div>
+                </div>
+                <div class="touch-zone" id="touchZone3">
+                    <div class="touch-indicator"></div>
+                </div>
+            </div>
+            
+            <!-- Кнопка буста -->
+            <button class="boost-btn" id="boostBtn">
+                <div class="boost-progress" id="boostProgress"></div>
+                <span>🔥 BOOST</span>
+                <span class="boost-timer" id="boostTimer"></span>
+            </button>
+
+            <!-- Статистика кликов -->
+            <div class="click-stats">
+                <div class="click-stat">
+                    <span>🌟</span>
+                    <span id="goldenHits">0</span>
+                </div>
+                <div class="click-stat">
+                    <span>💥</span>
+                    <span id="criticalHits">0</span>
+                </div>
             </div>
         </div>
 
@@ -59,19 +100,47 @@
                 <button class="tab-btn" data-tab="achievements">
                     <i>🏆</i> <span class="tab-text">Достижения</span>
                 </button>
+                <button class="tab-btn" data-tab="promocodes">
+                    <i>🎟️</i> <span class="tab-text">Промокоды</span>
+                </button>
+            </div>
+
+            <!-- Фильтры для товаров -->
+            <div class="category-filters" id="productFilters" style="display: none;">
+                <button class="filter-btn active" data-category="all">Все</button>
+                <button class="filter-btn" data-category="basic">🛒 Базовые</button>
+                <button class="filter-btn" data-category="advanced">⚡ Продвинутые</button>
+                <button class="filter-btn" data-category="business">🏢 Бизнес</button>
+                <button class="filter-btn" data-category="enterprise">🏭 Предприятие</button>
+            </div>
+
+            <!-- Фильтры для улучшений -->
+            <div class="category-filters" id="upgradeFilters" style="display: none;">
+                <button class="filter-btn active" data-category="all">Все</button>
+                <button class="filter-btn" data-category="click">👆 Клики</button>
+                <button class="filter-btn" data-category="passive">💤 Пассивный доход</button>
+                <button class="filter-btn" data-category="special">✨ Особые</button>
             </div>
 
             <div class="tab-content active" id="products">
                 <!-- Товары будут добавляться динамически -->
+                <div class="empty-state">
+                    <i>🛒</i>
+                    <p>Покупайте товары для пассивного дохода</p>
+                </div>
             </div>
 
             <div class="tab-content" id="upgrades">
-                <!-- Улучшения будут добавляться динамически -->
+                <!-- Улучшения будут добавлять��я динамически -->
+                <div class="empty-state">
+                    <i>⚡</i>
+                    <p>Улучшайте свои возможности</p>
+                </div>
             </div>
 
             <div class="tab-content" id="prestige">
-                <div class="upgrade-item">
-                    <div class="upgrade-icon">🌟</div>
+                <div class="upgrade-item prestige-item">
+                    <div class="upgrade-icon prestige-icon">🌟</div>
                     <div class="upgrade-info">
                         <div class="upgrade-name">Престиж</div>
                         <div class="upgrade-description">Сбросьте прогресс для постоянных бонусов</div>
@@ -82,13 +151,52 @@
                             <div class="upgrade-stat">
                                 <i>🏆</i> Уровень: <span id="prestigeLevel">0</span>
                             </div>
+                            <div class="upgrade-stat">
+                                <i>💰</i> До следующего уровня: <span id="prestigeRemaining">100,000</span> ₽
+                            </div>
                         </div>
                         <div class="progress-bar">
-                            <div class="progress-fill" id="prestigeProgress" style="width: 0%"></div>
+                            <div class="progress-fill prestige-progress" id="prestigeProgress" style="width: 0%"></div>
                         </div>
                         <div class="upgrade-actions">
                             <button class="buy-btn prestige-btn" id="prestigeBtn" disabled>
                                 <i>🚀</i> Престиж (<span id="prestigePrice">10,000</span> ₽)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="upgrade-item">
+                    <div class="upgrade-icon">💎</div>
+                    <div class="upgrade-info">
+                        <div class="upgrade-name">Алмазные пальцы</div>
+                        <div class="upgrade-description">После престижа сохраняется 5% вашего дохода в секунду</div>
+                        <div class="upgrade-stats">
+                            <div class="upgrade-stat">
+                                <i>⚡</i> Уровень: <span id="permIncomeLevel">0</span>/5
+                            </div>
+                        </div>
+                        <div class="upgrade-actions">
+                            <button class="buy-btn" id="buyPermIncome" disabled>
+                                <i>💎</i> Улучшить (50 престиж-очков)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="upgrade-item">
+                    <div class="upgrade-icon">👐</div>
+                    <div class="upgrade-info">
+                        <div class="upgrade-name">Золотые руки</div>
+                        <div class="upgrade-description">Увеличивает базовый доход за клик на 10%</div>
+                        <div class="upgrade-stats">
+                            <div class="upgrade-stat">
+                                <i>⚡</i> Уровень: <span id="clickBonusLevel">0</span>/5
+                            </div>
+                        </div>
+                        <div class="upgrade-actions">
+                            <button class="buy-btn" id="buyClickBonus" disabled>
+                                <i>👐</i> Улучшить (75 престиж-очков)
                             </button>
                         </div>
                     </div>
@@ -98,6 +206,40 @@
             <div class="tab-content" id="achievements">
                 <div class="achievements-container">
                     <!-- Достижения будут добавляться динамически -->
+                    <div class="empty-state">
+                        <i>🏆</i>
+                        <p>Выполняйте достижения для получения наград</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="promocodes">
+                <div class="promocode-section">
+                    <div class="promocode-info">
+                        <h3>Генератор промокодов</h3>
+                        <p>Каждый промокод дает случайную скидку в нашем магазине</p>
+                        <div class="promocode-stats">
+                            <div class="stat">
+                                <i>🎟️</i> Сгенерировано: <span id="promocodesGenerated">0</span>
+                            </div>
+                            <div class="stat">
+                                <i>💰</i> Следующий через: <span id="nextPromocode">100,000</span> ₽
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="promocode-action">
+                        <button class="buy-btn" id="generatePromocode" disabled>
+                            <i>✨</i> Сгенерировать промокод (100,000 ₽)
+                        </button>
+                    </div>
+                    
+                    <div class="promocodes-list" id="promocodesList">
+                        <div class="empty-state">
+                            <i>🎟️</i>
+                            <p>У вас пока нет промокодов</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -118,7 +260,17 @@
         <div class="offline-content">
             <h3>Оффлайн доход</h3>
             <p>Пока вас не было, вы заработали: <span id="offlineAmount">0</span> ₽</p>
+            <div class="offline-time" id="offlineTime"></div>
             <button class="collect-btn" id="collectOffline">Забрать</button>
+        </div>
+    </div>
+    
+    <div class="promocode-modal" id="promocodeModal">
+        <div class="modal-content">
+            <h3>Новый промокод!</h3>
+            <div class="promocode-value" id="promocodeValue">TAP-100</div>
+            <div class="promocode-amount">Скидка: <span id="promocodeDiscount">100</span> ₽</div>
+            <button class="modal-close" id="closePromocodeModal">Закрыть</button>
         </div>
     </div>
 
