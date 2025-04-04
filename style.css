@@ -1,53 +1,75 @@
 /* Основные переменные */
 :root {
-    /* Цветовая схема */
+    /* Цве��овая схема */
     --primary: #7c3aed;
     --primary-dark: #5b21b6;
     --primary-light: #8b5cf6;
+    --primary-extra-light: rgba(139, 92, 246, 0.1);
     --accent: #f59e0b;
     --accent-dark: #d97706;
+    --accent-light: rgba(245, 158, 11, 0.1);
     --text: #1e293b;
     --text-light: #64748b;
+    --text-lighter: rgba(100, 116, 139, 0.7);
     --bg: #f8fafc;
     --card-bg: #ffffff;
     --border: rgba(0, 0, 0, 0.1);
     --shadow-color: rgba(0, 0, 0, 0.1);
     --success: #10b981;
+    --success-light: rgba(16, 185, 129, 0.1);
     --error: #ef4444;
+    --error-light: rgba(239, 68, 68, 0.1);
     --warning: #f97316;
     --info: #3b82f6;
+    --info-light: rgba(59, 130, 246, 0.1);
+    --critical: #ef4444;
+    --golden: #FFD700;
     
     /* Тёмная тема */
     --dark-primary: #8b5cf6;
     --dark-primary-dark: #7c3aed;
+    --dark-primary-light: rgba(139, 92, 246, 0.2);
     --dark-accent: #f6b93b;
     --dark-text: #e2e8f0;
     --dark-text-light: #94a3b8;
+    --dark-text-lighter: rgba(148, 163, 184, 0.7);
     --dark-bg: #0f172a;
     --dark-card-bg: #1e293b;
+    --dark-card-bg-light: #334155;
     --dark-border: rgba(255, 255, 255, 0.1);
     --dark-shadow-color: rgba(0, 0, 0, 0.3);
 
     /* Стили */
     --radius: 16px;
     --radius-sm: 8px;
+    --radius-lg: 24px;
     --shadow: 0 4px 12px var(--shadow-color);
     --shadow-hover: 0 8px 16px var(--shadow-color);
+    --shadow-inset: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
     --transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    --transition-fast: all 0.15s ease;
     --gradient: linear-gradient(135deg, var(--primary), var(--primary-light));
+    --accent-gradient: linear-gradient(135deg, var(--accent), var(--accent-dark));
     --prestige-gradient: linear-gradient(135deg, #f59e0b, #f97316);
+    --gold-gradient: linear-gradient(135deg, #FFD700, #FFA500);
+    --critical-gradient: linear-gradient(135deg, #ef4444, #dc2626);
 }
 
 .dark-mode {
     --primary: var(--dark-primary);
     --primary-dark: var(--dark-primary-dark);
+    --primary-light: var(--dark-primary-light);
+    --primary-extra-light: rgba(139, 92, 246, 0.2);
     --accent: var(--dark-accent);
     --text: var(--dark-text);
     --text-light: var(--dark-text-light);
+    --text-lighter: var(--dark-text-lighter);
     --bg: var(--dark-bg);
     --card-bg: var(--dark-card-bg);
     --border: var(--dark-border);
     --shadow-color: var(--dark-shadow-color);
+    --critical: #f87171;
+    --golden: #fcd34d;
 }
 
 /* Базовые стили */
@@ -68,6 +90,27 @@ body {
     transition: background 0.5s ease, color 0.3s ease;
     overflow-x: hidden;
     touch-action: manipulation;
+    position: relative;
+}
+
+/* Система частиц */
+.particles-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    background: var(--primary-light);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
 }
 
 /* Контейнер игры */
@@ -80,6 +123,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    position: relative;
+    z-index: 1;
 }
 
 /* Шапка игры */
@@ -108,6 +153,12 @@ body {
     background: var(--gradient);
 }
 
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
 .game-title {
     font-family: 'Montserrat', sans-serif;
     font-weight: 800;
@@ -117,11 +168,25 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
+    margin: 0;
 }
 
 .game-title::before {
     content: '💨';
     font-size: 1.5rem;
+}
+
+.prestige-badge {
+    background: var(--prestige-gradient);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: var(--shadow);
 }
 
 /* Статистика */
@@ -133,7 +198,7 @@ body {
 }
 
 .stat-box {
-    background: rgba(123, 92, 246, 0.1);
+    background: var(--primary-extra-light);
     padding: 12px 18px;
     border-radius: var(--radius-sm);
     text-align: center;
@@ -142,6 +207,7 @@ body {
     overflow: hidden;
     transition: var(--transition);
     flex: 1 1 auto;
+    backdrop-filter: blur(5px);
 }
 
 .stat-box:hover {
@@ -187,6 +253,7 @@ body {
     padding: 20px;
     overflow: hidden;
     gap: 20px;
+    min-height: 300px;
 }
 
 .main-game-area::before {
@@ -196,8 +263,9 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at center, transparent 0%, rgba(123, 92, 246, 0.05) 100%);
+    background: radial-gradient(circle at center, transparent 0%, var(--primary-extra-light) 100%);
     pointer-events: none;
+    z-index: 0;
 }
 
 /* Вейп (кликабельный элемент) */
@@ -208,6 +276,11 @@ body {
     user-select: none;
     z-index: 2;
     touch-action: manipulation;
+    width: 180px;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .vape-container:active {
@@ -219,11 +292,44 @@ body {
     height: auto;
     filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
     transition: var(--transition);
+    position: relative;
+    z-index: 2;
 }
 
 .vape-container:hover .vape-image {
     transform: rotate(-5deg) scale(1.05);
     filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.3));
+}
+
+.vape-glow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, var(--primary-light) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+.vape-container:hover .vape-glow {
+    opacity: 0.3;
+}
+
+.vape-smoke {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.smoke-particle {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    filter: blur(5px);
+    opacity: 0;
 }
 
 /* Мультитач панель */
@@ -234,21 +340,116 @@ body {
     gap: 10px;
     justify-content: center;
     touch-action: manipulation;
+    margin-top: 20px;
 }
 
 .touch-zone {
     flex: 1;
     height: 80px;
-    background: rgba(123, 92, 246, 0.1);
+    background: var(--primary-extra-light);
     border-radius: var(--radius-sm);
     border: 2px dashed var(--primary-light);
     transition: var(--transition);
     max-width: 100px;
+    position: relative;
+    overflow: hidden;
 }
 
 .touch-zone:active {
-    background: rgba(123, 92, 246, 0.2);
+    background: var(--primary-light);
     transform: scale(0.98);
+}
+
+.touch-indicator {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: var(--primary);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.touch-zone:active .touch-indicator {
+    opacity: 0.3;
+}
+
+/* Кнопка буста */
+.boost-btn {
+    position: relative;
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    overflow: hidden;
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+    margin-top: 15px;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.boost-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    background: var(--text-light);
+}
+
+.boost-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    width: 0%;
+    transition: width 0.1s linear;
+    z-index: -1;
+}
+
+.boost-timer {
+    position: absolute;
+    right: 10px;
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.boost-btn.active {
+    animation: pulse 1s infinite;
+}
+
+/* Статистика кликов */
+.click-stats {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.click-stat {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--primary-extra-light);
+    padding: 5px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+}
+
+.click-stat:first-child {
+    color: var(--golden);
+}
+
+.click-stat:last-child {
+    color: var(--critical);
 }
 
 /* Эффекты клика */
@@ -266,6 +467,10 @@ body {
     z-index: 1;
 }
 
+.critical-effect {
+    background: radial-gradient(circle at center, rgba(239, 68, 68, 0.8) 0%, transparent 70%);
+}
+
 .click-counter {
     position: absolute;
     font-weight: 800;
@@ -278,6 +483,19 @@ body {
     z-index: 3;
 }
 
+.golden-click {
+    color: var(--golden);
+    text-shadow: 0 2px 8px rgba(255, 215, 0, 0.5);
+    font-size: 2.2rem;
+}
+
+.critical-click {
+    color: var(--critical);
+    text-shadow: 0 2px 8px rgba(239, 68, 68, 0.5);
+    font-size: 2.5rem;
+    animation: shake 0.5s ease-in-out, floatUp 1s ease-out forwards;
+}
+
 .click-area {
     position: absolute;
     width: 100%;
@@ -285,13 +503,43 @@ body {
     top: 0;
     left: 0;
     cursor: pointer;
-    z-index: 1;
+    z-index: 3;
     touch-action: manipulation;
+    border-radius: 50%;
 }
 
-@keyframes floatUp {
-    0% { transform: translateY(0); opacity: 1; }
-    100% { transform: translateY(-80px); opacity: 0; }
+/* Фильтры категорий */
+.category-filters {
+    display: flex;
+    gap: 8px;
+    padding: 10px 15px;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.category-filters::-webkit-scrollbar {
+    display: none;
+}
+
+.filter-btn {
+    background: var(--primary-extra-light);
+    border: none;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.filter-btn.active {
+    background: var(--primary);
+    color: white;
 }
 
 /* Секция улучшений */
@@ -308,12 +556,12 @@ body {
     display: flex;
     border-bottom: 1px solid var(--border);
     overflow-x: auto;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE/Edge */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
 .section-tabs::-webkit-scrollbar {
-    display: none; /* Chrome/Safari */
+    display: none;
 }
 
 .tab-btn {
@@ -344,7 +592,7 @@ body {
 
 .tab-btn.active {
     color: var(--primary);
-    background: rgba(123, 92, 246, 0.05);
+    background: var(--primary-extra-light);
 }
 
 .tab-btn.active::after {
@@ -372,6 +620,10 @@ body {
     gap: 15px;
 }
 
+#prestige {
+    grid-template-columns: 1fr;
+}
+
 /* Элементы улучшений */
 .upgrade-item {
     display: flex;
@@ -380,16 +632,26 @@ body {
     padding: 15px;
     border-radius: var(--radius-sm);
     margin-bottom: 0;
-    background: rgba(123, 92, 246, 0.05);
+    background: var(--primary-extra-light);
     transition: var(--transition);
     border: 1px solid var(--border);
     position: relative;
+    overflow: hidden;
 }
 
 .upgrade-item:hover {
-    background: rgba(123, 92, 246, 0.1);
+    background: var(--primary-light);
     transform: translateY(-3px);
     box-shadow: var(--shadow-hover);
+}
+
+.upgrade-item.prestige-item {
+    background: var(--accent-light);
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.upgrade-item.prestige-item:hover {
+    background: rgba(245, 158, 11, 0.2);
 }
 
 .upgrade-icon {
@@ -569,6 +831,190 @@ body {
     background: var(--prestige-gradient);
 }
 
+/* Секция промокодов */
+.promocode-section {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.promocode-info {
+    background: var(--primary-extra-light);
+    padding: 20px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+}
+
+.promocode-info h3 {
+    color: var(--primary);
+    margin-bottom: 10px;
+}
+
+.promocode-info p {
+    color: var(--text-light);
+    margin-bottom: 15px;
+}
+
+.promocode-stats {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.promocode-stats .stat {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.promocode-stats .stat i {
+    color: var(--accent);
+}
+
+.promocode-action {
+    display: flex;
+    justify-content: center;
+}
+
+.promocodes-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.promocode-item {
+    background: var(--success-light);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    padding: 15px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    transition: var(--transition);
+}
+
+.promocode-item:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+}
+
+.promocode-value {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--success);
+    letter-spacing: 1px;
+}
+
+.promocode-amount {
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.empty-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    text-align: center;
+    color: var(--text-light);
+    gap: 10px;
+}
+
+.empty-state i {
+    font-size: 2rem;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    font-size: 0.9rem;
+}
+
+/* Модальное окно промокода */
+.promocode-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1002;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.promocode-modal.show {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: var(--radius);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: var(--shadow-hover);
+    position: relative;
+    animation: modalFadeIn 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.modal-content h3 {
+    color: var(--primary);
+    margin-bottom: 20px;
+}
+
+.promocode-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin: 15px 0;
+    padding: 10px;
+    background: var(--accent-light);
+    border-radius: var(--radius-sm);
+    border: 1px dashed var(--accent);
+}
+
+.promocode-amount {
+    font-size: 1.1rem;
+    color: var(--text);
+    margin-bottom: 20px;
+}
+
+.promocode-amount span {
+    font-weight: 700;
+    color: var(--success);
+}
+
+.modal-close {
+    background: var(--gradient);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+    width: 100%;
+}
+
+.modal-close:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
 /* Переключатель темы */
 .theme-toggle {
     position: fixed;
@@ -640,6 +1086,16 @@ body {
     border-left: 4px solid var(--info);
 }
 
+.notification.golden {
+    border-left: 4px solid var(--golden);
+    animation: pulse 1s infinite;
+}
+
+.notification.critical {
+    border-left: 4px solid var(--critical);
+    animation: shake 0.5s ease-in-out;
+}
+
 /* Оффлайн заработок */
 .offline-earnings {
     position: fixed;
@@ -682,6 +1138,13 @@ body {
     margin-bottom: 15px;
 }
 
+.offline-time {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin-bottom: 15px;
+    font-style: italic;
+}
+
 /* Достижения */
 .achievements-container {
     display: grid;
@@ -690,7 +1153,7 @@ body {
 }
 
 .achievement-item {
-    background: rgba(59, 130, 246, 0.1);
+    background: var(--info-light);
     border-radius: var(--radius-sm);
     padding: 15px;
     border: 1px solid var(--border);
@@ -701,7 +1164,8 @@ body {
 }
 
 .achievement-item.unlocked {
-    background: rgba(16, 185, 129, 0.1);
+    background: var(--success-light);
+    border-color: rgba(16, 185, 129, 0.3);
 }
 
 .achievement-icon {
@@ -754,6 +1218,14 @@ body {
     pointer-events: none;
 }
 
+.golden-confetti {
+    background: var(--golden);
+}
+
+.critical-confetti {
+    background: var(--critical);
+}
+
 /* Анимации */
 @keyframes pulse {
     0% { transform: scale(1); }
@@ -780,6 +1252,22 @@ body {
     100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
 }
 
+@keyframes floatUp {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-80px); opacity: 0; }
+}
+
+@keyframes smokeFloat {
+    0% { transform: translateY(0) translateX(0) scale(0.5); opacity: 0; }
+    20% { opacity: 0.8; }
+    100% { transform: translateY(-100px) translateX(20px) scale(1.5); opacity: 0; }
+}
+
+@keyframes modalFadeIn {
+    0% { transform: translateY(20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
 .pulse-animation {
     animation: pulse 2s infinite;
 }
@@ -797,6 +1285,11 @@ body {
     .game-header {
         flex-direction: column;
         text-align: center;
+    }
+
+    .header-left {
+        justify-content: center;
+        width: 100%;
     }
 
     .stats-container {
@@ -833,7 +1326,11 @@ body {
     }
 
     .multitouch-panel {
-        display: none; /* Скрываем на маленьких экранах */
+        display: none;
+    }
+
+    .promocodes-list {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -854,6 +1351,11 @@ body {
 
     .buy-btn, .sell-btn {
         padding: 8px 10px;
+        font-size: 0.9rem;
+    }
+
+    .boost-btn {
+        padding: 10px 15px;
         font-size: 0.9rem;
     }
 }
@@ -879,7 +1381,7 @@ body {
         min-width: 0;
     }
 
-    .multitouch-panel {
+    .multitouch-panel, .boost-btn {
         display: none;
     }
 }
