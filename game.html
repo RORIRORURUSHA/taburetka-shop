@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taburetka Tap | Улучшенный кликер</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1 class="game-title">TABURETKA TAP</h1>
+            <div class="stats-container">
+                <div class="stat-box">
+                    <span class="stat-label">Баланс</span>
+                    <span id="balance" class="stat-value">0 ₽</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Доход/сек</span>
+                    <span id="income" class="stat-value">0 ₽</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">За клик</span>
+                    <span id="clickValue" class="stat-value">1 ₽</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-game-area">
+            <div id="vape" class="vape-container pulse-animation">
+                <img src="assets/vape-main.png" alt="Вейп" class="vape-image float-animation">
+                <div class="click-effect"></div>
+                <div class="click-area" id="clickArea"></div>
+            </div>
+            <div class="click-counter">+<span id="clickAmount">1</span>₽</div>
+            
+            <!-- Мультитач панель -->
+            <div class="multitouch-panel">
+                <div class="touch-zone" id="touchZone1"></div>
+                <div class="touch-zone" id="touchZone2"></div>
+                <div class="touch-zone" id="touchZone3"></div>
+            </div>
+        </div>
+
+        <div class="upgrades-section">
+            <div class="section-tabs">
+                <button class="tab-btn active" data-tab="products">
+                    <i>🛒</i> <span class="tab-text">Товары</span>
+                </button>
+                <button class="tab-btn" data-tab="upgrades">
+                    <i>⚡</i> <span class="tab-text">Улучшения</span>
+                </button>
+                <button class="tab-btn" data-tab="prestige">
+                    <i>🌟</i> <span class="tab-text">Престиж</span>
+                </button>
+                <button class="tab-btn" data-tab="achievements">
+                    <i>🏆</i> <span class="tab-text">Достижения</span>
+                </button>
+            </div>
+
+            <div class="tab-content active" id="products">
+                <!-- Товары будут добавляться динамически -->
+            </div>
+
+            <div class="tab-content" id="upgrades">
+                <!-- Улучшения будут добавляться динамически -->
+            </div>
+
+            <div class="tab-content" id="prestige">
+                <div class="upgrade-item">
+                    <div class="upgrade-icon">🌟</div>
+                    <div class="upgrade-info">
+                        <div class="upgrade-name">Престиж</div>
+                        <div class="upgrade-description">Сбросьте прогресс для постоянных бонусов</div>
+                        <div class="upgrade-stats">
+                            <div class="upgrade-stat">
+                                <i>🔼</i> <span id="prestigeBonusValue">10</span>% к доходу
+                            </div>
+                            <div class="upgrade-stat">
+                                <i>🏆</i> Уровень: <span id="prestigeLevel">0</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="prestigeProgress" style="width: 0%"></div>
+                        </div>
+                        <div class="upgrade-actions">
+                            <button class="buy-btn prestige-btn" id="prestigeBtn" disabled>
+                                <i>🚀</i> Престиж (<span id="prestigePrice">10,000</span> ₽)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="achievements">
+                <div class="achievements-container">
+                    <!-- Достижения будут добавляться динамически -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="theme-toggle" id="themeToggle">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" id="sunIcon">
+            <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0 .39-.39.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/>
+        </svg>
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" id="moonIcon" style="display: none;">
+            <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1-8.313-12.454z"/>
+        </svg>
+    </button>
+
+    <div class="notification" id="notification"></div>
+
+    <div class="offline-earnings" id="offlineEarnings">
+        <div class="offline-content">
+            <h3>Оффлайн доход</h3>
+            <p>Пока вас не было, вы заработали: <span id="offlineAmount">0</span> ₽</p>
+            <button class="collect-btn" id="collectOffline">Забрать</button>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
