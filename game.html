@@ -2,242 +2,347 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taburetka Tap | Улучшенный кликер</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VAPE EMPIRE | Кликер-симулятор вейп магазина</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <meta name="theme-color" content="#7c3aed">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/icon-192.png">
 </head>
 <body>
     <div class="particles-container" id="particles"></div>
+    <div class="vape-particles" id="vapeParticles"></div>
+    <div class="smoke-overlay"></div>
     
     <div class="game-container">
-        <div class="game-header">
-            <div class="header-left">
-                <h1 class="game-title">TABURETKA TAP</h1>
-                <div class="prestige-badge">
-                    <span>🌟</span>
-                    <span id="prestigeBadge">0</span>
+        <!-- Верхняя панель с основной статистикой -->
+        <div class="top-panel">
+            <div class="prestige-badge glow" id="prestigeBadge">
+                <span>🌟</span>
+                <span id="prestigeLevel">0</span>
+            </div>
+            
+            <div class="main-stats">
+                <div class="balance-container neon-text">
+                    <span id="balance">0</span>
+                    <span class="currency">₽</span>
+                </div>
+                <div class="income-stat">
+                    <i class="fas fa-chart-line"></i>
+                    <span id="income">0</span>
+                    <span class="small">₽/сек</span>
                 </div>
             </div>
             
-            <div class="stats-container">
-                <div class="stat-box">
-                    <span class="stat-label">Баланс</span>
-                    <span id="balance" class="stat-value">0 ₽</span>
+            <div class="quick-stats">
+                <div class="quick-stat">
+                    <i class="fas fa-hand-pointer"></i>
+                    <span id="clickValue">1</span>
+                    <span class="small">₽/клик</span>
                 </div>
-                <div class="stat-box">
-                    <span class="stat-label">Доход/сек</span>
-                    <span id="income" class="stat-value">0 ₽</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-label">За клик</span>
-                    <span id="clickValue" class="stat-value">1 ₽</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-label">Кликов</span>
-                    <span id="totalClicks" class="stat-value">0</span>
+                <div class="quick-stat">
+                    <i class="fas fa-mouse"></i>
+                    <span id="totalClicks">0</span>
                 </div>
             </div>
         </div>
 
+        <!-- Основная игровая область -->
         <div class="main-game-area">
-            <div id="vape" class="vape-container pulse-animation">
-                <div class="vape-glow"></div>
+            <div class="vape-container" id="vape">
+                <div class="vape-glow pulse-glow"></div>
                 <img src="assets/vape-main.png" alt="Вейп" class="vape-image float-animation">
                 <div class="vape-smoke"></div>
                 <div class="click-effect"></div>
                 <div class="click-area" id="clickArea"></div>
-            </div>
-            <div class="click-counter">+<span id="clickAmount">1</span>₽</div>
-            
-            <!-- Мультитач панель -->
-            <div class="multitouch-panel">
-                <div class="touch-zone" id="touchZone1">
-                    <div class="touch-indicator"></div>
-                </div>
-                <div class="touch-zone" id="touchZone2">
-                    <div class="touch-indicator"></div>
-                </div>
-                <div class="touch-zone" id="touchZone3">
-                    <div class="touch-indicator"></div>
-                </div>
+                <div class="click-counter">+<span id="clickAmount">1</span>₽</div>
+                
+                <!-- Эффект уровня престижа -->
+                <div class="prestige-effect"></div>
             </div>
             
-            <!-- Кнопка буста -->
-            <button class="boost-btn" id="boostBtn">
-                <div class="boost-progress" id="boostProgress"></div>
-                <span>🔥 BOOST</span>
-                <span class="boost-timer" id="boostTimer"></span>
-            </button>
-
-            <!-- Статистика кликов -->
-            <div class="click-stats">
-                <div class="click-stat">
-                    <span>🌟</span>
+            <!-- Индикаторы специальных кликов -->
+            <div class="special-clicks">
+                <div class="special-indicator golden">
+                    <i class="fas fa-star"></i>
                     <span id="goldenHits">0</span>
                 </div>
-                <div class="click-stat">
-                    <span>💥</span>
+                <div class="special-indicator critical">
+                    <i class="fas fa-bolt"></i>
                     <span id="criticalHits">0</span>
+                </div>
+                <div class="special-indicator multiplier">
+                    <i class="fas fa-times"></i>
+                    <span id="clickMultiplier">1x</span>
+                </div>
+            </div>
+            
+            <!-- Прогресс буста -->
+            <div class="boost-container">
+                <button class="boost-btn" id="boostBtn">
+                    <div class="boost-progress" id="boostProgress"></div>
+                    <div class="boost-content">
+                        <i class="fas fa-fire"></i>
+                        <span>BOOST</span>
+                        <span class="boost-timer" id="boostTimer"></span>
+                    </div>
+                </button>
+            </div>
+            
+            <!-- Быстрое меню покупок -->
+            <div class="quick-buy-panel">
+                <div class="quick-buy-item" data-product="liquids">
+                    <i class="fas fa-tint"></i>
+                    <span class="price" id="quickLiquidsPrice">50</span>
+                </div>
+                <div class="quick-buy-item" data-product="disposables">
+                    <i class="fas fa-smoking"></i>
+                    <span class="price" id="quickDisposablesPrice">200</span>
+                </div>
+                <div class="quick-buy-item" data-product="premiumLiquids">
+                    <i class="fas fa-star"></i>
+                    <span class="price" id="quickPremiumLiquidsPrice">5000</span>
+                </div>
+                <div class="quick-buy-item" data-product="limitedDevices">
+                    <i class="fas fa-trophy"></i>
+                    <span class="price" id="quickLimitedDevicesPrice">25000</span>
                 </div>
             </div>
         </div>
 
-        <div class="upgrades-section">
-            <div class="section-tabs">
-                <button class="tab-btn active" data-tab="products">
-                    <i>🛒</i> <span class="tab-text">Товары</span>
-                </button>
-                <button class="tab-btn" data-tab="upgrades">
-                    <i>⚡</i> <span class="tab-text">Улучшения</span>
-                </button>
-                <button class="tab-btn" data-tab="prestige">
-                    <i>🌟</i> <span class="tab-text">Престиж</span>
-                </button>
-                <button class="tab-btn" data-tab="achievements">
-                    <i>🏆</i> <span class="tab-text">Достижения</span>
-                </button>
-                <button class="tab-btn" data-tab="promocodes">
-                    <i>🎟️</i> <span class="tab-text">Промокоды</span>
-                </button>
-            </div>
-
-            <!-- Фильтры для товаров -->
-            <div class="category-filters" id="productFilters" style="display: none;">
-                <button class="filter-btn active" data-category="all">Все</button>
-                <button class="filter-btn" data-category="basic">🛒 Базовые</button>
-                <button class="filter-btn" data-category="advanced">⚡ Продвинутые</button>
-                <button class="filter-btn" data-category="business">🏢 Бизнес</button>
-                <button class="filter-btn" data-category="enterprise">🏭 Предприятие</button>
-            </div>
-
-            <!-- Фильтры для улучшений -->
-            <div class="category-filters" id="upgradeFilters" style="display: none;">
-                <button class="filter-btn active" data-category="all">Все</button>
-                <button class="filter-btn" data-category="click">👆 Клики</button>
-                <button class="filter-btn" data-category="passive">💤 Пассивный доход</button>
-                <button class="filter-btn" data-category="special">✨ Особые</button>
-            </div>
-
-            <div class="tab-content active" id="products">
-                <!-- Товары будут добавляться динамически -->
-                <div class="empty-state">
-                    <i>🛒</i>
-                    <p>Покупайте товары для пассивного дохода</p>
-                </div>
-            </div>
-
-            <div class="tab-content" id="upgrades">
-                <!-- Улучшения будут добавлять��я динамически -->
-                <div class="empty-state">
-                    <i>⚡</i>
-                    <p>Улучшайте свои возможности</p>
-                </div>
-            </div>
-
-            <div class="tab-content" id="prestige">
-                <div class="upgrade-item prestige-item">
-                    <div class="upgrade-icon prestige-icon">🌟</div>
-                    <div class="upgrade-info">
-                        <div class="upgrade-name">Престиж</div>
-                        <div class="upgrade-description">Сбросьте прогресс для постоянных бонусов</div>
-                        <div class="upgrade-stats">
-                            <div class="upgrade-stat">
-                                <i>🔼</i> <span id="prestigeBonusValue">10</span>% к доходу
-                            </div>
-                            <div class="upgrade-stat">
-                                <i>🏆</i> Уровень: <span id="prestigeLevel">0</span>
-                            </div>
-                            <div class="upgrade-stat">
-                                <i>💰</i> До следующего уровня: <span id="prestigeRemaining">100,000</span> ₽
-                            </div>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill prestige-progress" id="prestigeProgress" style="width: 0%"></div>
-                        </div>
-                        <div class="upgrade-actions">
-                            <button class="buy-btn prestige-btn" id="prestigeBtn" disabled>
-                                <i>🚀</i> Престиж (<span id="prestigePrice">10,000</span> ₽)
-                            </button>
-                        </div>
-                    </div>
+        <!-- Нижняя панель с вкладками -->
+        <div class="bottom-panel">
+            <div class="tabs-container">
+                <div class="tabs-nav">
+                    <button class="tab-btn active" data-tab="products">
+                        <i class="fas fa-store"></i>
+                        <span>Магазин</span>
+                    </button>
+                    <button class="tab-btn" data-tab="upgrades">
+                        <i class="fas fa-bolt"></i>
+                        <span>Улучшения</span>
+                    </button>
+                    <button class="tab-btn" data-tab="prestige">
+                        <i class="fas fa-star"></i>
+                        <span>Престиж</span>
+                    </button>
+                    <button class="tab-btn" data-tab="achievements">
+                        <i class="fas fa-trophy"></i>
+                        <span>Достижения</span>
+                    </button>
+                    <button class="tab-btn" data-tab="stats">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Статистика</span>
+                    </button>
                 </div>
                 
-                <div class="upgrade-item">
-                    <div class="upgrade-icon">💎</div>
-                    <div class="upgrade-info">
-                        <div class="upgrade-name">Алмазные пальцы</div>
-                        <div class="upgrade-description">После престижа сохраняется 5% вашего дохода в секунду</div>
-                        <div class="upgrade-stats">
-                            <div class="upgrade-stat">
-                                <i>⚡</i> Уровень: <span id="permIncomeLevel">0</span>/5
-                            </div>
+                <div class="tabs-content">
+                    <!-- Вкладка магазина -->
+                    <div class="tab-content active" id="products">
+                        <div class="category-filters" id="productFilters">
+                            <button class="filter-btn active" data-category="all">Все</button>
+                            <button class="filter-btn" data-category="basic">Базовые</button>
+                            <button class="filter-btn" data-category="premium">Премиум</button>
+                            <button class="filter-btn" data-category="business">Бизнес</button>
+                            <button class="filter-btn" data-category="ultimate">Элитные</button>
                         </div>
-                        <div class="upgrade-actions">
-                            <button class="buy-btn" id="buyPermIncome" disabled>
-                                <i>💎</i> Улучшить (50 престиж-очков)
+                        
+                        <div class="products-grid" id="productsContainer">
+                            <!-- Товары будут добавляться динамически -->
+                        </div>
+                    </div>
+                    
+                    <!-- Вкладка улучшений -->
+                    <div class="tab-content" id="upgrades">
+                        <div class="category-filters" id="upgradeFilters">
+                            <button class="filter-btn active" data-category="all">Все</button>
+                            <button class="filter-btn" data-category="click">Клики</button>
+                            <button class="filter-btn" data-category="automation">Автоматизация</button>
+                            <button class="filter-btn" data-category="special">Особые</button>
+                            <button class="filter-btn" data-category="ultimate">Легендарные</button>
+                        </div>
+                        
+                        <div class="upgrades-grid" id="upgradesContainer">
+                            <!-- Улучшения будут добавляться динамически -->
+                        </div>
+                    </div>
+                    
+                    <!-- Вкладка престижа -->
+                    <div class="tab-content" id="prestige">
+                        <div class="prestige-main-card">
+                            <div class="prestige-header">
+                                <h3>Престиж</h3>
+                                <div class="prestige-level">
+                                    Уровень: <span id="prestigeLevelDisplay">0</span>
+                                </div>
+                            </div>
+                            
+                            <div class="prestige-progress-container">
+                                <div class="prestige-progress-bar">
+                                    <div class="progress-fill" id="prestigeProgress" style="width: 0%"></div>
+                                </div>
+                                <div class="prestige-requirements">
+                                    До следующего уровня: <span id="prestigeRemaining">100,000</span> ₽
+                                </div>
+                            </div>
+                            
+                            <div class="prestige-bonus">
+                                Текущий бонус: +<span id="prestigeBonusValue">0</span>% к доходу
+                            </div>
+                            
+                            <button class="prestige-action-btn" id="prestigeBtn" disabled>
+                                <i class="fas fa-arrow-up"></i>
+                                <span>Престиж (<span id="prestigePrice">100,000</span> ₽)</span>
                             </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="upgrade-item">
-                    <div class="upgrade-icon">👐</div>
-                    <div class="upgrade-info">
-                        <div class="upgrade-name">Золотые руки</div>
-                        <div class="upgrade-description">Увеличивает базовый доход за клик на 10%</div>
-                        <div class="upgrade-stats">
-                            <div class="upgrade-stat">
-                                <i>⚡</i> Уровень: <span id="clickBonusLevel">0</span>/5
+                            
+                            <div class="prestige-points">
+                                <i class="fas fa-coins"></i>
+                                Престиж-очки: <span id="prestigePoints">0</span>
                             </div>
                         </div>
-                        <div class="upgrade-actions">
-                            <button class="buy-btn" id="buyClickBonus" disabled>
-                                <i>👐</i> Улучшить (75 престиж-очков)
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tab-content" id="achievements">
-                <div class="achievements-container">
-                    <!-- Достижения будут добавляться динамически -->
-                    <div class="empty-state">
-                        <i>🏆</i>
-                        <p>Выполняйте достижения для получения наград</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="tab-content" id="promocodes">
-                <div class="promocode-section">
-                    <div class="promocode-info">
-                        <h3>Генератор промокодов</h3>
-                        <p>Каждый промокод дает случайную скидку в нашем магазине</p>
-                        <div class="promocode-stats">
-                            <div class="stat">
-                                <i>🎟️</i> Сгенерировано: <span id="promocodesGenerated">0</span>
+                        
+                        <div class="permanent-upgrades">
+                            <h4>Перманентные улучшения</h4>
+                            
+                            <div class="upgrade-card">
+                                <div class="upgrade-icon"><i class="fas fa-gem"></i></div>
+                                <div class="upgrade-info">
+                                    <h5>Алмазные пальцы</h5>
+                                    <p>После престижа сохраняется <span id="permIncomeBonus">0</span>% вашего дохода</p>
+                                    <div class="upgrade-level">
+                                        Уровень: <span id="permIncomeLevel">0</span>/20
+                                    </div>
+                                </div>
+                                <button class="upgrade-btn" id="buyPermIncome" disabled>
+                                    <span id="permIncomePrice">50</span> очков
+                                </button>
                             </div>
-                            <div class="stat">
-                                <i>💰</i> Следующий через: <span id="nextPromocode">100,000</span> ₽
+                            
+                            <div class="upgrade-card">
+                                <div class="upgrade-icon"><i class="fas fa-hand-pointer"></i></div>
+                                <div class="upgrade-info">
+                                    <h5>Мастер кликов</h5>
+                                    <p>Увеличивает базовый доход за клик на <span id="clickMasteryBonus">0</span>%</p>
+                                    <div class="upgrade-level">
+                                        Уровень: <span id="clickMasteryLevel">0</span>/15
+                                    </div>
+                                </div>
+                                <button class="upgrade-btn" id="buyClickMastery" disabled>
+                                    <span id="clickMasteryPrice">75</span> очков
+                                </button>
+                            </div>
+                            
+                            <div class="upgrade-card">
+                                <div class="upgrade-icon"><i class="fas fa-chart-line"></i></div>
+                                <div class="upgrade-info">
+                                    <h5>Бизнес гений</h5>
+                                    <p>Увеличивает пассивный доход на <span id="businessGeniusBonus">0</span>%</p>
+                                    <div class="upgrade-level">
+                                        Уровень: <span id="businessGeniusLevel">0</span>/10
+                                    </div>
+                                </div>
+                                <button class="upgrade-btn" id="buyBusinessGenius" disabled>
+                                    <span id="businessGeniusPrice">100</span> очков
+                                </button>
+                            </div>
+                            
+                            <div class="upgrade-card">
+                                <div class="upgrade-icon"><i class="fas fa-star"></i></div>
+                                <div class="upgrade-info">
+                                    <h5>Золотая удача</h5>
+                                    <p>Увеличивает шанс золотого клика на <span id="goldenLuckBonus">0</span>%</p>
+                                    <div class="upgrade-level">
+                                        Уровень: <span id="goldenLuckLevel">0</span>/10
+                                    </div>
+                                </div>
+                                <button class="upgrade-btn" id="buyGoldenLuck" disabled>
+                                    <span id="goldenLuckPrice">150</span> очков
+                                </button>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="promocode-action">
-                        <button class="buy-btn" id="generatePromocode" disabled>
-                            <i>✨</i> Сгенерировать промокод (100,000 ₽)
-                        </button>
+                    <!-- Вкладка достижений -->
+                    <div class="tab-content" id="achievements">
+                        <div class="achievements-header">
+                            <h3>Достижения</h3>
+                            <div class="achievements-progress">
+                                <span id="achievementsCompleted">0</span>/<span id="achievementsTotal">0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="achievements-grid" id="achievementsContainer">
+                            <!-- Достижения будут добавляться динамически -->
+                        </div>
                     </div>
                     
-                    <div class="promocodes-list" id="promocodesList">
-                        <div class="empty-state">
-                            <i>🎟️</i>
-                            <p>У вас пока нет промокодов</p>
+                    <!-- Вкладка статистики -->
+                    <div class="tab-content" id="stats">
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <h4>Общая статистика</h4>
+                                <div class="stat-item">
+                                    <span>Всего заработано:</span>
+                                    <span id="totalEarnedStat">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span>Всего кликов:</span>
+                                    <span id="totalClicksStat">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span>Время игры:</span>
+                                    <span id="playTimeStat">0:00</span>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card">
+                                <h4>Специальные клики</h4>
+                                <div class="stat-item">
+                                    <span>Золотые клики:</span>
+                                    <span id="goldenHitsStat">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span>Критические удары:</span>
+                                    <span id="criticalHitsStat">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span>Квантовые клики:</span>
+                                    <span id="quantumHitsStat">0</span>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card">
+                                <h4>Оффлайн доход</h4>
+                                <div class="stat-item">
+                                    <span>Всего заработано:</span>
+                                    <span id="totalOfflineStat">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span>Макс. время:</span>
+                                    <span id="maxOfflineTimeStat">0</span>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card">
+                                <h4>Престиж</h4>
+                                <div class="stat-item">
+                                    <span>Уровень престижа:</span>
+                                    <span id="prestigeLevelStat">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span>Престиж-очки:</span>
+                                    <span id="prestigePointsStat">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span>Бонус престижа:</span>
+                                    <span id="prestigeBonusStat">0</span>%
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -245,34 +350,57 @@
         </div>
     </div>
 
+    <!-- Кнопка переключения темы -->
     <button class="theme-toggle" id="themeToggle">
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" id="sunIcon">
-            <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0 .39-.39.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/>
-        </svg>
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" id="moonIcon" style="display: none;">
-            <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1-8.313-12.454z"/>
-        </svg>
+        <i class="fas fa-sun" id="sunIcon"></i>
+        <i class="fas fa-moon" id="moonIcon" style="display: none;"></i>
     </button>
 
+    <!-- Уведомления -->
     <div class="notification" id="notification"></div>
 
+    <!-- Оффлайн заработок -->
     <div class="offline-earnings" id="offlineEarnings">
         <div class="offline-content">
             <h3>Оффлайн доход</h3>
-            <p>Пока вас не было, вы заработали: <span id="offlineAmount">0</span> ₽</p>
+            <p>Пока вас не было, вы заработали:</p>
+            <div class="offline-amount" id="offlineAmount">0</div>
             <div class="offline-time" id="offlineTime"></div>
-            <button class="collect-btn" id="collectOffline">Забрать</button>
+            <button class="collect-btn" id="collectOffline">
+                <i class="fas fa-coins"></i>
+                <span>Забрать</span>
+            </button>
         </div>
     </div>
     
+    <!-- Модальное окно промокода -->
     <div class="promocode-modal" id="promocodeModal">
         <div class="modal-content">
-            <h3>Новый промокод!</h3>
-            <div class="promocode-value" id="promocodeValue">TAP-100</div>
-            <div class="promocode-amount">Скидка: <span id="promocodeDiscount">100</span> ₽</div>
-            <button class="modal-close" id="closePromocodeModal">Закрыть</button>
+            <div class="modal-header">
+                <h3>Новый промокод!</h3>
+                <button class="modal-close-btn" id="closePromocodeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="promocode-value" id="promocodeValue">VAPE-12345</div>
+            
+            <div class="promocode-reward">
+                <i class="fas fa-gift"></i>
+                <span>Награда: </span>
+                <span class="amount" id="promocodeDiscount">100</span>
+                <span> ₽</span>
+            </div>
+            
+            <button class="modal-action-btn" id="usePromocodeBtn">
+                <i class="fas fa-tag"></i>
+                <span>Использовать</span>
+            </button>
         </div>
     </div>
+
+    <!-- Престиж эффект -->
+    <div class="prestige-effect-overlay" id="prestigeEffect"></div>
 
     <script type="module" src="script.js"></script>
 </body>
