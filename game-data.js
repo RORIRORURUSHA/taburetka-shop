@@ -1,34 +1,40 @@
 // game-data.js
 export const products = {
-    liquids: { 
-        owned: 0, 
-        basePrice: 50, 
+    liquids: {
+        owned: 0,
+        basePrice: 50,
         baseIncome: 0.1,
         icon: '💧',
         name: 'Жидкости',
-        description: 'Продавайте жидкости для вейпа с базовой прибылью',
+        description: 'Базовые жидкости для вейпа. Начните свой бизнес с малого.',
         unlockAt: 0,
-        category: 'basic'
+        category: 'basic',
+        maxOwned: Infinity,
+        specialEffect: null
     },
-    disposables: { 
-        owned: 0, 
-        basePrice: 200, 
+    disposables: {
+        owned: 0,
+        basePrice: 200,
         baseIncome: 0.5,
         icon: '🚬',
         name: 'Одноразки',
-        description: 'Популярный товар среди новичков с повышенной прибылью',
+        description: 'Популярные одноразовые устройства. Быстрая прибыль!',
         unlockAt: 500,
-        category: 'basic'
+        category: 'basic',
+        maxOwned: Infinity,
+        specialEffect: null
     },
-    podSystems: { 
-        owned: 0, 
-        basePrice: 500, 
-        baseIncome: 1.5,
+    podSystems: {
+        owned: 0,
+        basePrice: 500,
+        baseIncome: 1.2,
         icon: '🔋',
-        name: 'Подсистемы',
-        description: 'Средний уровень дохода с высокой рентабельностью',
+        name: 'Pod-системы',
+        description: 'Компактные и удобные устройства с хорошей прибылью.',
         unlockAt: 2000,
-        category: 'advanced'
+        category: 'basic',
+        maxOwned: Infinity,
+        specialEffect: null
     },
     mods: {
         owned: 0,
@@ -36,359 +42,444 @@ export const products = {
         baseIncome: 5,
         icon: '💨',
         name: 'Моды',
-        description: 'Профессиональные устройства с максимальным доходом',
+        description: 'Мощные устройства для опытных вейперов. Высокий доход.',
         unlockAt: 10000,
-        category: 'advanced'
+        category: 'basic',
+        maxOwned: Infinity,
+        specialEffect: {
+            type: 'clickMultiplier',
+            value: 0.1,
+            description: '+10% к доходу за клик'
+        }
     },
-    shop: {
+    premiumLiquids: {
         owned: 0,
-        basePrice: 10000,
-        baseIncome: 20,
+        basePrice: 5000,
+        baseIncome: 5,
+        icon: '🌟',
+        name: 'Премиум жидкости',
+        description: 'Элитные жидкости с уникальными вкусами. Для настоящих ценителей.',
+        unlockAt: 25000,
+        category: 'premium',
+        maxOwned: 50,
+        specialEffect: {
+            type: 'goldenChance',
+            value: 0.01,
+            description: '+1% к шансу золотого клика'
+        }
+    },
+    limitedDevices: {
+        owned: 0,
+        basePrice: 25000,
+        baseIncome: 15,
+        icon: '🏆',
+        name: 'Лимитированные устройства',
+        description: 'Эксклюзивные вейпы ручной работы. Статус и прибыль!',
+        unlockAt: 100000,
+        category: 'premium',
+        maxOwned: 20,
+        specialEffect: {
+            type: 'criticalChance',
+            value: 0.005,
+            description: '+0.5% к шансу критического удара'
+        }
+    },
+    vapeShop: {
+        owned: 0,
+        basePrice: 100000,
+        baseIncome: 50,
         icon: '🏪',
-        name: 'Магазин',
-        description: 'Собственный вейп-шоп с пассивным доходом',
-        unlockAt: 50000,
-        category: 'business'
+        name: 'Вейп-шоп',
+        description: 'Собственный магазин с постоянным потоком клиентов.',
+        unlockAt: 500000,
+        category: 'business',
+        maxOwned: 10,
+        specialEffect: {
+            type: 'passiveMultiplier',
+            value: 0.05,
+            description: '+5% к пассивному доходу'
+        }
     },
     franchise: {
         owned: 0,
-        basePrice: 50000,
-        baseIncome: 100,
+        basePrice: 500000,
+        baseIncome: 200,
         icon: '🏢',
         name: 'Франшиза',
-        description: 'Сеть вейп-шопов по всей стране',
-        unlockAt: 250000,
-        category: 'business'
+        description: 'Сеть вейп-шопов по всему городу. Огромный пассивный доход.',
+        unlockAt: 2000000,
+        category: 'business',
+        maxOwned: 5,
+        specialEffect: {
+            type: 'passiveMultiplier',
+            value: 0.1,
+            description: '+10% к пассивному доходу'
+        }
     },
-    factory: {
+    vapeEmpire: {
         owned: 0,
-        basePrice: 250000,
+        basePrice: 10000000,
         baseIncome: 500,
-        icon: '🏭',
-        name: 'Фабрика',
-        description: 'Собственное производство жидкостей и устройств',
-        unlockAt: 1000000,
-        category: 'enterprise'
+        icon: '👑',
+        name: 'Вейп Империя',
+        description: 'Контроль над рынком вейпинга в вашем регионе.',
+        unlockAt: 10000000,
+        category: 'ultimate',
+        maxOwned: 1,
+        specialEffect: {
+            type: 'globalMultiplier',
+            value: 0.25,
+            description: '+25% ко всем доходам'
+        }
     },
-    corporation: {
+    spaceVapes: {
         owned: 0,
-        basePrice: 1000000,
+        basePrice: 50000000,
         baseIncome: 2500,
-        icon: '🏛️',
-        name: 'Корпорация',
-        description: 'Международная вейп-корпорация с огромным доходом',
-        unlockAt: 5000000,
-        category: 'enterprise'
+        icon: '🚀',
+        name: 'Космические Вейпы',
+        description: 'Продажи в невесомости! Абсолютный монополист.',
+        unlockAt: 50000000,
+        category: 'ultimate',
+        maxOwned: 1,
+        specialEffect: {
+            type: 'prestigeBonus',
+            value: 0.1,
+            description: '+10% к бонусу престижа'
+        }
     }
 };
 
 export const upgrades = {
-    strongClick: { 
-        purchased: false, 
-        price: 1000, 
+    // Базовые улучшения
+    strongFingers: {
+        purchased: false,
+        price: 1000,
         icon: '💪',
-        name: 'Усиленный клик',
+        name: 'Крепкие пальцы',
         description: 'Увеличивает доход за клик на 50%',
-        effect: (game) => { game.clickValue = Math.floor(game.clickValue * 1.5); },
-        category: 'click'
+        effect: (game) => { game.clickMultiplier *= 1.5; },
+        category: 'click',
+        unlockAt: 0,
+        tier: 1
     },
-    autoClicker: { 
-        purchased: false, 
+    autoClicker: {
+        purchased: false,
         price: 5000,
         icon: '🤖',
         name: 'Автокликер',
         description: 'Автоматически кликает 1 раз в секунду',
         effect: (game) => {
             game.autoClickerInterval = setInterval(() => {
-                if (game.passiveIncome > 0) {
-                    game.handleClick({ clientX: window.innerWidth/2, clientY: window.innerHeight/2 });
-                }
+                game.handleClick({ clientX: window.innerWidth/2, clientY: window.innerHeight/2 });
             }, 1000);
         },
-        category: 'passive'
+        category: 'automation',
+        unlockAt: 1000,
+        tier: 1
     },
-    boostIncome: { 
-        purchased: false, 
-        price: 2500,
-        icon: '📈',
-        name: 'Улучшенные продажи',
-        description: 'Увеличивает доход от всех товаров на 20%',
-        effect: (game) => {
-            game.incomeMultiplier *= 1.2;
-            game.recalculatePassiveIncome();
-        },
-        category: 'passive'
-    },
-    multiClick: {
-        purchased: false,
-        price: 10000,
-        icon: '👆',
-        name: 'Мультиклик',
-        description: 'Клики дают в 2 раза больше денег',
-        effect: (game) => { game.clickMultiplier *= 2; },
-        category: 'click'
-    },
-    goldenVape: {
-        purchased: false,
-        price: 25000,
-        icon: '🌟',
-        name: 'Золотой вейп',
-        description: 'Шанс 10% получить 10x денег за клик',
-        effect: (game) => { 
-            game.goldenChance = 0.1;
-            game.goldenMultiplier = 10;
-        },
-        category: 'click'
-    },
-    boostUnlock: {
+    goldenCoils: {
         purchased: false,
         price: 15000,
-        icon: '🔥',
-        name: 'Система буста',
-        description: 'Разблокирует временное ускорение дохода',
-        effect: (game) => { 
-            game.boostUnlocked = true;
-            game.elements.boostBtn.style.display = 'flex';
+        icon: '🌟',
+        name: 'Золотые испарители',
+        description: 'Увеличивает шанс золотого клика до 15%',
+        effect: (game) => {
+            game.goldenChance = Math.max(game.goldenChance, 0.15);
         },
-        category: 'special'
+        category: 'special',
+        unlockAt: 10000,
+        tier: 2
     },
-    premiumLiquids: {
+    cloudMaster: {
         purchased: false,
         price: 30000,
-        icon: '💎',
-        name: 'Премиум жидкости',
-        description: 'Увеличивает доход от жидкостей на 300%',
+        icon: '☁️',
+        name: 'Мастер облаков',
+        description: 'Увеличивает доход от жидкостей на 200%',
         effect: (game) => {
             game.products.liquids.baseIncome *= 3;
             game.recalculatePassiveIncome();
         },
-        category: 'passive'
+        category: 'products',
+        unlockAt: 20000,
+        tier: 2
     },
-    bulkDiscount: {
-        purchased: false,
-        price: 40000,
-        icon: '🛒',
-        name: 'Оптовые закупки',
-        description: 'Снижает стоимость товаров на 15%',
-        effect: (game) => {
-            game.priceMultiplier = 0.85;
-        },
-        category: 'passive'
-    },
-    criticalClick: {
-        purchased: false,
-        price: 50000,
-        icon: '💥',
-        name: 'Критический удар',
-        description: 'Шанс 5% нанести критический удар (20x)',
-        effect: (game) => {
-            game.criticalChance = 0.05;
-            game.criticalMultiplier = 20;
-        },
-        category: 'click'
-    },
-    timeWarp: {
-        purchased: false,
-        price: 75000,
-        icon: '⏳',
-        name: 'Искривление времени',
-        description: 'Увеличивает продолжительность буста на 50%',
-        effect: (game) => {
-            game.boostDuration *= 1.5;
-        },
-        category: 'special'
-    },
-    quantumLeap: {
+    // Элитные улучшения
+    quantumVape: {
         purchased: false,
         price: 100000,
         icon: '⚛️',
-        name: 'Квантовый скачок',
-        description: 'Пассивный доход работает даже когда игра закрыта',
+        name: 'Квантовый вейп',
+        description: 'Клики иногда дают в 100 раз больше денег!',
         effect: (game) => {
-            game.offlineEarningsEnabled = true;
+            game.quantumChance = 0.01;
+            game.quantumMultiplier = 100;
         },
-        category: 'special'
+        category: 'special',
+        unlockAt: 50000,
+        tier: 3
+    },
+    timeWarp: {
+        purchased: false,
+        price: 250000,
+        icon: '⏳',
+        name: 'Искривление времени',
+        description: 'Увеличивает продолжительность буста в 2 раза',
+        effect: (game) => {
+            game.boostDuration *= 2;
+        },
+        category: 'boost',
+        unlockAt: 100000,
+        tier: 3
+    },
+    // Легендарные улучшения
+    vapeGod: {
+        purchased: false,
+        price: 1000000,
+        icon: '👑',
+        name: 'Бог Вейпов',
+        description: 'Удваивает все ваши доходы!',
+        effect: (game) => {
+            game.globalMultiplier = game.globalMultiplier ? game.globalMultiplier * 2 : 2;
+        },
+        category: 'ultimate',
+        unlockAt: 500000,
+        tier: 4
+    },
+    infinitePuff: {
+        purchased: false,
+        price: 5000000,
+        icon: '♾️',
+        name: 'Бесконечная затяжка',
+        description: 'Пассивный доход работает в 3 раза быстрее',
+        effect: (game) => {
+            game.passiveSpeedMultiplier = 3;
+        },
+        category: 'ultimate',
+        unlockAt: 2000000,
+        tier: 4
     }
 };
 
 export const prestigeData = {
     level: 0,
+    points: 0,
     bonus: 1,
     nextRequirement: 100000,
     baseRequirement: 100000,
     bonusPerLevel: 0.15,
-    points: 0,
+    
     upgrades: {
         permIncome: {
             level: 0,
-            maxLevel: 5,
+            maxLevel: 20,
             price: 50,
             bonusPerLevel: 0.05,
             name: 'Алмазные пальцы',
-            description: 'После престижа сохраняется %bonus% вашего дохода в секунду'
+            description: 'После престижа сохраняется %bonus% вашего дохода',
+            icon: '💎'
         },
-        clickBonus: {
+        clickMastery: {
             level: 0,
-            maxLevel: 5,
+            maxLevel: 15,
             price: 75,
             bonusPerLevel: 0.1,
-            name: 'Золотые руки',
-            description: 'Увеличивает базовый доход за клик на %bonus%'
+            name: 'Мастер кликов',
+            description: 'Увеличивает базовый доход за клик на %bonus%',
+            icon: '👆'
         },
-        incomeBoost: {
+        businessGenius: {
             level: 0,
-            maxLevel: 5,
+            maxLevel: 10,
             price: 100,
-            bonusPerLevel: 0.07,
-            name: 'Прибыльный бизнес',
-            description: 'Увеличивает пассивный доход на %bonus%'
+            bonusPerLevel: 0.1,
+            name: 'Бизнес гений',
+            description: 'Увеличивает пассивный доход на %bonus%',
+            icon: '📈'
         },
-        discount: {
+        goldenLuck: {
+            level: 0,
+            maxLevel: 10,
+            price: 150,
+            bonusPerLevel: 0.02,
+            name: 'Золотая удача',
+            description: 'Увеличивает шанс золотого клика на %bonus%',
+            icon: '🍀'
+        },
+        criticalThinking: {
+            level: 0,
+            maxLevel: 10,
+            price: 200,
+            bonusPerLevel: 0.015,
+            name: 'Критическое мышление',
+            description: 'Увеличивает шанс критического удара на %bonus%',
+            icon: '💥'
+        },
+        boostExpert: {
             level: 0,
             maxLevel: 5,
-            price: 60,
-            bonusPerLevel: 0.03,
-            name: 'Оптовик',
-            description: 'Снижает стоимость товаров на %bonus%'
+            price: 300,
+            bonusPerLevel: 0.25,
+            name: 'Эксперт буста',
+            description: 'Увеличивает множитель буста на %bonus%',
+            icon: '🔥'
+        },
+        timeLord: {
+            level: 0,
+            maxLevel: 5,
+            price: 500,
+            bonusPerLevel: 0.2,
+            name: 'Повелитель времени',
+            description: 'Уменьшает время генерации буста на %bonus%',
+            icon: '⏱️'
         }
     }
 };
 
 export const achievements = [
+    // Базовые достижения
     {
         id: 'first_click',
-        name: 'Первый клик',
+        name: 'Первая затяжка',
         description: 'Совершите первый клик',
         reward: 100,
         condition: (game) => game.totalClicks >= 1,
         unlocked: false,
-        icon: '👆'
+        icon: '👆',
+        tier: 'common'
     },
     {
         id: 'hundred_clicks',
-        name: 'Сто раз кликни',
+        name: 'Сто затяжек',
         description: 'Совершите 100 кликов',
         reward: 500,
         condition: (game) => game.totalClicks >= 100,
         unlocked: false,
-        icon: '💯'
+        icon: '💯',
+        tier: 'common'
     },
     {
         id: 'thousand_clicks',
         name: 'Тысяча кликов',
-        description: 'Совершите 1,000 кликов',
+        description: 'Совершите 1000 кликов',
         reward: 2500,
         condition: (game) => game.totalClicks >= 1000,
         unlocked: false,
-        icon: '👆👆👆'
+        icon: '👊',
+        tier: 'uncommon'
     },
+    // Товарные достижения
     {
-        id: 'first_upgrade',
-        name: 'Первое улучшение',
-        description: 'Купите любое улучшение',
+        id: 'liquids_king',
+        name: 'Король жидкостей',
+        description: 'Купите 100 жидкостей',
         reward: 1000,
-        condition: (game) => Object.values(game.upgrades).some(u => u.purchased),
+        condition: (game) => game.products.liquids.owned >= 100,
         unlocked: false,
-        icon: '⚡'
+        icon: '💧',
+        tier: 'rare'
     },
     {
-        id: 'first_product',
-        name: 'Первый товар',
-        description: 'Купите любой товар',
-        reward: 500,
-        condition: (game) => Object.values(game.products).some(p => p.owned > 0),
-        unlocked: false,
-        icon: '🛒'
-    },
-    {
-        id: 'millionaire',
-        name: 'Миллионер',
-        description: 'Заработайте 1,000,000 ₽',
+        id: 'premium_collector',
+        name: 'Коллекционер премиум',
+        description: 'Купите все премиум товары',
         reward: 5000,
-        condition: (game) => game.totalEarned >= 1000000,
+        condition: (game) => {
+            return Object.values(game.products)
+                .filter(p => p.category === 'premium')
+                .every(p => p.owned > 0);
+        },
         unlocked: false,
-        icon: '💰'
+        icon: '🌟',
+        tier: 'epic'
     },
+    // Улучшения
     {
-        id: 'billionaire',
-        name: 'Миллиардер',
-        description: 'Заработайте 1,000,000,000 ₽',
-        reward: 25000,
-        condition: (game) => game.totalEarned >= 1000000000,
+        id: 'upgrade_master',
+        name: 'Мастер улучшений',
+        description: 'Купите 10 улучшений',
+        reward: 2500,
+        condition: (game) => {
+            return Object.values(game.upgrades)
+                .filter(u => u.purchased).length >= 10;
+        },
         unlocked: false,
-        icon: '💎'
+        icon: '⚡',
+        tier: 'rare'
     },
+    // Престижные
     {
-        id: 'prestige_master',
-        name: 'Мастер престижа',
-        description: 'Достигните 10 уровня престижа',
+        id: 'prestige_novice',
+        name: 'Новичок престижа',
+        description: 'Достигните 5 уровня престижа',
         reward: 10000,
-        condition: (game) => game.prestige.level >= 10,
+        condition: (game) => game.prestige.level >= 5,
         unlocked: false,
-        icon: '🎖️'
+        icon: '⭐',
+        tier: 'epic'
     },
     {
-        id: 'boost_lover',
-        name: 'Любитель буста',
-        description: 'Активируйте буст 50 раз',
-        reward: 3000,
-        condition: (game) => game.boostCount >= 50,
+        id: 'prestige_legend',
+        name: 'Легенда престижа',
+        description: 'Достигните 50 уровня престижа',
+        reward: 100000,
+        condition: (game) => game.prestige.level >= 50,
         unlocked: false,
-        icon: '🔥'
+        icon: '🏆',
+        tier: 'legendary'
     },
+    // Специальные
     {
-        id: 'promocode_collector',
-        name: 'Коллекционер промокодов',
-        description: 'Соберите 10 промокодов',
+        id: 'quantum_click',
+        name: 'Квантовый клик',
+        description: 'Совершите квантовый клик (100x)',
         reward: 5000,
-        condition: (game) => game.promocodesGenerated >= 10,
+        condition: (game) => game.quantumHits >= 1,
         unlocked: false,
-        icon: '🎟️'
+        icon: '⚛️',
+        tier: 'epic'
     },
     {
-        id: 'upgrade_complete',
-        name: 'Совершенство',
-        description: 'Купите все улучшения',
-        reward: 15000,
-        condition: (game) => Object.values(game.upgrades).every(u => u.purchased),
+        id: 'ultimate_tycoon',
+        name: 'Верховный Тайкун',
+        description: 'Заработайте 1 триллион ₽',
+        reward: 1000000,
+        condition: (game) => game.totalEarned >= 1e12,
         unlocked: false,
-        icon: '🏅'
+        icon: '🤑',
+        tier: 'legendary'
+    },
+    // Новые достижения
+    {
+        id: 'golden_master',
+        name: 'Золотой мастер',
+        description: 'Совершите 100 золотых кликов',
+        reward: 5000,
+        condition: (game) => game.goldenHits >= 100,
+        unlocked: false,
+        icon: '🌟',
+        tier: 'rare'
     },
     {
-        id: 'product_tycoon',
-        name: 'Тайкун продуктов',
-        description: 'Купите 1000 товаров в сумме',
-        reward: 20000,
-        condition: (game) => Object.values(game.products).reduce((sum, p) => sum + p.owned, 0) >= 1000,
-        unlocked: false,
-        icon: '🏆'
-    },
-    {
-        id: 'critical_master',
-        name: 'Критический мастер',
-        description: 'Совершите 100 критических ударов',
+        id: 'critical_expert',
+        name: 'Эксперт критических ударов',
+        description: 'Совершите 50 критических ударов',
         reward: 7500,
-        condition: (game) => game.criticalHits >= 100,
+        condition: (game) => game.criticalHits >= 50,
         unlocked: false,
-        icon: '💥'
+        icon: '💥',
+        tier: 'epic'
     },
     {
-        id: 'golden_touch',
-        name: 'Золотое прикосновение',
-        description: 'Совершите 50 золотых кликов',
-        reward: 10000,
-        condition: (game) => game.goldenHits >= 50,
+        id: 'boost_enthusiast',
+        name: 'Энтузиаст буста',
+        description: 'Активируйте буст 25 раз',
+        reward: 5000,
+        condition: (game) => game.boostCount >= 25,
         unlocked: false,
-        icon: '🌟'
-    },
-    {
-        id: 'offline_king',
-        name: 'Король оффлайна',
-        description: 'Заработайте 1,000,000 ₽ в оффлайне',
-        reward: 15000,
-        condition: (game) => game.totalOfflineEarned >= 1000000,
-        unlocked: false,
-        icon: '⏸️'
+        icon: '🔥',
+        tier: 'rare'
     }
 ];
 
@@ -397,23 +488,133 @@ export const promocodes = {
     nextRequirement: 100000,
     list: [],
     rewards: [
-        { amount: 100, chance: 0.7 },
-        { amount: 200, chance: 0.2 },
-        { amount: 500, chance: 0.08 },
-        { amount: 1000, chance: 0.02 }
-    ]
+        { amount: 100, chance: 0.5 },
+        { amount: 250, chance: 0.3 },
+        { amount: 500, chance: 0.15 },
+        { amount: 1000, chance: 0.05 },
+        { amount: 5000, chance: 0.01, isSpecial: true },
+        { 
+            amount: '2x income for 1h', 
+            chance: 0.005, 
+            isSpecial: true,
+            effect: (game) => {
+                game.temporaryIncomeMultiplier = 2;
+                setTimeout(() => {
+                    game.temporaryIncomeMultiplier = 1;
+                }, 3600000);
+            }
+        }
+    ],
+    minPrestige: 10,
+    specialChance: 0.02
 };
 
 export const categories = {
     products: {
-        'basic': { name: 'Базовые', icon: '🛒' },
-        'advanced': { name: 'Продвинутые', icon: '⚡' },
+        'all': { name: 'Все', icon: '🛒' },
+        'basic': { name: 'Базовые', icon: '🔹' },
+        'premium': { name: 'Премиум', icon: '🌟' },
         'business': { name: 'Бизнес', icon: '🏢' },
-        'enterprise': { name: 'Предприятие', icon: '🏭' }
+        'ultimate': { name: 'Элитные', icon: '👑' }
     },
     upgrades: {
+        'all': { name: 'Все', icon: '⚡' },
         'click': { name: 'Клики', icon: '👆' },
-        'passive': { name: 'Пассивный доход', icon: '💤' },
-        'special': { name: 'Особые', icon: '✨' }
+        'automation': { name: 'Автоматизация', icon: '🤖' },
+        'special': { name: 'Особые', icon: '✨' },
+        'ultimate': { name: 'Легендарные', icon: '🏆' }
     }
+};
+
+export const defaultGameState = {
+    balance: 0,
+    totalEarned: 0,
+    passiveIncome: 0,
+    clickValue: 1,
+    clickMultiplier: 1,
+    incomeMultiplier: 1,
+    priceMultiplier: 1,
+    globalMultiplier: 1,
+    temporaryIncomeMultiplier: 1,
+    passiveSpeedMultiplier: 1,
+    
+    // Клики
+    totalClicks: 0,
+    goldenChance: 0,
+    goldenHits: 0,
+    goldenMultiplier: 10,
+    criticalChance: 0,
+    criticalHits: 0,
+    criticalMultiplier: 20,
+    quantumChance: 0,
+    quantumHits: 0,
+    quantumMultiplier: 100,
+    
+    // Буст система
+    boostUnlocked: false,
+    boostActive: false,
+    boostCount: 0,
+    boostProgress: 0,
+    boostTimer: 0,
+    boostDuration: 30,
+    boostMultiplier: 2,
+    
+    // Оффлайн
+    lastPlayTime: Date.now(),
+    offlineEarningsEnabled: false,
+    totalOfflineEarned: 0,
+    maxOfflineTime: 0,
+    
+    // Престиж
+    prestige: JSON.parse(JSON.stringify(prestigeData)),
+    nextPromocodeAt: 100000,
+    promocodesGenerated: 0,
+    
+    // Коллекции
+    products: JSON.parse(JSON.stringify(products)),
+    upgrades: JSON.parse(JSON.stringify(upgrades)),
+    achievements: JSON.parse(JSON.stringify(achievements)),
+    promocodes: JSON.parse(JSON.stringify(promocodes)),
+    
+    // Настройки
+    darkMode: false,
+    notificationsEnabled: true,
+    animationLevel: 'high',
+    
+    // Квесты
+    dailyQuests: [
+        {
+            id: 'click_500',
+            name: '500 кликов',
+            description: 'Совершите 500 кликов',
+            reward: 1000,
+            progress: 0,
+            required: 500,
+            completed: false
+        },
+        {
+            id: 'earn_50000',
+            name: 'Заработать 50,000₽',
+            description: 'Заработайте 50,000 рублей',
+            reward: 5000,
+            progress: 0,
+            required: 50000,
+            completed: false
+        },
+        {
+            id: 'buy_upgrades',
+            name: 'Улучшения',
+            description: 'Купите 3 улучшения',
+            reward: 3000,
+            progress: 0,
+            required: 3,
+            completed: false
+        }
+    ],
+    lastDailyRefresh: Date.now(),
+    
+    // События
+    currentEvent: null,
+    eventProgress: 0,
+    eventEndTime: null
 };
