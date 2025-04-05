@@ -1,129 +1,216 @@
-import { products, upgrades, prestigeData, achievements, promocodes, categories } from './game-data.js';
+import { products, upgrades, prestigeData, achievements, promocodes, categories, defaultGameState } from './game-data.js';
 
-class TaburetkaTapGame {
+class VapeEmpireGame {
     constructor() {
-        this.balance = 0;
-        this.totalEarned = 0;
-        this.passiveIncome = 0;
-        this.clickValue = 1;
-        this.clickMultiplier = 1;
-        this.incomeMultiplier = 1;
-        this.priceMultiplier = 1;
-        this.totalClicks = 0;
-        this.goldenChance = 0;
-        this.goldenMultiplier = 10;
-        this.goldenHits = 0;
-        this.criticalChance = 0;
-        this.criticalMultiplier = 20;
-        this.criticalHits = 0;
-        this.lastPlayTime = Date.now();
-        this.boostUnlocked = false;
-        this.boostActive = false;
-        this.boostDuration = 30; // seconds
-        this.boostMultiplier = 2;
-        this.boostProgress = 0;
-        this.boostCount = 0;
-        this.boostTimer = 0;
+        // Инициализация состояния игры
+        this.initGameState();
+        
+        // Системные переменные
+        this.gameVersion = '2.0';
+        this.lastUpdateTime = Date.now();
         this.autoClickerInterval = null;
-        this.promocodesGenerated = 0;
-        this.nextPromocodeAt = promocodes.basePrice;
-        this.offlineEarningsEnabled = false;
-        this.totalOfflineEarned = 0;
+        this.boostInterval = null;
+        this.eventInterval = null;
+        this.dailyRefreshInterval = null;
+        this.gameLoopInterval = null;
         
-        this.prestige = JSON.parse(JSON.stringify(prestigeData));
-        this.products = JSON.parse(JSON.stringify(products));
-        this.upgrades = JSON.parse(JSON.stringify(upgrades));
-        this.achievements = JSON.parse(JSON.stringify(achievements));
-        this.promocodes = JSON.parse(JSON.stringify(promocodes));
-        
+        // Инициализация элементов
         this.initElements();
         this.initEventListeners();
-        this.setupMultitouch();
-        this.setupParticles();
+        this.setupGameSystems();
+    }
+    
+    initGameState() {
+        // Загрузка сохранения или установка значений по умолчанию
+        const savedData = localStorage.getItem('vapeEmpireSave');
+        if (savedData) {
+            const parsed = JSON.parse(savedData);
+            
+            // Миграция старых сохранений
+            if (!parsed.gameVersion || parsed.gameVersion !== this.gameVersion) {
+                this.migrateSave(parsed);
+            } else {
+                Object.assign(this, parsed);
+            }
+        } else {
+            Object.assign(this, JSON.parse(JSON.stringify(defaultGameState)));
+        }
+        
+        // Инициализация новых свойств
+        this.quantumHits = this.quantumHits || 0;
+        this.temporaryIncomeMultiplier = this.temporaryIncomeMultiplier || 1;
+        this.passiveSpeedMultiplier = this.passiveSpeedMultiplier || 1;
+        this.globalMultiplier = this.globalMultiplier || 1;
+        this.dailyQuests = this.dailyQuests || JSON.parse(JSON.stringify(defaultGameState.dailyQuests));
+        
+        // Восстановление объектов из JSON
+        this.prestige = Object.assign({}, prestigeData, this.prestige);
+        this.products = Object.assign({}, products, this.products);
+        this.upgrades = Object.assign({}, upgrades, this.upgrades);
+        this.achievements = [...achievements].map(a => {
+            const savedAchievement = (this.achievements || []).find(sa => sa.id === a.id);
+            return savedAchievement ? {...a, ...savedAchievement} : a;
+        });
+    }
+    
+    migrateSave(oldSave) {
+        // Перенос данных из старой версии
+        console.log('Migrating save from old version...');
+        
+        // Основные свойства
+        const baseProps = [
+            'balance', 'totalEarned', 'passiveIncome', 'clickValue', 
+            'clickMultiplier', 'incomeMultiplier', 'priceMultiplier',
+            'totalClicks', 'goldenChance', 'goldenHits', 'criticalChance',
+            'criticalHits', 'boostUnlocked', 'boostActive', 'boostCount',
+            'boostProgress', 'boostTimer', 'lastPlayTime', 'offlineEarningsEnabled',
+            'totalOfflineEarned', 'prestige', 'products', 'upgrades',
+            'achievements', 'promocodesGenerated', 'nextPromocodeAt', 'promocodes',
+            'darkMode'
+        ];
+        
+        baseProps.forEach(prop => {
+            if (oldSave[prop] !== undefined) {
+                this[prop] = oldSave[prop];
+            }
+        });
+        
+        // Новые свойства
+        this.gameVersion = this.gameVersion;
+        this.quantumHits = 0;
+        this.globalMultiplier = 1;
+        this.temporaryIncomeMultiplier = 1;
+        this.passiveSpeedMultiplier = 1;
+        
+        // Инициализация новых систем
+        this.initDailyQuests();
+        this.checkForEvents();
     }
     
     initElements() {
+        // Основные элементы
         this.elements = {
+            // Верхняя панель
             balance: document.getElementById('balance'),
             income: document.getElementById('income'),
-            clickValue: document.getElementById('clickValue'),
-            clickAmount: document.getElementById('clickAmount'),
-            totalClicks: document.getElementById('totalClicks'),
+            prestigeBadge: document.getElementById('prestigeBadge'),
+            prestigeLevel: document.getElementById('prestigeLevel'),
+            
+            // Игровая область
             vape: document.getElementById('vape'),
             clickArea: document.getElementById('clickArea'),
             clickEffect: document.querySelector('.click-effect'),
             clickCounter: document.querySelector('.click-counter'),
-            notification: document.getElementById('notification'),
-            themeToggle: document.getElementById('themeToggle'),
-            sunIcon: document.getElementById('sunIcon'),
-            moonIcon: document.getElementById('moonIcon'),
-            prestigeLevel: document.getElementById('prestigeLevel'),
-            prestigeBadge: document.getElementById('prestigeBadge'),
+            clickValue: document.getElementById('clickValue'),
+            totalClicks: document.getElementById('totalClicks'),
+            
+            // Индикаторы
+            goldenHits: document.getElementById('goldenHits'),
+            criticalHits: document.getElementById('criticalHits'),
+            clickMultiplier: document.getElementById('clickMultiplier'),
+            
+            // Буст система
+            boostBtn: document.getElementById('boostBtn'),
+            boostProgress: document.getElementById('boostProgress'),
+            boostTimer: document.getElementById('boostTimer'),
+            
+            // Быстрое меню
+            quickBuyItems: {
+                liquids: document.getElementById('quickLiquidsPrice'),
+                disposables: document.getElementById('quickDisposablesPrice'),
+                premiumLiquids: document.getElementById('quickPremiumLiquidsPrice'),
+                limitedDevices: document.getElementById('quickLimitedDevicesPrice')
+            },
+            
+            // Вкладки
+            tabBtns: document.querySelectorAll('.tab-btn'),
+            tabContents: document.querySelectorAll('.tab-content'),
+            
+            // Престиж
             prestigeBonusValue: document.getElementById('prestigeBonusValue'),
             prestigeProgress: document.getElementById('prestigeProgress'),
             prestigePrice: document.getElementById('prestigePrice'),
             prestigeBtn: document.getElementById('prestigeBtn'),
             prestigeRemaining: document.getElementById('prestigeRemaining'),
-            tabBtns: document.querySelectorAll('.tab-btn'),
-            tabContents: document.querySelectorAll('.tab-content'),
-            productsContainer: document.getElementById('products'),
-            upgradesContainer: document.getElementById('upgrades'),
-            achievementsContainer: document.querySelector('.achievements-container'),
+            prestigePoints: document.getElementById('prestigePoints'),
+            
+            // Перманентные улучшения
+            permIncomeLevel: document.getElementById('permIncomeLevel'),
+            permIncomePrice: document.getElementById('permIncomePrice'),
+            permIncomeBonus: document.getElementById('permIncomeBonus'),
+            buyPermIncome: document.getElementById('buyPermIncome'),
+            
+            // Уведомления
+            notification: document.getElementById('notification'),
+            
+            // Тема
+            themeToggle: document.getElementById('themeToggle'),
+            sunIcon: document.getElementById('sunIcon'),
+            moonIcon: document.getElementById('moonIcon'),
+            
+            // Оффлайн доход
             offlineEarnings: document.getElementById('offlineEarnings'),
             offlineAmount: document.getElementById('offlineAmount'),
             offlineTime: document.getElementById('offlineTime'),
             collectOffline: document.getElementById('collectOffline'),
-            touchZones: [
-                document.getElementById('touchZone1'),
-                document.getElementById('touchZone2'),
-                document.getElementById('touchZone3')
-            ],
-            boostBtn: document.getElementById('boostBtn'),
-            boostProgress: document.getElementById('boostProgress'),
-            boostTimer: document.getElementById('boostTimer'),
-            generatePromocode: document.getElementById('generatePromocode'),
-            promocodesList: document.getElementById('promocodesList'),
-            promocodesGenerated: document.getElementById('promocodesGenerated'),
-            nextPromocode: document.getElementById('nextPromocode'),
+            
+            // Промокоды
             promocodeModal: document.getElementById('promocodeModal'),
             promocodeValue: document.getElementById('promocodeValue'),
             promocodeDiscount: document.getElementById('promocodeDiscount'),
             closePromocodeModal: document.getElementById('closePromocodeModal'),
-            buyPermIncome: document.getElementById('buyPermIncome'),
-            permIncomeLevel: document.getElementById('permIncomeLevel'),
-            buyClickBonus: document.getElementById('buyClickBonus'),
-            clickBonusLevel: document.getElementById('clickBonusLevel'),
+            usePromocodeBtn: document.getElementById('usePromocodeBtn'),
+            
+            // Достижения
+            achievementsContainer: document.getElementById('achievementsContainer'),
+            achievementsCompleted: document.getElementById('achievementsCompleted'),
+            achievementsTotal: document.getElementById('achievementsTotal'),
+            
+            // Статистика
+            totalEarnedStat: document.getElementById('totalEarnedStat'),
+            totalClicksStat: document.getElementById('totalClicksStat'),
+            playTimeStat: document.getElementById('playTimeStat'),
+            goldenHitsStat: document.getElementById('goldenHitsStat'),
+            criticalHitsStat: document.getElementById('criticalHitsStat'),
+            quantumHitsStat: document.getElementById('quantumHitsStat'),
+            totalOfflineStat: document.getElementById('totalOfflineStat'),
+            maxOfflineTimeStat: document.getElementById('maxOfflineTimeStat'),
+            prestigeLevelStat: document.getElementById('prestigeLevelStat'),
+            prestigePointsStat: document.getElementById('prestigePointsStat'),
+            prestigeBonusStat: document.getElementById('prestigeBonusStat'),
+            
+            // Фильтры
             productFilters: document.getElementById('productFilters'),
             upgradeFilters: document.getElementById('upgradeFilters'),
-            goldenHits: document.getElementById('goldenHits'),
-            criticalHits: document.getElementById('criticalHits'),
-            particles: document.getElementById('particles')
+            
+            // Контейнеры
+            productsContainer: document.getElementById('productsContainer'),
+            upgradesContainer: document.getElementById('upgradesContainer')
         };
     }
     
     initEventListeners() {
-        // Клик по области
+        // Клик по вейпу
         this.elements.clickArea.addEventListener('click', (e) => this.handleClick(e));
+        this.elements.clickArea.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this.handleClick(e.touches[0]);
+        }, { passive: false });
+        
+        // Быстрое меню покупок
+        document.querySelectorAll('.quick-buy-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const product = item.dataset.product;
+                this.buyProduct(product);
+            });
+        });
         
         // Престиж
         this.elements.prestigeBtn.addEventListener('click', () => this.doPrestige());
         
-        // Переключение вкладок
+        // Вкладки
         this.elements.tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                this.switchTab(btn.dataset.tab);
-                // Показываем/скрываем фильтры в зависимости от вкладки
-                if (btn.dataset.tab === 'products') {
-                    this.elements.productFilters.style.display = 'flex';
-                    this.elements.upgradeFilters.style.display = 'none';
-                } else if (btn.dataset.tab === 'upgrades') {
-                    this.elements.productFilters.style.display = 'none';
-                    this.elements.upgradeFilters.style.display = 'flex';
-                } else {
-                    this.elements.productFilters.style.display = 'none';
-                    this.elements.upgradeFilters.style.display = 'none';
-                }
-            });
+            btn.addEventListener('click', () => this.switchTab(btn.dataset.tab));
         });
         
         // Фильтры товаров
@@ -131,7 +218,7 @@ class TaburetkaTapGame {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('#productFilters .filter-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                this.renderAllProducts(btn.dataset.category);
+                this.renderProducts(btn.dataset.category);
             });
         });
         
@@ -140,227 +227,201 @@ class TaburetkaTapGame {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('#upgradeFilters .filter-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                this.renderAllUpgrades(btn.dataset.category);
+                this.renderUpgrades(btn.dataset.category);
             });
         });
         
-        // Переключение темы
-        this.elements.themeToggle.addEventListener('click', () => this.toggleTheme());
-        
-        // Оффлайн заработок
-        this.elements.collectOffline.addEventListener('click', () => this.collectOfflineEarnings());
-        
-        // Система буста
+        // Буст
         this.elements.boostBtn.addEventListener('click', () => this.activateBoost());
         
+        // Оффлайн доход
+        this.elements.collectOffline.addEventListener('click', () => this.collectOfflineEarnings());
+        
         // Промокоды
-        this.elements.generatePromocode.addEventListener('click', () => this.generatePromocode());
         this.elements.closePromocodeModal.addEventListener('click', () => this.closePromocodeModal());
+        this.elements.usePromocodeBtn.addEventListener('click', () => this.useCurrentPromocode());
         
         // Перманентные улучшения
         this.elements.buyPermIncome.addEventListener('click', () => this.buyPermanentUpgrade('permIncome'));
-        this.elements.buyClickBonus.addEventListener('click', () => this.buyPermanentUpgrade('clickBonus'));
+        
+        // Тема
+        this.elements.themeToggle.addEventListener('click', () => this.toggleTheme());
         
         // Сохранение при закрытии
         window.addEventListener('beforeunload', () => this.save());
-    }
-    
-    setupMultitouch() {
-        this.elements.touchZones.forEach(zone => {
-            zone.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                this.handleClick({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
-            });
+        
+        // PWA события
+        window.addEventListener('appinstalled', () => {
+            this.showNotification('Игра установлена! Получите 1000₽ в подарок!', 'success');
+            this.addBalance(1000);
         });
     }
     
-    setupParticles() {
-        // Создаем частицы для фона
-        for (let i = 0; i < 50; i++) {
-            this.createParticle();
-        }
-    }
-    
-    createParticle() {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
+    setupGameSystems() {
+        // Частицы
+        this.setupParticles();
         
-        const size = Math.random() * 5 + 3;
-        const posX = Math.random() * 100;
-        const posY = Math.random() * 100;
-        const duration = Math.random() * 20 + 10;
-        const delay = Math.random() * 5;
+        // Игровой цикл
+        this.startGameLoop();
         
-        particle.style.width = `${size}px`;
-        particle.style.height = `${size}px`;
-        particle.style.left = `${posX}%`;
-        particle.style.top = `${posY}%`;
-        particle.style.opacity = Math.random() * 0.5 + 0.1;
-        particle.style.animation = `float ${duration}s linear ${delay}s infinite`;
+        // Проверка оффлайн дохода
+        this.checkOfflineEarnings();
         
-        this.elements.particles.appendChild(particle);
+        // Загрузка интерфейса
+        this.renderAll();
+        this.updateUI();
+        
+        // Ежедневное обновление квестов
+        this.setupDailyQuests();
+        
+        // Проверка событий
+        this.checkForEvents();
+        
+        // Восстановление анимаций
+        this.restoreAnimations();
     }
     
     start() {
-        this.load();
-        this.checkOfflineEarnings();
-        this.startGameLoop();
-        this.renderAllProducts();
-        this.renderAllUpgrades();
-        this.renderAllAchievements();
-        this.renderPromocodes();
-        this.updateAllUI();
-        
         // Запуск анимации вейпа
         this.elements.vape.querySelector('.vape-image').classList.add('float-animation');
-        this.startSmokeEffect();
+        
+        // Восстановление буста если он был активен
+        if (this.boostActive) {
+            this.activateBoost();
+        }
+        
+        // Восстановление автокликера
+        if (this.upgrades.autoClicker.purchased) {
+            this.upgrades.autoClicker.effect(this);
+        }
+        
+        // Установка темы
+        if (this.darkMode) {
+            document.body.classList.add('dark-mode');
+            this.updateThemeIcon();
+        }
     }
     
-    startSmokeEffect() {
-        setInterval(() => {
-            if (Math.random() > 0.7) {
-                this.createSmokeParticle();
-            }
-        }, 500);
-    }
-    
-    createSmokeParticle() {
-        const smoke = document.createElement('div');
-        smoke.className = 'smoke-particle';
-        
-        const vapeRect = this.elements.vape.getBoundingClientRect();
-        const startX = vapeRect.left + vapeRect.width / 2;
-        const startY = vapeRect.top + vapeRect.height / 2;
-        
-        smoke.style.left = `${startX}px`;
-        smoke.style.top = `${startY}px`;
-        
-        const size = Math.random() * 20 + 10;
-        smoke.style.width = `${size}px`;
-        smoke.style.height = `${size}px`;
-        
-        document.body.appendChild(smoke);
-        
-        setTimeout(() => {
-            smoke.style.animation = `smokeFloat ${Math.random() * 2 + 1}s ease-out forwards`;
-            setTimeout(() => smoke.remove(), 2000);
-        }, 10);
-    }
+    // =====================
+    // ОСНОВНЫЕ ИГРОВЫЕ МЕХАНИКИ
+    // =====================
     
     handleClick(e) {
-        let earned = this.clickValue * this.clickMultiplier;
+        // Позиция клика
+        const rect = this.elements.vape.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        // Базовый доход за клик
+        let earned = this.clickValue * this.clickMultiplier * this.globalMultiplier;
         let isCritical = false;
         let isGolden = false;
+        let isQuantum = false;
         
+        // Проверка на квантовый клик
+        if (this.quantumChance > 0 && Math.random() < this.quantumChance) {
+            earned *= this.quantumMultiplier;
+            isQuantum = true;
+            this.quantumHits++;
+            this.showNotification(`КВАНТОВЫЙ КЛИК! +${this.formatMoney(earned)} ₽`, 'quantum');
+            this.createConfetti(50, 'quantum');
+        } 
         // Проверка на критический удар
-        if (this.criticalChance > 0 && Math.random() < this.criticalChance) {
+        else if (this.criticalChance > 0 && Math.random() < this.criticalChance) {
             earned *= this.criticalMultiplier;
             isCritical = true;
             this.criticalHits++;
-            this.elements.criticalHits.textContent = this.criticalHits;
             this.showNotification(`Критический удар! +${this.formatMoney(earned)} ₽`, 'critical');
             this.createConfetti(30, 'critical');
-        }
+        } 
         // Проверка на золотой клик
         else if (this.goldenChance > 0 && Math.random() < this.goldenChance) {
             earned *= this.goldenMultiplier;
             isGolden = true;
             this.goldenHits++;
-            this.elements.goldenHits.textContent = this.goldenHits;
             this.showNotification(`Золотой клик! +${this.formatMoney(earned)} ₽`, 'golden');
-            this.createConfetti(30, 'golden');
+            this.createConfetti(20, 'golden');
         }
         
-        // Увеличение прогресса буста
+        // Прогресс буста
         if (this.boostUnlocked) {
             this.boostProgress = Math.min(100, this.boostProgress + 2);
             this.elements.boostProgress.style.width = `${this.boostProgress}%`;
             this.elements.boostBtn.disabled = this.boostProgress < 100;
         }
         
+        // Начисление денег
         this.addBalance(earned);
         this.totalClicks++;
-        this.checkAchievements();
         
-        // Позиция клика
-        const rect = this.elements.vape.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        // Обновление квестов
+        this.updateQuestProgress('click_500', 1);
         
         // Эффекты
-        this.createClickEffect(x, y, isCritical ? 'critical' : isGolden ? 'golden' : 'normal');
-        this.createClickText(x, y, earned, isCritical ? 'critical' : isGolden ? 'golden' : 'normal');
+        this.createClickEffect(x, y, isQuantum ? 'quantum' : isCritical ? 'critical' : isGolden ? 'golden' : 'normal');
+        this.createClickText(x, y, earned, isQuantum ? 'quantum' : isCritical ? 'critical' : isGolden ? 'golden' : 'normal');
+        this.createVapeParticles(x, y, isQuantum ? 'quantum' : isCritical ? 'critical' : isGolden ? 'golden' : 'normal');
         this.animateVape();
-    }
-    
-    createClickEffect(x, y, type = 'normal') {
-        const effect = this.elements.clickEffect.cloneNode(true);
-        effect.style.left = `${x}px`;
-        effect.style.top = `${y}px`;
-        effect.style.opacity = '1';
         
-        if (type === 'golden') {
-            effect.style.background = 'radial-gradient(circle at center, rgba(255,215,0,0.8) 0%, transparent 70%)';
-        } else if (type === 'critical') {
-            effect.style.background = 'radial-gradient(circle at center, rgba(239, 68, 68, 0.8) 0%, transparent 70%)';
-            effect.classList.add('critical-effect');
-        }
-        
-        this.elements.vape.appendChild(effect);
-        setTimeout(() => effect.remove(), 500);
-    }
-    
-    createClickText(x, y, amount, type = 'normal') {
-        const text = this.elements.clickCounter.cloneNode(true);
-        text.textContent = `+${this.formatMoney(amount)}₽`;
-        text.style.left = `${x}px`;
-        text.style.top = `${y}px`;
-        text.style.opacity = '1';
-        
-        if (type === 'golden') {
-            text.classList.add('golden-click');
-        } else if (type === 'critical') {
-            text.classList.add('critical-click');
-        }
-        
-        this.elements.vape.appendChild(text);
-        setTimeout(() => text.remove(), 1000);
-    }
-    
-    animateVape() {
-        this.elements.vape.classList.add('shake-animation');
-        setTimeout(() => {
-            this.elements.vape.classList.remove('shake-animation');
-        }, 500);
+        // Проверка достижений
+        this.checkAchievements();
     }
     
     addBalance(amount) {
+        // Применение временного множителя
+        amount *= this.temporaryIncomeMultiplier;
+        
         this.balance += amount;
         this.totalEarned += amount;
         
-        // Проверка на возможность генерации промокода
-        if (this.totalEarned >= this.nextPromocodeAt) {
-            this.nextPromocodeAt += this.promocodes.basePrice;
-            this.elements.generatePromocode.disabled = false;
+        // Обновление квеста по заработку
+        this.updateQuestProgress('earn_50000', amount);
+        
+        // Проверка на генерацию промокода
+        if (this.totalEarned >= this.nextPromocodeAt && this.prestige.level >= promocodes.minPrestige) {
+            this.generatePromocode();
+            this.nextPromocodeAt += promocodes.basePrice;
         }
         
+        // Обновление интерфейса
         this.updateUI();
         this.save();
     }
+    
+    // =====================
+    // СИСТЕМА ТОВАРОВ
+    // =====================
     
     buyProduct(type) {
         const product = this.products[type];
         const price = this.getProductPrice(type);
         
+        if (product.owned >= product.maxOwned) {
+            this.showNotification(`Максимум ${product.name} достигнут!`, 'error');
+            return;
+        }
+        
         if (this.balance >= price) {
             this.balance -= price;
             product.owned++;
+            
+            // Применение специального эффекта
+            if (product.specialEffect) {
+                this.applyProductEffect(product);
+            }
+            
             this.recalculatePassiveIncome();
             
+            // Обновление интерфейса
             this.updateProductUI(type);
             this.showNotification(`Куплено: ${product.name}`, 'success');
-            this.createConfetti();
+            this.createConfetti(10);
             this.save();
+            
+            // Проверка достижений
+            this.checkAchievements();
+            // Обновление квеста
+            this.updateQuestProgress('buy_upgrades', 1);
         } else {
             this.showNotification('Недостаточно средств!', 'error');
         }
@@ -368,289 +429,390 @@ class TaburetkaTapGame {
     
     sellProduct(type) {
         const product = this.products[type];
+        const price = Math.floor(this.getProductPrice(type) * 0.7); // 70% от цены
         
-        if (product.owned > 0) {
-            const sellPrice = Math.floor(this.getProductPrice(type) * 0.7);
-            this.balance += sellPrice;
-            product.owned--;
-            this.recalculatePassiveIncome();
-            
-            this.updateProductUI(type);
-            this.showNotification(`Продано: ${product.name} за ${this.formatMoney(sellPrice)} ₽`, 'warning');
-            this.save();
+        if (product.owned <= 0) {
+            this.showNotification(`Нет ${product.name} для продажи!`, 'error');
+            return;
+        }
+        
+        product.owned--;
+        this.balance += price;
+        
+        // Отмена специального эффекта
+        if (product.specialEffect) {
+            this.revertProductEffect(product);
+        }
+        
+        this.recalculatePassiveIncome();
+        
+        // Обновление интерфейса
+        this.updateProductUI(type);
+        this.showNotification(`Продано: ${product.name} за ${this.formatMoney(price)} ₽`, 'info');
+        this.save();
+    }
+    
+    applyProductEffect(product) {
+        switch(product.specialEffect.type) {
+            case 'clickMultiplier':
+                this.clickMultiplier += product.specialEffect.value;
+                break;
+            case 'goldenChance':
+                this.goldenChance += product.specialEffect.value;
+                break;
+            case 'passiveMultiplier':
+                // Уже учтено в recalculatePassiveIncome
+                break;
+            case 'globalMultiplier':
+                this.globalMultiplier += product.specialEffect.value;
+                break;
+            case 'prestigeBonus':
+                this.prestige.bonusPerLevel += product.specialEffect.value;
+                break;
+        }
+    }
+    
+    revertProductEffect(product) {
+        switch(product.specialEffect.type) {
+            case 'clickMultiplier':
+                this.clickMultiplier -= product.specialEffect.value;
+                break;
+            case 'goldenChance':
+                this.goldenChance -= product.specialEffect.value;
+                break;
+            case 'passiveMultiplier':
+                // Уже учтено в recalculatePassiveIncome
+                break;
+            case 'globalMultiplier':
+                this.globalMultiplier -= product.specialEffect.value;
+                break;
+            case 'prestigeBonus':
+                this.prestige.bonusPerLevel -= product.specialEffect.value;
+                break;
         }
     }
     
     getProductPrice(type) {
         const product = this.products[type];
-        const discount = this.prestige.upgrades.discount.level * this.prestige.upgrades.discount.bonusPerLevel;
+        const discount = this.prestige.upgrades.discount?.level * this.prestige.upgrades.discount?.bonusPerLevel || 0;
         const priceMultiplier = this.priceMultiplier * (1 - discount);
         return Math.floor(product.basePrice * Math.pow(1.15, product.owned) * priceMultiplier);
     }
     
+    recalculatePassiveIncome() {
+        let income = 0;
+        
+        // Суммируем доход от всех продуктов
+        for (const type in this.products) {
+            const product = this.products[type];
+            if (product.owned > 0) {
+                let productIncome = product.baseIncome * product.owned;
+                
+                // Применяем эффекты улучшений
+                if (product.specialEffect?.type === 'passiveMultiplier') {
+                    productIncome *= (1 + product.specialEffect.value);
+                }
+                
+                income += productIncome;
+            }
+        }
+        
+        // Применяем глобальные множители
+        this.passiveIncome = income * this.incomeMultiplier * this.globalMultiplier * this.prestige.bonus;
+    }
+    
+    // =====================
+    // СИСТЕМА УЛУЧШЕНИЙ
+    // =====================
+    
     buyUpgrade(type) {
         const upgrade = this.upgrades[type];
         
-        if (this.balance >= upgrade.price && !upgrade.purchased) {
+        if (upgrade.purchased) {
+            this.showNotification('Уже куплено!', 'error');
+            return;
+        }
+        
+        if (this.balance >= upgrade.price) {
             this.balance -= upgrade.price;
             upgrade.purchased = true;
+            
+            // Применение эффекта
             upgrade.effect(this);
             
+            // Разблокировка буста при покупке первого улучшения
+            if (!this.boostUnlocked && Object.values(this.upgrades).filter(u => u.purchased).length >= 1) {
+                this.boostUnlocked = true;
+                this.showNotification('Буст разблокирован! Заполняйте шкалу кликами', 'success');
+            }
+            
+            // Обновление интерфейса
             this.updateUpgradeUI(type);
-            this.showNotification(`Куплено улучшение: ${upgrade.name}`, 'success');
-            this.createConfetti();
-            this.checkAchievements();
+            this.showNotification(`Куплено: ${upgrade.name}`, 'success');
+            this.createConfetti(15);
             this.save();
-        } else if (upgrade.purchased) {
-            this.showNotification('Уже куплено!', 'error');
+            
+            // Проверка достижений
+            this.checkAchievements();
+            // Обновление квеста
+            this.updateQuestProgress('buy_upgrades', 1);
         } else {
             this.showNotification('Недостаточно средств!', 'error');
         }
     }
     
-    activateBoost() {
-        if (this.boostProgress >= 100 && !this.boostActive) {
-            this.boostActive = true;
-            this.boostCount++;
-            this.boostProgress = 0;
-            this.boostTimer = this.boostDuration;
-            this.elements.boostProgress.style.width = '0%';
-            this.elements.boostBtn.disabled = true;
-            this.elements.boostBtn.classList.add('active');
-            
-            const originalMultiplier = this.incomeMultiplier;
-            this.incomeMultiplier *= this.boostMultiplier;
-            this.recalculatePassiveIncome();
-            
-            this.showNotification(`Буст активирован! Доход x${this.boostMultiplier}`, 'warning');
-            
-            // Обновляем таймер каждую секунду
-            const boostInterval = setInterval(() => {
-                this.boostTimer--;
-                this.elements.boostTimer.textContent = this.boostTimer;
-                
-                if (this.boostTimer <= 0) {
-                    clearInterval(boostInterval);
-                    this.boostActive = false;
-                    this.incomeMultiplier = originalMultiplier;
-                    this.recalculatePassiveIncome();
-                    this.elements.boostBtn.classList.remove('active');
-                    this.elements.boostTimer.textContent = '';
-                    this.showNotification('Буст закончился', 'info');
-                    this.save();
-                }
-            }, 1000);
-            
-            this.checkAchievements();
-            this.save();
-        }
-    }
+    // =====================
+    // СИСТЕМА ПРЕСТИЖА
+    // =====================
     
     doPrestige() {
-        if (this.balance >= this.prestige.nextRequirement) {
-            // Рассчитываем престиж-очки
-            const earnedPoints = Math.floor(this.balance / this.prestige.nextRequirement);
-            this.prestige.level++;
-            this.prestige.points += earnedPoints;
-            this.prestige.bonus = 1 + (this.prestige.level * this.prestige.bonusPerLevel);
-            this.prestige.nextRequirement = this.prestige.baseRequirement * Math.pow(2, this.prestige.level);
-            
-            // Перманентный доход
-            let permIncomeBonus = 0;
-            if (this.prestige.upgrades.permIncome.level > 0) {
-                permIncomeBonus = this.passiveIncome * this.prestige.upgrades.permIncome.level * 
-                                 this.prestige.upgrades.permIncome.bonusPerLevel;
-            }
-            
-            // Бонус за клик
-            if (this.prestige.upgrades.clickBonus.level > 0) {
-                this.clickValue = 1 + (this.prestige.upgrades.clickBonus.level * 
-                                      this.prestige.upgrades.clickBonus.bonusPerLevel);
-            } else {
-                this.clickValue = 1;
-            }
-            
-            // Сброс игры с сохранением престижа
-            this.balance = permIncomeBonus;
-            this.passiveIncome = permIncomeBonus;
-            this.clickMultiplier = 1;
-            this.incomeMultiplier = 1;
-            this.goldenChance = 0;
-            this.criticalChance = 0;
-            this.boostProgress = 0;
-            this.nextPromocodeAt = this.promocodes.basePrice;
-            
-            for (const type in this.products) {
-                this.products[type].owned = 0;
-            }
-            
-            for (const type in this.upgrades) {
-                this.upgrades[type].purchased = false;
-            }
-            
-            // Останавливаем автокликер
-            if (this.autoClickerInterval) {
-                clearInterval(this.autoClickerInterval);
-                this.autoClickerInterval = null;
-            }
-            
-            this.renderAllProducts();
-            this.renderAllUpgrades();
-            this.updateAllUI();
-            this.showNotification(
-                `Престиж ${this.prestige.level} достигнут! +${Math.round(this.prestige.bonus * 100 - 100)}% к доходу\n` +
-                `Получено ${earnedPoints} престиж-очков`, 
-                'success'
-            );
-            this.createConfetti(50);
-            this.checkAchievements();
-            this.save();
+        if (this.balance < this.prestige.nextRequirement) return;
+        
+        // Расчет престиж-очков
+        const earnedPoints = Math.floor(this.balance / this.prestige.nextRequirement);
+        this.prestige.level++;
+        this.prestige.points += earnedPoints;
+        
+        // Расчет бонуса престижа
+        this.prestige.bonus = 1 + (this.prestige.level * this.prestige.bonusPerLevel);
+        this.prestige.nextRequirement = this.prestige.baseRequirement * Math.pow(2, this.prestige.level);
+        
+        // Перманентный доход
+        let permIncomeBonus = 0;
+        if (this.prestige.upgrades.permIncome.level > 0) {
+            permIncomeBonus = this.passiveIncome * this.prestige.upgrades.permIncome.level * 
+                             this.prestige.upgrades.permIncome.bonusPerLevel;
         }
+        
+        // Бонус за клик
+        if (this.prestige.upgrades.clickMastery.level > 0) {
+            this.clickValue = 1 + (this.prestige.upgrades.clickMastery.level * 
+                                  this.prestige.upgrades.clickMastery.bonusPerLevel);
+        } else {
+            this.clickValue = 1;
+        }
+        
+        // Сброс игры с сохранением престижа
+        this.balance = permIncomeBonus;
+        this.passiveIncome = permIncomeBonus;
+        this.clickMultiplier = 1;
+        this.incomeMultiplier = 1;
+        this.goldenChance = this.prestige.upgrades.goldenLuck.level * this.prestige.upgrades.goldenLuck.bonusPerLevel;
+        this.criticalChance = this.prestige.upgrades.criticalThinking.level * this.prestige.upgrades.criticalThinking.bonusPerLevel;
+        this.quantumChance = 0;
+        this.boostProgress = 0;
+        this.nextPromocodeAt = promocodes.basePrice;
+        
+        // Сброс товаров и улучшений
+        for (const type in this.products) {
+            this.products[type].owned = 0;
+        }
+        
+        for (const type in this.upgrades) {
+            this.upgrades[type].purchased = false;
+        }
+        
+        // Остановка автокликера
+        if (this.autoClickerInterval) {
+            clearInterval(this.autoClickerInterval);
+            this.autoClickerInterval = null;
+        }
+        
+        // Остановка буста
+        if (this.boostInterval) {
+            clearInterval(this.boostInterval);
+            this.boostInterval = null;
+            this.boostActive = false;
+        }
+        
+        // Эффекты
+        this.showNotification(
+            `Престиж ${this.prestige.level}! +${Math.round((this.prestige.bonus - 1) * 100)}% доход\n` +
+            `Получено ${earnedPoints} престиж-очков`, 
+            'success'
+        );
+        this.createPrestigeEffect();
+        this.createConfetti(100);
+        
+        // Обновление интерфейса
+        this.renderAll();
+        this.updateUI();
+        this.save();
     }
     
     buyPermanentUpgrade(type) {
         const upgrade = this.prestige.upgrades[type];
         
-        if (upgrade.level < upgrade.maxLevel && this.prestige.points >= upgrade.price) {
+        if (upgrade.level >= upgrade.maxLevel) {
+            this.showNotification('Максимальный уровень!', 'error');
+            return;
+        }
+        
+        if (this.prestige.points >= upgrade.price) {
             this.prestige.points -= upgrade.price;
             upgrade.level++;
             upgrade.price = Math.floor(upgrade.price * 1.5);
             
-            // Применяем эффект улучшения
-            if (type === 'permIncome') {
-                // Эффект уже применяется при пр��стиже
-            } else if (type === 'clickBonus') {
-                this.clickValue = 1 + (upgrade.level * upgrade.bonusPerLevel);
+            // Применение эффекта
+            switch(type) {
+                case 'permIncome':
+                    // Уже применяется при престиже
+                    break;
+                case 'clickMastery':
+                    this.clickValue = 1 + (upgrade.level * upgrade.bonusPerLevel);
+                    break;
+                case 'goldenLuck':
+                    this.goldenChance = upgrade.level * upgrade.bonusPerLevel;
+                    break;
+                case 'criticalThinking':
+                    this.criticalChance = upgrade.level * upgrade.bonusPerLevel;
+                    break;
+                case 'boostExpert':
+                    this.boostMultiplier = 2 + (upgrade.level * upgrade.bonusPerLevel);
+                    break;
+                case 'timeLord':
+                    this.boostDuration = 30 / (1 + (upgrade.level * upgrade.bonusPerLevel));
+                    break;
             }
             
+            // Обновление интерфейса
             this.updatePermanentUpgradesUI();
-            this.showNotification(`Улучшение "${upgrade.name}" повышено до уровня ${upgrade.level}`, 'success');
+            this.showNotification(`${upgrade.name} улучшено до уровня ${upgrade.level}`, 'success');
             this.save();
-        } else if (upgrade.level >= upgrade.maxLevel) {
-            this.showNotification('Максимальный уровень улучшения достигнут!', 'error');
         } else {
-            this.showNotification('Недостаточно престиж-очков!', 'error');
+            this.showNotification('Недостаточно очков престижа!', 'error');
         }
+    }
+    
+    // =====================
+    // ДРУГИЕ СИСТЕМЫ
+    // =====================
+    
+    activateBoost() {
+        if (this.boostProgress < 100 || this.boostActive) return;
+        
+        this.boostActive = true;
+        this.boostCount++;
+        this.boostProgress = 0;
+        this.boostTimer = this.boostDuration;
+        
+        // Сохранение оригинального множителя
+        const originalMultiplier = this.incomeMultiplier;
+        this.incomeMultiplier *= this.boostMultiplier;
+        this.recalculatePassiveIncome();
+        
+        // Обновление интерфейса
+        this.elements.boostProgress.style.width = '0%';
+        this.elements.boostBtn.disabled = true;
+        this.elements.boostBtn.classList.add('active');
+        this.showNotification(`Буст активирован! Доход x${this.boostMultiplier}`, 'warning');
+        
+        // Таймер буста
+        this.boostInterval = setInterval(() => {
+            this.boostTimer--;
+            this.elements.boostTimer.textContent = this.boostTimer;
+            
+            if (this.boostTimer <= 0) {
+                clearInterval(this.boostInterval);
+                this.boostActive = false;
+                this.incomeMultiplier = originalMultiplier;
+                this.recalculatePassiveIncome();
+                this.elements.boostBtn.classList.remove('active');
+                this.elements.boostTimer.textContent = '';
+                this.showNotification('Буст закончился', 'info');
+                this.save();
+            }
+        }, 1000);
+        
+        this.checkAchievements();
+        this.save();
     }
     
     generatePromocode() {
-        if (this.balance >= this.promocodes.basePrice) {
-            this.balance -= this.promocodes.basePrice;
-            
-            // Выбираем награду по вероятности
-            const random = Math.random();
-            let reward = 100;
-            let cumulativeChance = 0;
-            
-            for (const r of this.promocodes.rewards) {
+        if (this.prestige.level < promocodes.minPrestige) return;
+        
+        // Выбор награды
+        let reward;
+        const random = Math.random();
+        let cumulativeChance = 0;
+        
+        // Проверка на специальную награду
+        if (random < promocodes.specialChance) {
+            reward = promocodes.rewards.find(r => r.isSpecial);
+        } else {
+            // Обычная награда
+            for (const r of promocodes.rewards.filter(r => !r.isSpecial)) {
                 cumulativeChance += r.chance;
                 if (random <= cumulativeChance) {
-                    reward = r.amount;
+                    reward = r;
                     break;
                 }
             }
-            
-            // Создаем промокод
-            const promocode = {
-                code: `TAP-${Math.floor(Math.random() * 9000) + 1000}`,
-                amount: reward,
-                date: new Date().toLocaleString()
-            };
-            
-            this.promocodes.list.push(promocode);
-            this.promocodesGenerated++;
-            this.nextPromocodeAt += this.promocodes.basePrice;
-            
-            // Показываем модальное окно
-            this.showPromocodeModal(promocode);
-            
-            this.renderPromocodes();
-            this.updateUI();
-            this.checkAchievements();
-            this.save();
         }
+        
+        // Создание промокода
+        const promocode = {
+            code: `VAPE-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
+            reward: reward,
+            date: new Date().toLocaleString(),
+            used: false
+        };
+        
+        this.promocodes.list.push(promocode);
+        this.promocodesGenerated++;
+        
+        // Показ модального окна
+        this.showPromocodeModal(promocode);
+        
+        // Обновление интерфейса
+        this.updateUI();
+        this.checkAchievements();
+        this.save();
+    }
+    
+    useCurrentPromocode() {
+        if (!this.currentPromocode) return;
+        this.usePromocode(this.currentPromocode);
+    }
+    
+    usePromocode(promocode) {
+        if (promocode.used) return;
+        
+        promocode.used = true;
+        
+        if (typeof promocode.reward.amount === 'number') {
+            this.addBalance(promocode.reward.amount);
+            this.showNotification(`Промокод применен! +${this.formatMoney(promocode.reward.amount)} ₽`, 'success');
+        } else if (promocode.reward.effect) {
+            promocode.reward.effect(this);
+            this.showNotification(`Активирован бонус: ${promocode.reward.amount}`, 'success');
+        }
+        
+        this.closePromocodeModal();
+        this.save();
     }
     
     showPromocodeModal(promocode) {
+        this.currentPromocode = promocode;
         this.elements.promocodeValue.textContent = promocode.code;
-        this.elements.promocodeDiscount.textContent = promocode.amount;
+        
+        if (typeof promocode.reward.amount === 'number') {
+            this.elements.promocodeDiscount.textContent = this.formatMoney(promocode.reward.amount);
+        } else {
+            this.elements.promocodeDiscount.textContent = promocode.reward.amount;
+        }
+        
         this.elements.promocodeModal.classList.add('show');
     }
     
     closePromocodeModal() {
+        this.currentPromocode = null;
         this.elements.promocodeModal.classList.remove('show');
     }
     
-    renderPromocodes() {
-        this.elements.promocodesList.innerHTML = '';
-        
-        if (this.promocodes.list.length === 0) {
-            this.elements.promocodesList.innerHTML = `
-                <div class="empty-state">
-                    <i>🎟️</i>
-                    <p>У вас пока нет промокодов</p>
-                </div>
-            `;
-            return;
-        }
-        
-        this.promocodes.list.forEach(promo => {
-            const promoElement = document.createElement('div');
-            promoElement.className = 'promocode-item';
-            promoElement.innerHTML = `
-                <div class="promocode-value">${promo.code}</div>
-                <div class="promocode-amount">Скидка: ${promo.amount} ₽</div>
-                <div class="promocode-date">${promo.date}</div>
-            `;
-            this.elements.promocodesList.appendChild(promoElement);
-        });
-    }
-    
-    recalculatePassiveIncome() {
-        this.passiveIncome = 0;
-        for (const type in this.products) {
-            const product = this.products[type];
-            this.passiveIncome += product.owned * product.baseIncome * this.incomeMultiplier * this.prestige.bonus;
-        }
-        
-        // Применяем буст
-        if (this.boostActive) {
-            this.passiveIncome *= this.boostMultiplier;
-        }
-    }
-    
-    checkOfflineEarnings() {
-        const now = Date.now();
-        const offlineTime = Math.min((now - this.lastPlayTime) / 1000, 86400); // Макс 24 часа
-        const offlineEarnings = Math.floor(this.passiveIncome * offlineTime * (this.offlineEarningsEnabled ? 1 : 0.5));
-        
-        if (offlineEarnings > 0) {
-            this.elements.offlineAmount.textContent = this.formatMoney(offlineEarnings);
-            
-            // Форматируем время
-            const hours = Math.floor(offlineTime / 3600);
-            const minutes = Math.floor((offlineTime % 3600) / 60);
-            const seconds = Math.floor(offlineTime % 60);
-            
-            let timeString = '';
-            if (hours > 0) timeString += `${hours} ч `;
-            if (minutes > 0) timeString += `${minutes} мин `;
-            timeString += `${seconds} сек`;
-            
-            this.elements.offlineTime.textContent = `Время отсутствия: ${timeString}`;
-            this.elements.offlineEarnings.classList.add('show');
-            this.offlineEarnings = offlineEarnings;
-            this.totalOfflineEarned += offlineEarnings;
-        }
-        
-        this.lastPlayTime = now;
-    }
-    
-    collectOfflineEarnings() {
-        this.addBalance(this.offlineEarnings);
-        this.elements.offlineEarnings.classList.remove('show');
-        this.showNotification(`Получено оффлайн: ${this.formatMoney(this.offlineEarnings)} ₽`, 'info');
-    }
+    // =====================
+    // СИСТЕМА ДОСТИЖЕНИЙ
+    // =====================
     
     checkAchievements() {
         let unlockedCount = 0;
@@ -658,40 +820,588 @@ class TaburetkaTapGame {
         this.achievements.forEach(achievement => {
             if (!achievement.unlocked && achievement.condition(this)) {
                 achievement.unlocked = true;
-                this.balance += achievement.reward;
-                this.showNotification(`Достижение: ${achievement.name}!
-Награда: ${this.formatMoney(achievement.reward)} ₽`, 'info');
-                this.createConfetti(15);
+                this.addBalance(achievement.reward);
                 unlockedCount++;
+                
+                this.showNotification(
+                    `Достижение: ${achievement.name}!\nНаграда: ${this.formatMoney(achievement.reward)} ₽`, 
+                    'info'
+                );
+                
+                this.createConfetti(15);
             }
         });
         
         if (unlockedCount > 0) {
-            this.renderAllAchievements();
+            this.renderAchievements();
             this.save();
         }
     }
     
-    startGameLoop() {
-        setInterval(() => {
-            if (this.passiveIncome > 0) {
-                const income = this.passiveIncome / 10; // 10 раз в секунду для плавности
-                this.balance += income;
-                this.totalEarned += income;
-                
-                // Автокликер
-                if (this.upgrades.autoClicker.purchased && !this.autoClickerInterval) {
-                    this.upgrades.autoClicker.effect(this);
-                }
-                
-                this.updateUI();
-                this.save();
+    // =====================
+    // СИСТЕМА КВЕСТОВ
+    // =====================
+    
+    setupDailyQuests() {
+        // Проверка необходимости обновления квестов
+        const now = new Date();
+        const lastRefresh = new Date(this.lastDailyRefresh);
+        
+        if (now.getDate() !== lastRefresh.getDate() || 
+            now.getMonth() !== lastRefresh.getMonth() || 
+            now.getFullYear() !== lastRefresh.getFullYear()) {
+            this.refreshDailyQuests();
+        }
+        
+        // Обновление каждые 24 часа
+        this.dailyRefreshInterval = setInterval(() => {
+            this.refreshDailyQuests();
+        }, 24 * 60 * 60 * 1000);
+        
+        this.renderDailyQuests();
+    }
+    
+    refreshDailyQuests() {
+        const questTemplates = [
+            {
+                id: 'click_500',
+                name: '500 кликов',
+                description: 'Совершите 500 кликов',
+                reward: 1000,
+                required: 500
+            },
+            {
+                id: 'earn_50000',
+                name: 'Заработать 50,000₽',
+                description: 'Заработайте 50,000 рублей',
+                reward: 5000,
+                required: 50000
+            },
+            {
+                id: 'buy_upgrades',
+                name: 'Улучшения',
+                description: 'Купите 3 улучшения',
+                reward: 3000,
+                required: 3
             }
+        ];
+        
+        // Выбор 2 случайных квестов
+        this.dailyQuests = [];
+        const shuffled = [...questTemplates].sort(() => 0.5 - Math.random());
+        
+        for (let i = 0; i < 2; i++) {
+            this.dailyQuests.push({
+                ...shuffled[i],
+                progress: 0,
+                completed: false
+            });
+        }
+        
+        this.lastDailyRefresh = Date.now();
+        this.renderDailyQuests();
+        this.save();
+    }
+    
+    updateQuestProgress(questId, amount = 1) {
+        const quest = this.dailyQuests.find(q => q.id === questId);
+        if (!quest || quest.completed) return;
+        
+        quest.progress += amount;
+        
+        if (quest.progress >= quest.required) {
+            quest.completed = true;
+            this.addBalance(quest.reward);
+            this.showNotification(`Квест выполнен: ${quest.name}\nНаграда: ${this.formatMoney(quest.reward)} ₽`, 'success');
+        }
+        
+        this.renderDailyQuests();
+        this.save();
+    }
+    
+    // =====================
+    // СИСТЕМА СОБЫТИЙ
+    // =====================
+    
+    checkForEvents() {
+        // 20% шанс на событие при загрузке
+        if (Math.random() < 0.2) {
+            this.startRandomEvent();
+        }
+    }
+    
+    startRandomEvent() {
+        const events = [
+            {
+                name: 'Вейп-фестиваль',
+                description: 'Специальное событие! Зарабатывайте больше в течение часа!',
+                duration: 60 * 60 * 1000, // 1 час
+                effect: (game) => {
+                    game.temporaryIncomeMultiplier = 1.5;
+                },
+                reward: 5000,
+                goal: 1000000 // Заработать 1,000,000 во время события
+            },
+            {
+                name: 'Научный прорыв',
+                description: 'Ученые разработали новые технологии! Все доходы увеличены!',
+                duration: 45 * 60 * 1000, // 45 минут
+                effect: (game) => {
+                    game.globalMultiplier = 1.3;
+                },
+                reward: 7500,
+                goal: 500000 // Заработать 500,000 во время события
+            }
+        ];
+        
+        // Выбор случайного события
+        const randomEvent = events[Math.floor(Math.random() * events.length)];
+        this.currentEvent = { ...randomEvent };
+        this.eventProgress = 0;
+        this.eventEndTime = Date.now() + randomEvent.duration;
+        
+        // Применение эффекта
+        this.currentEvent.effect(this);
+        
+        // Таймер события
+        this.eventInterval = setInterval(() => {
+            const timeLeft = this.eventEndTime - Date.now();
+            
+            if (timeLeft <= 0) {
+                this.endEvent();
+            } else {
+                this.updateEventTimer();
+            }
+        }, 1000);
+        
+        this.showNotification(`Началось событие: ${this.currentEvent.name}`, 'info');
+        this.renderEvent();
+        this.save();
+    }
+    
+    endEvent() {
+        clearInterval(this.eventInterval);
+        
+        // Проверка выполнения цели
+        if (this.eventProgress >= this.currentEvent.goal) {
+            this.addBalance(this.currentEvent.reward);
+            this.showNotification(
+                `Событие завершено! Цель достигнута!\nНаграда: ${this.formatMoney(this.currentEvent.reward)} ₽`, 
+                'success'
+            );
+        } else {
+            this.showNotification(`Событие завершено!`, 'info');
+        }
+        
+        // Сброс эффектов
+        this.temporaryIncomeMultiplier = 1;
+        this.globalMultiplier = 1;
+        
+        this.currentEvent = null;
+        this.renderEvent();
+        this.save();
+    }
+    
+    // =====================
+    // ОФФЛАЙН ДОХОД
+    // =====================
+    
+    checkOfflineEarnings() {
+        if (!this.offlineEarningsEnabled) return;
+        
+        const now = Date.now();
+        const offlineTime = now - this.lastPlayTime;
+        
+        // Максимальное время оффлайна - 24 часа
+        const maxOfflineTime = 24 * 60 * 60 * 1000;
+        const cappedOfflineTime = Math.min(offlineTime, maxOfflineTime);
+        
+        if (cappedOfflineTime > 10000) { // Минимум 10 секунд
+            const offlineIncome = this.passiveIncome * (cappedOfflineTime / 1000) * 0.5; // 50% от возможного дохода
+            
+            this.offlineEarnings = offlineIncome;
+            this.totalOfflineEarned += offlineIncome;
+            this.maxOfflineTime = Math.max(this.maxOfflineTime, cappedOfflineTime);
+            
+            // Показ окна оффлайн дохода
+            this.showOfflineEarnings(cappedOfflineTime, offlineIncome);
+        }
+        
+        this.lastPlayTime = now;
+        this.save();
+    }
+    
+    showOfflineEarnings(time, amount) {
+        this.elements.offlineAmount.textContent = this.formatMoney(amount);
+        this.elements.offlineTime.textContent = this.formatTime(time);
+        this.elements.offlineEarnings.classList.add('show');
+    }
+    
+    collectOfflineEarnings() {
+        if (this.offlineEarnings > 0) {
+            this.addBalance(this.offlineEarnings);
+            this.offlineEarnings = 0;
+            this.elements.offlineEarnings.classList.remove('show');
+            this.save();
+        }
+    }
+    
+    // =====================
+    // ГРАФИЧЕСКИЕ ЭФФЕКТЫ
+    // =====================
+    
+    createClickEffect(x, y, type = 'normal') {
+        const effect = this.elements.clickEffect.cloneNode(true);
+        effect.style.left = `${x}px`;
+        effect.style.top = `${y}px`;
+        effect.style.opacity = '1';
+        
+        switch(type) {
+            case 'golden':
+                effect.style.background = 'radial-gradient(circle at center, rgba(255,215,0,0.8) 0%, transparent 70%)';
+                break;
+            case 'critical':
+                effect.style.background = 'radial-gradient(circle at center, rgba(239, 68, 68, 0.8) 0%, transparent 70%)';
+                break;
+            case 'quantum':
+                effect.style.background = 'radial-gradient(circle at center, rgba(138, 43, 226, 0.8) 0%, transparent 70%)';
+                break;
+        }
+        
+        this.elements.vape.appendChild(effect);
+        setTimeout(() => effect.remove(), 500);
+    }
+    
+    createClickText(x, y, amount, type = 'normal') {
+        const counter = this.elements.clickCounter.cloneNode(true);
+        counter.style.left = `${x}px`;
+        counter.style.top = `${y}px`;
+        counter.textContent = `+${this.formatMoney(amount)}₽`;
+        
+        switch(type) {
+            case 'golden':
+                counter.classList.add('golden-click');
+                break;
+            case 'critical':
+                counter.classList.add('critical-click');
+                break;
+            case 'quantum':
+                counter.classList.add('quantum-click');
+                break;
+        }
+        
+        this.elements.vape.appendChild(counter);
+        setTimeout(() => counter.remove(), 1000);
+    }
+    
+    createVapeParticles(x, y, type = 'normal') {
+        const colors = {
+            normal: '#FF9800',
+            golden: '#FFD700',
+            critical: '#FF5722',
+            quantum: '#8A2BE2'
+        };
+        
+        for (let i = 0; i < 5; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'vape-particle';
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+            particle.style.backgroundColor = colors[type];
+            
+            // Случайный размер и скорость
+            const size = Math.random() * 5 + 3;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            
+            // Случайное направление
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.random() * 50 + 50;
+            
+            // Анимация
+            particle.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px)`;
+            
+            this.elements.vape.appendChild(particle);
+            setTimeout(() => particle.remove(), 2000);
+        }
+    }
+    
+    createConfetti(count = 20, type = 'normal') {
+        const colors = {
+            normal: `hsl(${Math.random() * 360}, 100%, 50%)`,
+            golden: 'var(--golden)',
+            critical: 'var(--critical)',
+            quantum: 'var(--primary)'
+        };
+        
+        for (let i = 0; i < count; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = `${Math.random() * 100}%`;
+            confetti.style.top = '100%';
+            confetti.style.backgroundColor = colors[type];
+            
+            confetti.style.animation = `confetti ${Math.random() * 3 + 2}s linear forwards`;
+            document.body.appendChild(confetti);
+            setTimeout(() => confetti.remove(), 5000);
+        }
+    }
+    
+    createPrestigeEffect() {
+        const effect = document.createElement('div');
+        effect.className = 'prestige-effect-overlay active';
+        document.body.appendChild(effect);
+        
+        setTimeout(() => {
+            effect.style.opacity = '0';
+            setTimeout(() => effect.remove(), 1000);
+        }, 3000);
+    }
+    
+    animateVape() {
+        const vape = this.elements.vape;
+        vape.style.transform = 'scale(0.95)';
+        
+        setTimeout(() => {
+            vape.style.transform = 'scale(1)';
         }, 100);
     }
     
-    renderAllProducts(category = 'all') {
-        this.elements.productsContainer.innerHTML = '';
+    setupParticles() {
+        // Фоновые частицы
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            particle.style.width = `${Math.random() * 5 + 2}px`;
+            particle.style.height = particle.style.width;
+            particle.style.opacity = Math.random() * 0.5 + 0.1;
+            particle.style.animationDuration = `${Math.random() * 15 + 10}s`;
+            particle.style.animationDelay = `${Math.random() * 5}s`;
+            
+            document.getElementById('particles').appendChild(particle);
+        }
+        
+        // Дым
+        setInterval(() => {
+            const smoke = document.createElement('div');
+            smoke.className = 'smoke-particle';
+            smoke.style.left = `${Math.random() * 100}%`;
+            smoke.style.top = '100%';
+            smoke.style.width = `${Math.random() * 100 + 50}px`;
+            smoke.style.height = smoke.style.width;
+            
+            document.querySelector('.smoke-overlay').appendChild(smoke);
+            setTimeout(() => smoke.remove(), 3000);
+        }, 500);
+    }
+    
+    restoreAnimations() {
+        // Восстановление анимации вейпа
+        if (this.elements.vape.querySelector('.vape-image')) {
+            this.elements.vape.querySelector('.vape-image').classList.add('float-animation');
+        }
+    }
+    
+    // =====================
+    // ОБНОВЛЕНИЕ ИНТЕРФЕЙСА
+    // =====================
+    
+    updateUI() {
+        // Основные показатели
+        this.elements.balance.textContent = this.formatMoney(this.balance);
+        this.elements.income.textContent = this.formatMoney(this.passiveIncome);
+        this.elements.clickValue.textContent = this.formatMoney(this.clickValue * this.clickMultiplier * this.globalMultiplier);
+        this.elements.totalClicks.textContent = this.formatNumber(this.totalClicks);
+        
+        // Специальные клики
+        this.elements.goldenHits.textContent = this.goldenHits;
+        this.elements.criticalHits.textContent = this.criticalHits;
+        this.elements.clickMultiplier.textContent = `${(this.clickMultiplier * this.globalMultiplier).toFixed(1)}x`;
+        
+        // Престиж
+        const prestigeProgress = Math.min(100, (this.balance / this.prestige.nextRequirement) * 100);
+        this.elements.prestigeProgress.style.width = `${prestigeProgress}%`;
+        this.elements.prestigeLevel.textContent = this.prestige.level;
+        this.elements.prestigeBonusValue.textContent = Math.round((this.prestige.bonus - 1) * 100);
+        this.elements.prestigePrice.textContent = this.formatMoney(this.prestige.nextRequirement);
+        this.elements.prestigeRemaining.textContent = this.formatMoney(Math.max(0, this.prestige.nextRequirement - this.balance));
+        this.elements.prestigeBtn.disabled = this.balance < this.prestige.nextRequirement;
+        this.elements.prestigePoints.textContent = this.prestige.points;
+        
+        // Буст
+        if (this.boostUnlocked) {
+            this.elements.boostBtn.style.display = 'flex';
+            this.elements.boostBtn.disabled = this.boostProgress < 100 || this.boostActive;
+        } else {
+            this.elements.boostBtn.style.display = 'none';
+        }
+        
+        // Быстрое меню
+        for (const type in this.elements.quickBuyItems) {
+            this.elements.quickBuyItems[type].textContent = this.formatMoney(this.getProductPrice(type));
+        }
+        
+        // Статистика
+        this.elements.totalEarnedStat.textContent = this.formatMoney(this.totalEarned);
+        this.elements.totalClicksStat.textContent = this.formatNumber(this.totalClicks);
+        this.elements.goldenHitsStat.textContent = this.goldenHits;
+        this.elements.criticalHitsStat.textContent = this.criticalHits;
+        this.elements.quantumHitsStat.textContent = this.quantumHits;
+        this.elements.totalOfflineStat.textContent = this.formatMoney(this.totalOfflineEarned);
+        this.elements.maxOfflineTimeStat.textContent = this.formatTime(this.maxOfflineTime);
+        this.elements.prestigeLevelStat.textContent = this.prestige.level;
+        this.elements.prestigePointsStat.textContent = this.prestige.points;
+        this.elements.prestigeBonusStat.textContent = Math.round((this.prestige.bonus - 1) * 100);
+        
+        // Достижения
+        const completed = this.achievements.filter(a => a.unlocked).length;
+        this.elements.achievementsCompleted.textContent = completed;
+        this.elements.achievementsTotal.textContent = this.achievements.length;
+        
+        // Время игры
+        this.updatePlayTime();
+    }
+    
+    updateProductUI(type) {
+        const product = this.products[type];
+        const price = this.getProductPrice(type);
+        
+        // Обновление быстрого меню
+        if (this.elements.quickBuyItems[type]) {
+            this.elements.quickBuyItems[type].textContent = this.formatMoney(price);
+        }
+        
+        // Обновление карточки товара, если она отображается
+        const productCard = document.getElementById(`product-${type}`);
+        if (productCard) {
+            const buyBtn = productCard.querySelector('.buy-btn');
+            const sellBtn = productCard.querySelector('.sell-btn');
+            const progressFill = productCard.querySelector('.product-progress-fill');
+            
+            buyBtn.textContent = `Купить (${this.formatMoney(price)} ₽)`;
+            buyBtn.disabled = product.owned >= product.maxOwned || this.balance < price;
+            
+            sellBtn.disabled = product.owned <= 0;
+            
+            if (product.maxOwned !== Infinity) {
+                progressFill.style.width = `${(product.owned / product.maxOwned) * 100}%`;
+            } else {
+                progressFill.style.width = `${Math.min(100, (product.owned / 100) * 100)}%`;
+            }
+        }
+        
+        this.recalculatePassiveIncome();
+    }
+    
+    updateUpgradeUI(type) {
+        const upgrade = this.upgrades[type];
+        const upgradeCard = document.getElementById(`upgrade-${type}`);
+        
+        if (upgradeCard) {
+            const btn = upgradeCard.querySelector('.upgrade-btn');
+            btn.disabled = true;
+            btn.textContent = 'Куплено';
+        }
+    }
+    
+    updatePermanentUpgradesUI() {
+        for (const type in this.prestige.upgrades) {
+            const upgrade = this.prestige.upgrades[type];
+            
+            if (type === 'permIncome') {
+                this.elements.permIncomeLevel.textContent = `${upgrade.level}/${upgrade.maxLevel}`;
+                this.elements.permIncomePrice.textContent = upgrade.price;
+                this.elements.permIncomeBonus.textContent = upgrade.level * upgrade.bonusPerLevel * 100;
+                this.elements.buyPermIncome.disabled = 
+                    upgrade.level >= upgrade.maxLevel || 
+                    this.prestige.points < upgrade.price;
+            }
+        }
+    }
+    
+    updatePlayTime() {
+        // Время игры в секундах
+        const playTime = Math.floor((Date.now() - this.lastPlayTime) / 1000) + (this.totalPlayTime || 0);
+        
+        // Форматирование в HH:MM:SS
+        const hours = Math.floor(playTime / 3600);
+        const minutes = Math.floor((playTime % 3600) / 60);
+        const seconds = playTime % 60;
+        
+        this.elements.playTimeStat.textContent = 
+            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    updateEventTimer() {
+        if (!this.currentEvent) return;
+        
+        const timeLeft = this.eventEndTime - Date.now();
+        const minutes = Math.floor(timeLeft / 60000);
+        const seconds = Math.floor((timeLeft % 60000) / 1000);
+        
+        // Обновление таймера в интерфейсе
+        const eventTimer = document.getElementById('eventTimer');
+        if (eventTimer) {
+            eventTimer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+    }
+    
+    toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        this.darkMode = document.body.classList.contains('dark-mode');
+        this.updateThemeIcon();
+        this.save();
+    }
+    
+    updateThemeIcon() {
+        if (this.darkMode) {
+            this.elements.sunIcon.style.display = 'none';
+            this.elements.moonIcon.style.display = 'block';
+        } else {
+            this.elements.sunIcon.style.display = 'block';
+            this.elements.moonIcon.style.display = 'none';
+        }
+    }
+    
+    switchTab(tabId) {
+        // Переключение кнопок вкладок
+        this.elements.tabBtns.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === tabId);
+        });
+        
+        // Переключение содержимого вкладок
+        this.elements.tabContents.forEach(content => {
+            content.classList.toggle('active', content.id === tabId);
+        });
+        
+        // Обновление содержимого при переключении
+        if (tabId === 'products') {
+            this.renderProducts('all');
+        } else if (tabId === 'upgrades') {
+            this.renderUpgrades('all');
+        } else if (tabId === 'achievements') {
+            this.renderAchievements();
+        }
+    }
+    
+    // =====================
+    // РЕНДЕРИНГ ИНТЕРФЕЙСА
+    // =====================
+    
+    renderAll() {
+        this.renderProducts('all');
+        this.renderUpgrades('all');
+        this.renderAchievements();
+        this.renderDailyQuests();
+        this.renderEvent();
+        this.updatePermanentUpgradesUI();
+    }
+    
+    renderProducts(category = 'all') {
+        const container = this.elements.productsContainer;
+        container.innerHTML = '';
         
         let hasProducts = false;
         
@@ -704,43 +1414,52 @@ class TaburetkaTapGame {
             hasProducts = true;
             
             const productElement = document.createElement('div');
-            productElement.className = 'upgrade-item';
+            productElement.className = 'product-card';
+            productElement.id = `product-${type}`;
             productElement.innerHTML = `
-                <div class="upgrade-icon">${product.icon}</div>
-                <div class="upgrade-info">
-                    <div class="upgrade-name">${product.name}</div>
-                    <div class="upgrade-description">${product.description}</div>
-                    <div class="upgrade-stats">
-                        <div class="upgrade-stat">
-                            <i>📈</i> <span id="${type}Income">${(product.baseIncome * this.incomeMultiplier * this.prestige.bonus).toFixed(1)}</span> ₽/сек
-                        </div>
-                        <div class="upgrade-stat">
-                            <i>🛒</i> <span id="${type}Owned">${product.owned}</span> шт
-                        </div>
+                <div class="product-header">
+                    <div class="product-icon">${product.icon}</div>
+                    <div class="product-info">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-description">${product.description}</div>
                     </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="${type}Progress"></div>
+                </div>
+                <div class="product-stats">
+                    <div class="product-stat">
+                        <i>📈</i> <span>${this.formatMoney(product.baseIncome * this.incomeMultiplier * this.prestige.bonus * this.globalMultiplier)}/сек</span>
                     </div>
-                    <div class="upgrade-actions">
-                        <button class="buy-btn" id="buy${this.capitalize(type)}">
-                            <i>➕</i> Купить <span id="${type}Price">${this.formatMoney(this.getProductPrice(type))}</span> ₽
-                        </button>
-                        <button class="sell-btn" id="sell${this.capitalize(type)}" ${product.owned <= 0 ? 'disabled' : ''}>
-                            <i>➖</i> Продать
-                        </button>
+                    <div class="product-stat">
+                        <i>🛒</i> <span>${product.owned}${product.maxOwned !== Infinity ? `/${product.maxOwned}` : ''}</span>
                     </div>
+                    ${product.specialEffect ? `
+                    <div class="product-stat">
+                        <i>✨</i> <span>${product.specialEffect.description}</span>
+                    </div>` : ''}
+                </div>
+                <div class="product-progress">
+                    <div class="product-progress-fill" style="width: ${product.maxOwned !== Infinity ? 
+                        (product.owned / product.maxOwned) * 100 : 
+                        Math.min(100, (product.owned / 100) * 100)}%"></div>
+                </div>
+                <div class="product-actions">
+                    <button class="buy-btn" id="buy-${type}" ${product.owned >= product.maxOwned ? 'disabled' : ''}>
+                        <i>➕</i> Купить (${this.formatMoney(this.getProductPrice(type))} ₽)
+                    </button>
+                    <button class="sell-btn" id="sell-${type}" ${product.owned <= 0 ? 'disabled' : ''}>
+                        <i>➖</i> Продать
+                    </button>
                 </div>
             `;
             
-            this.elements.productsContainer.appendChild(productElement);
+            container.appendChild(productElement);
             
-            // Добавляем обработчики событий
-            document.getElementById(`buy${this.capitalize(type)}`).addEventListener('click', () => this.buyProduct(type));
-            document.getElementById(`sell${this.capitalize(type)}`).addEventListener('click', () => this.sellProduct(type));
+            // Обработчики событий
+            document.getElementById(`buy-${type}`).addEventListener('click', () => this.buyProduct(type));
+            document.getElementById(`sell-${type}`).addEventListener('click', () => this.sellProduct(type));
         }
         
         if (!hasProducts) {
-            this.elements.productsContainer.innerHTML = `
+            container.innerHTML = `
                 <div class="empty-state">
                     <i>🛒</i>
                     <p>${category === 'all' ? 'Покупайте товары для пассивного дохода' : 'Нет товаров в этой категории'}</p>
@@ -749,204 +1468,212 @@ class TaburetkaTapGame {
         }
     }
     
-    renderAllUpgrades(category = 'all') {
-        this.elements.upgradesContainer.innerHTML = '';
+    renderUpgrades(category = 'all') {
+        const container = this.elements.upgradesContainer;
+        container.innerHTML = '';
         
         let hasUpgrades = false;
         
         for (const type in this.upgrades) {
             const upgrade = this.upgrades[type];
             
-            if (this.totalEarned < upgrade.unlockAt || (category !== 'all' && upgrade.category !== category)) continue;
+            if (this.totalEarned < upgrade.unlockAt) continue;
+            if (category !== 'all' && upgrade.category !== category) continue;
             
             hasUpgrades = true;
             
             const upgradeElement = document.createElement('div');
-            upgradeElement.className = 'upgrade-item';
+            upgradeElement.className = 'upgrade-card';
+            upgradeElement.id = `upgrade-${type}`;
             upgradeElement.innerHTML = `
-                <div class="upgrade-icon">${upgrade.icon}</div>
-                <div class="upgrade-info">
-                    <div class="upgrade-name">${upgrade.name}</div>
-                    <div class="upgrade-description">${upgrade.description}</div>
-                    <div class="upgrade-stats">
-                        <div class="upgrade-stat">
-                            <i>💰</i> ${this.formatMoney(upgrade.price)} ₽
-                        </div>
+                <div class="upgrade-header">
+                    <div class="upgrade-icon">${upgrade.icon}</div>
+                    <div class="upgrade-info">
+                        <div class="upgrade-name">${upgrade.name}</div>
+                        <div class="upgrade-description">${upgrade.description}</div>
                     </div>
-                    <div class="upgrade-actions">
-                        <button class="buy-btn" id="buy${this.capitalize(type)}" ${upgrade.purchased ? 'disabled' : ''}>
-                            <i>⚡</i> ${upgrade.purchased ? 'Куплено' : 'Купить'}
-                        </button>
+                </div>
+                <div class="upgrade-stats">
+                    <div class="upgrade-stat">
+                        <i>💰</i> <span>${this.formatMoney(upgrade.price)} ₽</span>
                     </div>
+                    <div class="upgrade-stat">
+                        <i>📊</i> <span>Требуется: ${this.formatMoney(upgrade.unlockAt)} ₽</span>
+                    </div>
+                </div>
+                <div class="upgrade-action">
+                    <button class="upgrade-btn" id="upgrade-${type}-btn" ${upgrade.purchased ? 'disabled' : ''}>
+                        ${upgrade.purchased ? 'Куплено' : `Купить (${this.formatMoney(upgrade.price)} ₽)`}
+                    </button>
                 </div>
             `;
             
-            this.elements.upgradesContainer.appendChild(upgradeElement);
+            container.appendChild(upgradeElement);
             
-            if (!upgrade.purchased) {
-                document.getElementById(`buy${this.capitalize(type)}`).addEventListener('click', () => this.buyUpgrade(type));
-            }
+            // Обработчик события
+            document.getElementById(`upgrade-${type}-btn`).addEventListener('click', () => this.buyUpgrade(type));
         }
         
         if (!hasUpgrades) {
-            this.elements.upgradesContainer.innerHTML = `
+            container.innerHTML = `
                 <div class="empty-state">
                     <i>⚡</i>
-                    <p>${category === 'all' ? 'Улучшайте свои возможности' : 'Нет улучшений в этой категории'}</p>
+                    <p>${category === 'all' ? 'Покупайте улучшения для усиления' : 'Нет улучшений в этой категории'}</p>
                 </div>
             `;
         }
     }
     
-    renderAllAchievements() {
-        this.elements.achievementsContainer.innerHTML = '';
+    renderAchievements() {
+        const container = this.elements.achievementsContainer;
+        container.innerHTML = '';
         
         this.achievements.forEach(achievement => {
             const achievementElement = document.createElement('div');
-            achievementElement.className = `achievement-item ${achievement.unlocked ? 'unlocked' : ''}`;
+            achievementElement.className = `achievement-card ${achievement.unlocked ? 'unlocked' : ''}`;
             achievementElement.innerHTML = `
                 <div class="achievement-icon">${achievement.icon}</div>
                 <div class="achievement-info">
                     <div class="achievement-name">${achievement.name}</div>
                     <div class="achievement-desc">${achievement.description}</div>
-                    ${!achievement.unlocked ? 
-                        `<div class="achievement-progress">Награда: ${this.formatMoney(achievement.reward)} ₽</div>` : 
-                        '<div class="achievement-progress">Получено!</div>'}
+                    <div class="achievement-reward">Награда: ${this.formatMoney(achievement.reward)} ₽</div>
+                </div>
+                <div class="achievement-status">
+                    ${achievement.unlocked ? '✅' : '🔒'}
                 </div>
             `;
             
-            this.elements.achievementsContainer.appendChild(achievementElement);
+            container.appendChild(achievementElement);
         });
     }
     
-    updateUI() {
-        this.elements.balance.textContent = `${this.formatMoney(this.balance)} ₽`;
-        this.elements.income.textContent = `${this.formatMoney(this.passiveIncome)} ₽/сек`;
-        this.elements.clickValue.textContent = `${this.formatMoney(this.clickValue * this.clickMultiplier)} ₽`;
-        this.elements.clickAmount.textContent = this.formatMoney(this.clickValue * this.clickMultiplier);
-        this.elements.totalClicks.textContent = this.totalClicks;
-        this.elements.prestigeBadge.textContent = this.prestige.level;
+    renderDailyQuests() {
+        const container = document.getElementById('dailyQuestsContainer');
+        if (!container) return;
         
-        // Престиж
-        const prestigeProgress = Math.min(100, (this.balance / this.prestige.nextRequirement) * 100);
-        this.elements.prestigeProgress.style.width = `${prestigeProgress}%`;
-        this.elements.prestigeLevel.textContent = this.prestige.level;
-        this.elements.prestigeBonusValue.textContent = Math.round((this.prestige.bonus - 1) * 100);
-        this.elements.prestigePrice.textContent = this.formatMoney(this.prestige.nextRequirement);
-        this.elements.prestigeRemaining.textContent = this.formatMoney(Math.max(0, this.prestige.nextRequirement - this.balance));
-        this.elements.prestigeBtn.disabled = this.balance < this.prestige.nextRequirement;
+        container.innerHTML = '';
         
-        // Промокоды
-        this.elements.promocodesGenerated.textContent = this.promocodesGenerated;
-        this.elements.nextPromocode.textContent = this.formatMoney(Math.max(0, this.nextPromocodeAt - this.totalEarned));
-        this.elements.generatePromocode.disabled = this.balance < this.promocodes.basePrice || this.totalEarned < this.nextPromocodeAt;
+        this.dailyQuests.forEach(quest => {
+            const questElement = document.createElement('div');
+            questElement.className = `quest-card ${quest.completed ? 'completed' : ''}`;
+            questElement.innerHTML = `
+                <div class="quest-info">
+                    <h4>${quest.name}</h4>
+                    <p>${quest.description}</p>
+                    <div class="quest-progress">
+                        <progress value="${quest.progress}" max="${quest.required}"></progress>
+                        <span>${quest.progress}/${quest.required}</span>
+                    </div>
+                </div>
+                <div class="quest-reward">
+                    <span>${this.formatMoney(quest.reward)} ₽</span>
+                    ${quest.completed ? '✅' : '⌛'}
+                </div>
+            `;
+            
+            container.appendChild(questElement);
+        });
+    }
+    
+    renderEvent() {
+        const container = document.getElementById('eventContainer');
+        if (!container) return;
         
-        // Буст
-        if (this.boostUnlocked) {
-            this.elements.boostBtn.style.display = 'flex';
-            this.elements.boostBtn.disabled = this.boostProgress < 100 || this.boostActive;
+        container.innerHTML = '';
+        
+        if (this.currentEvent) {
+            const timeLeft = this.eventEndTime - Date.now();
+            const minutes = Math.floor(timeLeft / 60000);
+            const seconds = Math.floor((timeLeft % 60000) / 1000);
+            
+            const eventElement = document.createElement('div');
+            eventElement.className = 'event-card';
+            eventElement.innerHTML = `
+                <div class="event-header">
+                    <h3>${this.currentEvent.name}</h3>
+                    <div class="event-timer" id="eventTimer">
+                        ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}
+                    </div>
+                </div>
+                <p>${this.currentEvent.description}</p>
+                <div class="event-progress">
+                    <progress value="${this.eventProgress}" max="${this.currentEvent.goal}"></progress>
+                    <span>${this.formatMoney(this.eventProgress)}/${this.formatMoney(this.currentEvent.goal)} ₽</span>
+                </div>
+                <div class="event-reward">
+                    Награда: ${this.formatMoney(this.currentEvent.reward)} ₽
+                </div>
+            `;
+            
+            container.appendChild(eventElement);
         } else {
-            this.elements.boostBtn.style.display = 'none';
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i>🎉</i>
+                    <p>Событий нет. Проверяйте позже!</p>
+                </div>
+            `;
         }
     }
     
-    updateProductUI(type) {
-        const product = this.products[type];
-        const price = this.getProductPrice(type);
-        
-        if (document.getElementById(`${type}Owned`)) {
-            document.getElementById(`${type}Owned`).textContent = product.owned;
-            document.getElementById(`${type}Income`).textContent = (product.baseIncome * this.incomeMultiplier * this.prestige.bonus).toFixed(1);
-            document.getElementById(`${type}Price`).textContent = this.formatMoney(price);
-            
-            document.getElementById(`buy${this.capitalize(type)}`).disabled = this.balance < price;
-            document.getElementById(`sell${this.capitalize(type)}`).disabled = product.owned <= 0;
-            
-            const progress = Math.min(100, (product.owned / 50) * 100);
-            document.getElementById(`${type}Progress`).style.width = `${progress}%`;
+    // =====================
+    // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+    // =====================
+    
+    startGameLoop() {
+        // Остановка предыдущего цикла, если он был
+        if (this.gameLoopInterval) {
+            clearInterval(this.gameLoopInterval);
         }
         
-        this.updateUI();
-    }
-    
-    updateUpgradeUI(type) {
-        const upgrade = this.upgrades[type];
-        const btn = document.getElementById(`buy${this.capitalize(type)}`);
-        
-        if (btn) {
-            if (upgrade.purchased) {
-                btn.textContent = 'Куплено';
-                btn.disabled = true;
-            } else {
-                btn.disabled = this.balance < upgrade.price;
-            }
-        }
-    }
-    
-    updatePermanentUpgradesUI() {
-        // Алмазные пальцы
-        const permIncome = this.prestige.upgrades.permIncome;
-        this.elements.permIncomeLevel.textContent = permIncome.level;
-        this.elements.buyPermIncome.textContent = permIncome.level >= permIncome.maxLevel ? 
-            'Максимальный уровень' : 
-            `Улучшить (${permIncome.price} престиж-очков)`;
-        this.elements.buyPermIncome.disabled = permIncome.level >= permIncome.maxLevel || this.prestige.points < permIncome.price;
-        
-        // Золотые руки
-        const clickBonus = this.prestige.upgrades.clickBonus;
-        this.elements.clickBonusLevel.textContent = clickBonus.level;
-        this.elements.buyClickBonus.textContent = clickBonus.level >= clickBonus.maxLevel ? 
-            'Максимальный уровень' : 
-            `Улучшить (${clickBonus.price} престиж-очков)`;
-        this.elements.buyClickBonus.disabled = clickBonus.level >= clickBonus.maxLevel || this.prestige.points < clickBonus.price;
-    }
-    
-    updateAllUI() {
-        this.updateUI();
-        
-        for (const type in this.products) {
-            this.updateProductUI(type);
-        }
-        
-        for (const type in this.upgrades) {
-            this.updateUpgradeUI(type);
-        }
-        
-        this.updatePermanentUpgradesUI();
-    }
-    
-    switchTab(tabId) {
-        this.elements.tabBtns.forEach(b => b.classList.remove('active'));
-        this.elements.tabContents.forEach(c => c.classList.remove('active'));
-        
-        document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
-        document.getElementById(tabId).classList.add('active');
-    }
-    
-    createConfetti(count = 20, type = 'normal') {
-        for (let i = 0; i < count; i++) {
-            const confetti = document.createElement('div');
-            confetti.className = 'confetti';
-            confetti.style.left = `${Math.random() * 100}%`;
-            confetti.style.top = '100%';
-            
-            if (type === 'golden') {
-                confetti.classList.add('golden-confetti');
-            } else if (type === 'critical') {
-                confetti.classList.add('critical-confetti');
-            } else {
-                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        // Запуск нового игрового цикла
+        this.gameLoopInterval = setInterval(() => {
+            // Пассивный доход
+            if (this.passiveIncome > 0) {
+                const income = this.passiveIncome * this.passiveSpeedMultiplier / 10;
+                this.addBalance(income);
+                
+                // Обновление прогресса события
+                if (this.currentEvent) {
+                    this.eventProgress += income;
+                }
             }
             
-            confetti.style.opacity = '1';
-            confetti.style.animation = `confetti ${Math.random() * 3 + 2}s linear forwards`;
+            // Обновление времени игры
+            this.updatePlayTime();
             
-            document.body.appendChild(confetti);
-            setTimeout(() => confetti.remove(), 5000);
-        }
+        }, 100); // 10 раз в секунду для плавности
+    }
+    
+    formatMoney(amount) {
+        if (amount >= 1e12) return `${(amount / 1e12).toFixed(2)}T`;
+        if (amount >= 1e9) return `${(amount / 1e9).toFixed(2)}B`;
+        if (amount >= 1e6) return `${(amount / 1e6).toFixed(2)}M`;
+        if (amount >= 1e3) return `${(amount / 1e3).toFixed(2)}K`;
+        return Math.floor(amount).toString();
+    }
+    
+    formatNumber(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+    
+    formatTime(ms) {
+        if (ms < 1000) return 'менее секунды';
+        
+        const seconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+        
+        if (days > 0) return `${days}д ${hours % 24}ч`;
+        if (hours > 0) return `${hours}ч ${minutes % 60}м`;
+        if (minutes > 0) return `${minutes}м ${seconds % 60}с`;
+        return `${seconds}с`;
     }
     
     showNotification(message, type) {
+        if (!this.notificationsEnabled) return;
+        
         this.elements.notification.textContent = message;
         this.elements.notification.className = `notification ${type}`;
         this.elements.notification.classList.add('show');
@@ -956,123 +1683,38 @@ class TaburetkaTapGame {
         }, 3000);
     }
     
-    toggleTheme() {
-        document.body.classList.toggle('dark-mode');
-        localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-        this.updateThemeIcon();
-    }
-    
-    updateThemeIcon() {
-        const isDark = document.body.classList.contains('dark-mode');
-        this.elements.sunIcon.style.display = isDark ? 'none' : 'block';
-        this.elements.moonIcon.style.display = isDark ? 'block' : 'none';
-    }
-    
-    formatMoney(amount) {
-        if (amount >= 1000000000) {
-            return (amount / 1000000000).toFixed(1) + 'B';
-        }
-        if (amount >= 1000000) {
-            return (amount / 1000000).toFixed(1) + 'M';
-        }
-        if (amount >= 1000) {
-            return (amount / 1000).toFixed(1) + 'K';
-        }
-        return amount.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    }
-    
-    capitalize(str) {
-        return str.charAt(0).toUpperCase() + str.slice(1);
-    }
-    
     save() {
         const gameData = {
-            balance: this.balance,
-            totalEarned: this.totalEarned,
-            passiveIncome: this.passiveIncome,
-            clickValue: this.clickValue,
-            clickMultiplier: this.clickMultiplier,
-            incomeMultiplier: this.incomeMultiplier,
-            priceMultiplier: this.priceMultiplier,
-            totalClicks: this.totalClicks,
-            goldenChance: this.goldenChance,
-            goldenHits: this.goldenHits,
-            criticalChance: this.criticalChance,
-            criticalHits: this.criticalHits,
-            lastPlayTime: this.lastPlayTime,
-            boostUnlocked: this.boostUnlocked,
-            boostActive: this.boostActive,
-            boostCount: this.boostCount,
-            boostProgress: this.boostProgress,
-            boostTimer: this.boostTimer,
-            offlineEarningsEnabled: this.offlineEarningsEnabled,
-            totalOfflineEarned: this.totalOfflineEarned,
-            prestige: this.prestige,
-            products: this.products,
-            upgrades: this.upgrades,
-            achievements: this.achievements,
-            promocodesGenerated: this.promocodesGenerated,
-            nextPromocodeAt: this.nextPromocodeAt,
-            promocodes: this.promocodes,
-            darkMode: document.body.classList.contains('dark-mode')
+            gameVersion: this.gameVersion,
+            // Все свойства состояния игры
+            ...Object.fromEntries(
+                Object.keys(defaultGameState)
+                    .filter(key => typeof this[key] !== 'function')
+                    .map(key => [key, this[key]])
+            ),
+            // Специальные поля
+            lastPlayTime: Date.now()
         };
-        localStorage.setItem('taburetkaTapSave', JSON.stringify(gameData));
-    }
-    
-    load() {
-        const savedData = localStorage.getItem('taburetkaTapSave');
-        if (savedData) {
-            const data = JSON.parse(savedData);
-            
-            this.balance = data.balance || 0;
-            this.totalEarned = data.totalEarned || 0;
-            this.passiveIncome = data.passiveIncome || 0;
-            this.clickValue = data.clickValue || 1;
-            this.clickMultiplier = data.clickMultiplier || 1;
-            this.incomeMultiplier = data.incomeMultiplier || 1;
-            this.priceMultiplier = data.priceMultiplier || 1;
-            this.totalClicks = data.totalClicks || 0;
-            this.goldenChance = data.goldenChance || 0;
-            this.goldenHits = data.goldenHits || 0;
-            this.criticalChance = data.criticalChance || 0;
-            this.criticalHits = data.criticalHits || 0;
-            this.lastPlayTime = data.lastPlayTime || Date.now();
-            this.boostUnlocked = data.boostUnlocked || false;
-            this.boostActive = data.boostActive || false;
-            this.boostCount = data.boostCount || 0;
-            this.boostProgress = data.boostProgress || 0;
-            this.boostTimer = data.boostTimer || 0;
-            this.offlineEarningsEnabled = data.offlineEarningsEnabled || false;
-            this.totalOfflineEarned = data.totalOfflineEarned || 0;
-            this.promocodesGenerated = data.promocodesGenerated || 0;
-            this.nextPromocodeAt = data.nextPromocodeAt || this.promocodes.basePrice;
-            
-            this.prestige = data.prestige || JSON.parse(JSON.stringify(prestigeData));
-            Object.assign(this.products, data.products || JSON.parse(JSON.stringify(products)));
-            Object.assign(this.upgrades, data.upgrades || JSON.parse(JSON.stringify(upgrades)));
-            Object.assign(this.achievements, data.achievements || JSON.parse(JSON.stringify(achievements)));
-            Object.assign(this.promocodes, data.promocodes || JSON.parse(JSON.stringify(promocodes)));
-            
-            if (data.darkMode) {
-                document.body.classList.add('dark-mode');
-                this.updateThemeIcon();
-            }
-            
-            // Восстанавливаем автокликер если нужно
-            if (this.upgrades.autoClicker.purchased) {
-                this.upgrades.autoClicker.effect(this);
-            }
-            
-            // Восстанавливаем буст если он был активен
-            if (this.boostActive) {
-                this.activateBoost();
-            }
-        }
+        
+        localStorage.setItem('vapeEmpireSave', JSON.stringify(gameData));
     }
 }
 
 // Запуск игры при загрузке страницы
 document.addEventListener('DOMContentLoaded', () => {
-    const game = new TaburetkaTapGame();
+    const game = new VapeEmpireGame();
     game.start();
+    
+    // Регистрация Service Worker для PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('ServiceWorker registration successful');
+                })
+                .catch(err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+        });
+    }
 });
