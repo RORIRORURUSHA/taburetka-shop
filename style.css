@@ -1,1387 +1,1720 @@
-/* Основные переменные */
-:root {
-    /* Цве��овая схема */
-    --primary: #7c3aed;
-    --primary-dark: #5b21b6;
-    --primary-light: #8b5cf6;
-    --primary-extra-light: rgba(139, 92, 246, 0.1);
-    --accent: #f59e0b;
-    --accent-dark: #d97706;
-    --accent-light: rgba(245, 158, 11, 0.1);
-    --text: #1e293b;
-    --text-light: #64748b;
-    --text-lighter: rgba(100, 116, 139, 0.7);
-    --bg: #f8fafc;
-    --card-bg: #ffffff;
-    --border: rgba(0, 0, 0, 0.1);
-    --shadow-color: rgba(0, 0, 0, 0.1);
-    --success: #10b981;
-    --success-light: rgba(16, 185, 129, 0.1);
-    --error: #ef4444;
-    --error-light: rgba(239, 68, 68, 0.1);
-    --warning: #f97316;
-    --info: #3b82f6;
-    --info-light: rgba(59, 130, 246, 0.1);
-    --critical: #ef4444;
-    --golden: #FFD700;
+import { products, upgrades, prestigeData, achievements, promocodes, categories, defaultGameState } from './game-data.js';
+
+class VapeEmpireGame {
+    constructor() {
+        // Инициализация состояния игры
+        this.initGameState();
+        
+        // Системные переменные
+        this.gameVersion = '2.0';
+        this.lastUpdateTime = Date.now();
+        this.autoClickerInterval = null;
+        this.boostInterval = null;
+        this.eventInterval = null;
+        this.dailyRefreshInterval = null;
+        this.gameLoopInterval = null;
+        
+        // Инициализация элементов
+        this.initElements();
+        this.initEventListeners();
+        this.setupGameSystems();
+    }
     
-    /* Тёмная тема */
-    --dark-primary: #8b5cf6;
-    --dark-primary-dark: #7c3aed;
-    --dark-primary-light: rgba(139, 92, 246, 0.2);
-    --dark-accent: #f6b93b;
-    --dark-text: #e2e8f0;
-    --dark-text-light: #94a3b8;
-    --dark-text-lighter: rgba(148, 163, 184, 0.7);
-    --dark-bg: #0f172a;
-    --dark-card-bg: #1e293b;
-    --dark-card-bg-light: #334155;
-    --dark-border: rgba(255, 255, 255, 0.1);
-    --dark-shadow-color: rgba(0, 0, 0, 0.3);
-
-    /* Стили */
-    --radius: 16px;
-    --radius-sm: 8px;
-    --radius-lg: 24px;
-    --shadow: 0 4px 12px var(--shadow-color);
-    --shadow-hover: 0 8px 16px var(--shadow-color);
-    --shadow-inset: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
-    --transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-    --transition-fast: all 0.15s ease;
-    --gradient: linear-gradient(135deg, var(--primary), var(--primary-light));
-    --accent-gradient: linear-gradient(135deg, var(--accent), var(--accent-dark));
-    --prestige-gradient: linear-gradient(135deg, #f59e0b, #f97316);
-    --gold-gradient: linear-gradient(135deg, #FFD700, #FFA500);
-    --critical-gradient: linear-gradient(135deg, #ef4444, #dc2626);
-}
-
-.dark-mode {
-    --primary: var(--dark-primary);
-    --primary-dark: var(--dark-primary-dark);
-    --primary-light: var(--dark-primary-light);
-    --primary-extra-light: rgba(139, 92, 246, 0.2);
-    --accent: var(--dark-accent);
-    --text: var(--dark-text);
-    --text-light: var(--dark-text-light);
-    --text-lighter: var(--dark-text-lighter);
-    --bg: var(--dark-bg);
-    --card-bg: var(--dark-card-bg);
-    --border: var(--dark-border);
-    --shadow-color: var(--dark-shadow-color);
-    --critical: #f87171;
-    --golden: #fcd34d;
-}
-
-/* Базовые стили */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    -webkit-tap-highlight-color: transparent;
-}
-
-body {
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    transition: background 0.5s ease, color 0.3s ease;
-    overflow-x: hidden;
-    touch-action: manipulation;
-    position: relative;
-}
-
-/* Система частиц */
-.particles-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 0;
-    overflow: hidden;
-}
-
-.particle {
-    position: absolute;
-    background: var(--primary-light);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 0;
-}
-
-/* Контейнер игры */
-.game-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    width: 100%;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    position: relative;
-    z-index: 1;
-}
-
-/* Шапка игры */
-.game-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 20px;
-    padding: 15px;
-    background: var(--card-bg);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    position: relative;
-    overflow: hidden;
-}
-
-.game-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: var(--gradient);
-}
-
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.game-title {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 800;
-    color: var(--primary);
-    font-size: clamp(1.5rem, 4vw, 1.8rem);
-    letter-spacing: -0.5px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 0;
-}
-
-.game-title::before {
-    content: '💨';
-    font-size: 1.5rem;
-}
-
-.prestige-badge {
-    background: var(--prestige-gradient);
-    color: white;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-weight: 700;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    box-shadow: var(--shadow);
-}
-
-/* Статистика */
-.stats-container {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.stat-box {
-    background: var(--primary-extra-light);
-    padding: 12px 18px;
-    border-radius: var(--radius-sm);
-    text-align: center;
-    min-width: 140px;
-    position: relative;
-    overflow: hidden;
-    transition: var(--transition);
-    flex: 1 1 auto;
-    backdrop-filter: blur(5px);
-}
-
-.stat-box:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-hover);
-}
-
-.stat-box::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: var(--gradient);
-}
-
-.stat-label {
-    display: block;
-    font-size: 0.8rem;
-    color: var(--text-light);
-    margin-bottom: 4px;
-}
-
-.stat-value {
-    font-weight: 700;
-    font-size: clamp(1rem, 3vw, 1.2rem);
-    color: var(--primary-dark);
-}
-
-/* Основная игровая область */
-.main-game-area {
-    position: relative;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: var(--card-bg);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    padding: 20px;
-    overflow: hidden;
-    gap: 20px;
-    min-height: 300px;
-}
-
-.main-game-area::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at center, transparent 0%, var(--primary-extra-light) 100%);
-    pointer-events: none;
-    z-index: 0;
-}
-
-/* Вейп (кликабельный элемент) */
-.vape-container {
-    position: relative;
-    cursor: pointer;
-    transition: transform 0.1s ease;
-    user-select: none;
-    z-index: 2;
-    touch-action: manipulation;
-    width: 180px;
-    height: 180px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.vape-container:active {
-    transform: scale(0.95);
-}
-
-.vape-image {
-    width: clamp(120px, 30vw, 180px);
-    height: auto;
-    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
-    transition: var(--transition);
-    position: relative;
-    z-index: 2;
-}
-
-.vape-container:hover .vape-image {
-    transform: rotate(-5deg) scale(1.05);
-    filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.3));
-}
-
-.vape-glow {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: radial-gradient(circle at center, var(--primary-light) 0%, transparent 70%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 1;
-}
-
-.vape-container:hover .vape-glow {
-    opacity: 0.3;
-}
-
-.vape-smoke {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 0;
-}
-
-.smoke-particle {
-    position: absolute;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 50%;
-    filter: blur(5px);
-    opacity: 0;
-}
-
-/* Мультитач панель */
-.multitouch-panel {
-    display: flex;
-    width: 100%;
-    max-width: 400px;
-    gap: 10px;
-    justify-content: center;
-    touch-action: manipulation;
-    margin-top: 20px;
-}
-
-.touch-zone {
-    flex: 1;
-    height: 80px;
-    background: var(--primary-extra-light);
-    border-radius: var(--radius-sm);
-    border: 2px dashed var(--primary-light);
-    transition: var(--transition);
-    max-width: 100px;
-    position: relative;
-    overflow: hidden;
-}
-
-.touch-zone:active {
-    background: var(--primary-light);
-    transform: scale(0.98);
-}
-
-.touch-indicator {
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    background: var(--primary);
-    border-radius: 50%;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-.touch-zone:active .touch-indicator {
-    opacity: 0.3;
-}
-
-/* Кнопка буста */
-.boost-btn {
-    position: relative;
-    background: var(--accent-gradient);
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: var(--radius-sm);
-    font-weight: 700;
-    font-size: 1rem;
-    cursor: pointer;
-    overflow: hidden;
-    transition: var(--transition);
-    box-shadow: var(--shadow);
-    margin-top: 15px;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.boost-btn:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    background: var(--text-light);
-}
-
-.boost-progress {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.2);
-    width: 0%;
-    transition: width 0.1s linear;
-    z-index: -1;
-}
-
-.boost-timer {
-    position: absolute;
-    right: 10px;
-    font-size: 0.8rem;
-    opacity: 0.8;
-}
-
-.boost-btn.active {
-    animation: pulse 1s infinite;
-}
-
-/* Статистика кликов */
-.click-stats {
-    display: flex;
-    gap: 15px;
-    margin-top: 10px;
-}
-
-.click-stat {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    background: var(--primary-extra-light);
-    padding: 5px 10px;
-    border-radius: var(--radius-sm);
-    font-size: 0.9rem;
-}
-
-.click-stat:first-child {
-    color: var(--golden);
-}
-
-.click-stat:last-child {
-    color: var(--critical);
-}
-
-/* Эффекты клика */
-.click-effect {
-    position: absolute;
-    width: 100px;
-    height: 100px;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-    opacity: 0;
-    background: radial-gradient(circle at center, rgba(255,215,0,0.8) 0%, transparent 70%);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1;
-}
-
-.critical-effect {
-    background: radial-gradient(circle at center, rgba(239, 68, 68, 0.8) 0%, transparent 70%);
-}
-
-.click-counter {
-    position: absolute;
-    font-weight: 800;
-    color: var(--accent);
-    font-size: 1.8rem;
-    opacity: 0;
-    pointer-events: none;
-    animation: floatUp 1s ease-out forwards;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    z-index: 3;
-}
-
-.golden-click {
-    color: var(--golden);
-    text-shadow: 0 2px 8px rgba(255, 215, 0, 0.5);
-    font-size: 2.2rem;
-}
-
-.critical-click {
-    color: var(--critical);
-    text-shadow: 0 2px 8px rgba(239, 68, 68, 0.5);
-    font-size: 2.5rem;
-    animation: shake 0.5s ease-in-out, floatUp 1s ease-out forwards;
-}
-
-.click-area {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    cursor: pointer;
-    z-index: 3;
-    touch-action: manipulation;
-    border-radius: 50%;
-}
-
-/* Фильтры категорий */
-.category-filters {
-    display: flex;
-    gap: 8px;
-    padding: 10px 15px;
-    background: var(--card-bg);
-    border-bottom: 1px solid var(--border);
-    overflow-x: auto;
-    scrollbar-width: none;
-}
-
-.category-filters::-webkit-scrollbar {
-    display: none;
-}
-
-.filter-btn {
-    background: var(--primary-extra-light);
-    border: none;
-    padding: 8px 12px;
-    border-radius: var(--radius-sm);
-    font-size: 0.8rem;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.filter-btn.active {
-    background: var(--primary);
-    color: white;
-}
-
-/* Секция улучшений */
-.upgrades-section {
-    background: var(--card-bg);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    overflow: hidden;
-}
-
-/* Вкладки */
-.section-tabs {
-    display: flex;
-    border-bottom: 1px solid var(--border);
-    overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
-.section-tabs::-webkit-scrollbar {
-    display: none;
-}
-
-.tab-btn {
-    flex: 1;
-    padding: 15px 10px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-    color: var(--text-light);
-    transition: var(--transition);
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-width: 80px;
-    white-space: nowrap;
-}
-
-.tab-btn i {
-    font-size: 1.1rem;
-}
-
-.tab-text {
-    display: inline;
-}
-
-.tab-btn.active {
-    color: var(--primary);
-    background: var(--primary-extra-light);
-}
-
-.tab-btn.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: var(--gradient);
-    border-radius: 3px 3px 0 0;
-}
-
-/* Контент вкладок */
-.tab-content {
-    display: none;
-    padding: 15px;
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.tab-content.active {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 15px;
-}
-
-#prestige {
-    grid-template-columns: 1fr;
-}
-
-/* Элементы улучшений */
-.upgrade-item {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 15px;
-    border-radius: var(--radius-sm);
-    margin-bottom: 0;
-    background: var(--primary-extra-light);
-    transition: var(--transition);
-    border: 1px solid var(--border);
-    position: relative;
-    overflow: hidden;
-}
-
-.upgrade-item:hover {
-    background: var(--primary-light);
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-hover);
-}
-
-.upgrade-item.prestige-item {
-    background: var(--accent-light);
-    border-color: rgba(245, 158, 11, 0.3);
-}
-
-.upgrade-item.prestige-item:hover {
-    background: rgba(245, 158, 11, 0.2);
-}
-
-.upgrade-icon {
-    width: 48px;
-    height: 48px;
-    background: var(--gradient);
-    border-radius: var(--radius-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 700;
-    font-size: 1.2rem;
-    flex-shrink: 0;
-    box-shadow: var(--shadow);
-}
-
-.prestige-icon {
-    background: var(--prestige-gradient);
-}
-
-.upgrade-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.upgrade-name {
-    font-weight: 700;
-    margin-bottom: 6px;
-    color: var(--primary-dark);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.upgrade-description {
-    font-size: 0.85rem;
-    color: var(--text-light);
-    margin-bottom: 8px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.upgrade-stats {
-    display: flex;
-    gap: 10px;
-    font-size: 0.8rem;
-    flex-wrap: wrap;
-}
-
-.upgrade-stat {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--text-light);
-}
-
-.upgrade-stat i {
-    color: var(--accent);
-    font-size: 0.9rem;
-}
-
-.upgrade-price {
-    font-weight: 700;
-    color: var(--primary-dark);
-    white-space: nowrap;
-    margin-left: auto;
-    padding-left: 10px;
-    font-size: 1.1rem;
-}
-
-.upgrade-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 10px;
-}
-
-.buy-btn {
-    background: var(--gradient);
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-weight: 600;
-    transition: var(--transition);
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    box-shadow: var(--shadow);
-    min-width: 100px;
-}
-
-.prestige-btn {
-    background: var(--prestige-gradient);
-}
-
-.buy-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-hover);
-}
-
-.buy-btn:disabled {
-    background: var(--text-light);
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-
-.sell-btn {
-    background: rgba(239, 68, 68, 0.1);
-    color: var(--error);
-    border: 1px solid var(--error);
-    padding: 8px 15px;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-weight: 600;
-    transition: var(--transition);
-    flex: 1;
-    min-width: 80px;
-}
-
-.sell-btn:hover {
-    background: rgba(239, 68, 68, 0.2);
-    transform: translateY(-2px);
-}
-
-.sell-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.collect-btn {
-    background: var(--gradient);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-weight: 600;
-    transition: var(--transition);
-    margin-top: 10px;
-}
-
-.collect-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-hover);
-}
-
-/* Прогресс бар */
-.progress-bar {
-    width: 100%;
-    height: 6px;
-    background: rgba(123, 92, 246, 0.1);
-    border-radius: 3px;
-    margin-top: 10px;
-    overflow: hidden;
-}
-
-.progress-fill {
-    height: 100%;
-    background: var(--gradient);
-    border-radius: 3px;
-    transition: width 0.3s ease;
-}
-
-.prestige-progress {
-    background: rgba(245, 158, 11, 0.1);
-}
-
-.prestige-progress .progress-fill {
-    background: var(--prestige-gradient);
-}
-
-/* Секция промокодов */
-.promocode-section {
-    grid-column: 1 / -1;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.promocode-info {
-    background: var(--primary-extra-light);
-    padding: 20px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-}
-
-.promocode-info h3 {
-    color: var(--primary);
-    margin-bottom: 10px;
-}
-
-.promocode-info p {
-    color: var(--text-light);
-    margin-bottom: 15px;
-}
-
-.promocode-stats {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.promocode-stats .stat {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.9rem;
-    color: var(--text-light);
-}
-
-.promocode-stats .stat i {
-    color: var(--accent);
-}
-
-.promocode-action {
-    display: flex;
-    justify-content: center;
-}
-
-.promocodes-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 15px;
-    margin-top: 10px;
-}
-
-.promocode-item {
-    background: var(--success-light);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    padding: 15px;
-    border-radius: var(--radius-sm);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    transition: var(--transition);
-}
-
-.promocode-item:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-hover);
-}
-
-.promocode-value {
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: var(--success);
-    letter-spacing: 1px;
-}
-
-.promocode-amount {
-    font-size: 0.9rem;
-    color: var(--text-light);
-}
-
-.empty-state {
-    grid-column: 1 / -1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 30px;
-    text-align: center;
-    color: var(--text-light);
-    gap: 10px;
-}
-
-.empty-state i {
-    font-size: 2rem;
-    opacity: 0.5;
-}
-
-.empty-state p {
-    font-size: 0.9rem;
-}
-
-/* Модальное окно промокода */
-.promocode-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1002;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-}
-
-.promocode-modal.show {
-    opacity: 1;
-    pointer-events: all;
-}
-
-.modal-content {
-    background: var(--card-bg);
-    padding: 30px;
-    border-radius: var(--radius);
-    max-width: 400px;
-    width: 90%;
-    text-align: center;
-    box-shadow: var(--shadow-hover);
-    position: relative;
-    animation: modalFadeIn 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.modal-content h3 {
-    color: var(--primary);
-    margin-bottom: 20px;
-}
-
-.promocode-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: var(--accent);
-    margin: 15px 0;
-    padding: 10px;
-    background: var(--accent-light);
-    border-radius: var(--radius-sm);
-    border: 1px dashed var(--accent);
-}
-
-.promocode-amount {
-    font-size: 1.1rem;
-    color: var(--text);
-    margin-bottom: 20px;
-}
-
-.promocode-amount span {
-    font-weight: 700;
-    color: var(--success);
-}
-
-.modal-close {
-    background: var(--gradient);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-weight: 600;
-    transition: var(--transition);
-    width: 100%;
-}
-
-.modal-close:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-hover);
-}
-
-/* Переключатель темы */
-.theme-toggle {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 56px;
-    height: 56px;
-    background: var(--gradient);
-    border: none;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: var(--shadow);
-    z-index: 100;
-    transition: var(--transition);
-}
-
-.theme-toggle:hover {
-    transform: scale(1.1) rotate(20deg);
-}
-
-.theme-toggle svg {
-    width: 24px;
-    height: 24px;
-    color: white;
-}
-
-/* Уведомления */
-.notification {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--card-bg);
-    color: var(--text);
-    padding: 12px 20px;
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-hover);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    opacity: 0;
-    transition: all 0.3s ease;
-    max-width: 90%;
-    width: max-content;
-}
-
-.notification.show {
-    opacity: 1;
-    bottom: 30px;
-}
-
-.notification.success {
-    border-left: 4px solid var(--success);
-}
-
-.notification.error {
-    border-left: 4px solid var(--error);
-}
-
-.notification.warning {
-    border-left: 4px solid var(--warning);
-}
-
-.notification.info {
-    border-left: 4px solid var(--info);
-}
-
-.notification.golden {
-    border-left: 4px solid var(--golden);
-    animation: pulse 1s infinite;
-}
-
-.notification.critical {
-    border-left: 4px solid var(--critical);
-    animation: shake 0.5s ease-in-out;
-}
-
-/* Оффлайн заработок */
-.offline-earnings {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1001;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-}
-
-.offline-earnings.show {
-    opacity: 1;
-    pointer-events: all;
-}
-
-.offline-content {
-    background: var(--card-bg);
-    padding: 20px;
-    border-radius: var(--radius);
-    max-width: 400px;
-    width: 90%;
-    text-align: center;
-    box-shadow: var(--shadow-hover);
-}
-
-.offline-content h3 {
-    color: var(--primary);
-    margin-bottom: 10px;
-}
-
-.offline-content p {
-    color: var(--text-light);
-    margin-bottom: 15px;
-}
-
-.offline-time {
-    font-size: 0.9rem;
-    color: var(--text-light);
-    margin-bottom: 15px;
-    font-style: italic;
-}
-
-/* Достижения */
-.achievements-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 15px;
-}
-
-.achievement-item {
-    background: var(--info-light);
-    border-radius: var(--radius-sm);
-    padding: 15px;
-    border: 1px solid var(--border);
-    transition: var(--transition);
-    display: flex;
-    gap: 15px;
-    align-items: center;
-}
-
-.achievement-item.unlocked {
-    background: var(--success-light);
-    border-color: rgba(16, 185, 129, 0.3);
-}
-
-.achievement-icon {
-    width: 40px;
-    height: 40px;
-    background: var(--gradient);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1.2rem;
-    flex-shrink: 0;
-}
-
-.achievement-item.unlocked .achievement-icon {
-    background: var(--prestige-gradient);
-}
-
-.achievement-info {
-    flex: 1;
-}
-
-.achievement-name {
-    font-weight: 600;
-    color: var(--primary-dark);
-    margin-bottom: 5px;
-}
-
-.achievement-desc {
-    font-size: 0.8rem;
-    color: var(--text-light);
-    margin-bottom: 5px;
-}
-
-.achievement-progress {
-    font-size: 0.75rem;
-    color: var(--accent);
-    font-weight: 600;
-}
-
-/* Конфетти */
-.confetti {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    background: var(--accent);
-    opacity: 0;
-    z-index: 10;
-    pointer-events: none;
-}
-
-.golden-confetti {
-    background: var(--golden);
-}
-
-.critical-confetti {
-    background: var(--critical);
-}
-
-/* Анимации */
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-@keyframes shake {
-    0% { transform: rotate(0deg); }
-    25% { transform: rotate(5deg); }
-    50% { transform: rotate(0deg); }
-    75% { transform: rotate(-5deg); }
-    100% { transform: rotate(0deg); }
-}
-
-@keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-    100% { transform: translateY(0px); }
-}
-
-@keyframes confetti {
-    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
-}
-
-@keyframes floatUp {
-    0% { transform: translateY(0); opacity: 1; }
-    100% { transform: translateY(-80px); opacity: 0; }
-}
-
-@keyframes smokeFloat {
-    0% { transform: translateY(0) translateX(0) scale(0.5); opacity: 0; }
-    20% { opacity: 0.8; }
-    100% { transform: translateY(-100px) translateX(20px) scale(1.5); opacity: 0; }
-}
-
-@keyframes modalFadeIn {
-    0% { transform: translateY(20px); opacity: 0; }
-    100% { transform: translateY(0); opacity: 1; }
-}
-
-.pulse-animation {
-    animation: pulse 2s infinite;
-}
-
-.shake-animation {
-    animation: shake 0.5s ease-in-out;
-}
-
-.float-animation {
-    animation: float 3s ease-in-out infinite;
-}
-
-/* Адаптивность */
-@media (max-width: 768px) {
-    .game-header {
-        flex-direction: column;
-        text-align: center;
+    initGameState() {
+        // Загрузка сохранения или установка значений по умолчанию
+        const savedData = localStorage.getItem('vapeEmpireSave');
+        if (savedData) {
+            const parsed = JSON.parse(savedData);
+            
+            // Миграция старых сохранений
+            if (!parsed.gameVersion || parsed.gameVersion !== this.gameVersion) {
+                this.migrateSave(parsed);
+            } else {
+                Object.assign(this, parsed);
+            }
+        } else {
+            Object.assign(this, JSON.parse(JSON.stringify(defaultGameState)));
+        }
+        
+        // Инициализация новых свойств
+        this.quantumHits = this.quantumHits || 0;
+        this.temporaryIncomeMultiplier = this.temporaryIncomeMultiplier || 1;
+        this.passiveSpeedMultiplier = this.passiveSpeedMultiplier || 1;
+        this.globalMultiplier = this.globalMultiplier || 1;
+        this.dailyQuests = this.dailyQuests || JSON.parse(JSON.stringify(defaultGameState.dailyQuests));
+        
+        // Восстановление объектов из JSON
+        this.prestige = Object.assign({}, prestigeData, this.prestige);
+        this.products = Object.assign({}, products, this.products);
+        this.upgrades = Object.assign({}, upgrades, this.upgrades);
+        this.achievements = [...achievements].map(a => {
+            const savedAchievement = (this.achievements || []).find(sa => sa.id === a.id);
+            return savedAchievement ? {...a, ...savedAchievement} : a;
+        });
     }
-
-    .header-left {
-        justify-content: center;
-        width: 100%;
+    
+    migrateSave(oldSave) {
+        // Перенос данных из старой версии
+        console.log('Migrating save from old version...');
+        
+        // Основные свойства
+        const baseProps = [
+            'balance', 'totalEarned', 'passiveIncome', 'clickValue', 
+            'clickMultiplier', 'incomeMultiplier', 'priceMultiplier',
+            'totalClicks', 'goldenChance', 'goldenHits', 'criticalChance',
+            'criticalHits', 'boostUnlocked', 'boostActive', 'boostCount',
+            'boostProgress', 'boostTimer', 'lastPlayTime', 'offlineEarningsEnabled',
+            'totalOfflineEarned', 'prestige', 'products', 'upgrades',
+            'achievements', 'promocodesGenerated', 'nextPromocodeAt', 'promocodes',
+            'darkMode'
+        ];
+        
+        baseProps.forEach(prop => {
+            if (oldSave[prop] !== undefined) {
+                this[prop] = oldSave[prop];
+            }
+        });
+        
+        // Новые свойства
+        this.gameVersion = this.gameVersion;
+        this.quantumHits = 0;
+        this.globalMultiplier = 1;
+        this.temporaryIncomeMultiplier = 1;
+        this.passiveSpeedMultiplier = 1;
+        
+        // Инициализация новых систем
+        this.initDailyQuests();
+        this.checkForEvents();
     }
-
-    .stats-container {
-        width: 100%;
-        justify-content: center;
+    
+    initElements() {
+        // Основные элементы
+        this.elements = {
+            // Верхняя панель
+            balance: document.getElementById('balance'),
+            income: document.getElementById('income'),
+            prestigeBadge: document.getElementById('prestigeBadge'),
+            prestigeLevel: document.getElementById('prestigeLevel'),
+            
+            // Игровая область
+            vape: document.getElementById('vape'),
+            clickArea: document.getElementById('clickArea'),
+            clickEffect: document.querySelector('.click-effect'),
+            clickCounter: document.querySelector('.click-counter'),
+            clickValue: document.getElementById('clickValue'),
+            totalClicks: document.getElementById('totalClicks'),
+            
+            // Индикаторы
+            goldenHits: document.getElementById('goldenHits'),
+            criticalHits: document.getElementById('criticalHits'),
+            clickMultiplier: document.getElementById('clickMultiplier'),
+            
+            // Буст система
+            boostBtn: document.getElementById('boostBtn'),
+            boostProgress: document.getElementById('boostProgress'),
+            boostTimer: document.getElementById('boostTimer'),
+            
+            // Быстрое меню
+            quickBuyItems: {
+                liquids: document.getElementById('quickLiquidsPrice'),
+                disposables: document.getElementById('quickDisposablesPrice'),
+                premiumLiquids: document.getElementById('quickPremiumLiquidsPrice'),
+                limitedDevices: document.getElementById('quickLimitedDevicesPrice')
+            },
+            
+            // Вкладки
+            tabBtns: document.querySelectorAll('.tab-btn'),
+            tabContents: document.querySelectorAll('.tab-content'),
+            
+            // Престиж
+            prestigeBonusValue: document.getElementById('prestigeBonusValue'),
+            prestigeProgress: document.getElementById('prestigeProgress'),
+            prestigePrice: document.getElementById('prestigePrice'),
+            prestigeBtn: document.getElementById('prestigeBtn'),
+            prestigeRemaining: document.getElementById('prestigeRemaining'),
+            prestigePoints: document.getElementById('prestigePoints'),
+            
+            // Перманентные улучшения
+            permIncomeLevel: document.getElementById('permIncomeLevel'),
+            permIncomePrice: document.getElementById('permIncomePrice'),
+            permIncomeBonus: document.getElementById('permIncomeBonus'),
+            buyPermIncome: document.getElementById('buyPermIncome'),
+            
+            // Уведомления
+            notification: document.getElementById('notification'),
+            
+            // Тема
+            themeToggle: document.getElementById('themeToggle'),
+            sunIcon: document.getElementById('sunIcon'),
+            moonIcon: document.getElementById('moonIcon'),
+            
+            // Оффлайн доход
+            offlineEarnings: document.getElementById('offlineEarnings'),
+            offlineAmount: document.getElementById('offlineAmount'),
+            offlineTime: document.getElementById('offlineTime'),
+            collectOffline: document.getElementById('collectOffline'),
+            
+            // Промокоды
+            promocodeModal: document.getElementById('promocodeModal'),
+            promocodeValue: document.getElementById('promocodeValue'),
+            promocodeDiscount: document.getElementById('promocodeDiscount'),
+            closePromocodeModal: document.getElementById('closePromocodeModal'),
+            usePromocodeBtn: document.getElementById('usePromocodeBtn'),
+            
+            // Достижения
+            achievementsContainer: document.getElementById('achievementsContainer'),
+            achievementsCompleted: document.getElementById('achievementsCompleted'),
+            achievementsTotal: document.getElementById('achievementsTotal'),
+            
+            // Статистика
+            totalEarnedStat: document.getElementById('totalEarnedStat'),
+            totalClicksStat: document.getElementById('totalClicksStat'),
+            playTimeStat: document.getElementById('playTimeStat'),
+            goldenHitsStat: document.getElementById('goldenHitsStat'),
+            criticalHitsStat: document.getElementById('criticalHitsStat'),
+            quantumHitsStat: document.getElementById('quantumHitsStat'),
+            totalOfflineStat: document.getElementById('totalOfflineStat'),
+            maxOfflineTimeStat: document.getElementById('maxOfflineTimeStat'),
+            prestigeLevelStat: document.getElementById('prestigeLevelStat'),
+            prestigePointsStat: document.getElementById('prestigePointsStat'),
+            prestigeBonusStat: document.getElementById('prestigeBonusStat'),
+            
+            // Фильтры
+            productFilters: document.getElementById('productFilters'),
+            upgradeFilters: document.getElementById('upgradeFilters'),
+            
+            // Контейнеры
+            productsContainer: document.getElementById('productsContainer'),
+            upgradesContainer: document.getElementById('upgradesContainer')
+        };
     }
-
-    .tab-content.active {
-        grid-template-columns: 1fr;
+    
+    initEventListeners() {
+        // Клик по вейпу
+        this.elements.clickArea.addEventListener('click', (e) => this.handleClick(e));
+        this.elements.clickArea.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this.handleClick(e.touches[0]);
+        }, { passive: false });
+        
+        // Быстрое меню покупок
+        document.querySelectorAll('.quick-buy-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const product = item.dataset.product;
+                this.buyProduct(product);
+            });
+        });
+        
+        // Престиж
+        this.elements.prestigeBtn.addEventListener('click', () => this.doPrestige());
+        
+        // Вкладки
+        this.elements.tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => this.switchTab(btn.dataset.tab));
+        });
+        
+        // Фильтры товаров
+        document.querySelectorAll('#productFilters .filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#productFilters .filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.renderProducts(btn.dataset.category);
+            });
+        });
+        
+        // Фильтры улучшений
+        document.querySelectorAll('#upgradeFilters .filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#upgradeFilters .filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.renderUpgrades(btn.dataset.category);
+            });
+        });
+        
+        // Буст
+        this.elements.boostBtn.addEventListener('click', () => this.activateBoost());
+        
+        // Оффлайн доход
+        this.elements.collectOffline.addEventListener('click', () => this.collectOfflineEarnings());
+        
+        // Промокоды
+        this.elements.closePromocodeModal.addEventListener('click', () => this.closePromocodeModal());
+        this.elements.usePromocodeBtn.addEventListener('click', () => this.useCurrentPromocode());
+        
+        // Перманентные улучшения
+        this.elements.buyPermIncome.addEventListener('click', () => this.buyPermanentUpgrade('permIncome'));
+        
+        // Тема
+        this.elements.themeToggle.addEventListener('click', () => this.toggleTheme());
+        
+        // Сохранение при закрытии
+        window.addEventListener('beforeunload', () => this.save());
+        
+        // PWA события
+        window.addEventListener('appinstalled', () => {
+            this.showNotification('Игра установлена! Получите 1000₽ в подарок!', 'success');
+            this.addBalance(1000);
+        });
     }
-
-    .tab-text {
-        display: none;
+    
+    setupGameSystems() {
+        // Частицы
+        this.setupParticles();
+        
+        // Игровой цикл
+        this.startGameLoop();
+        
+        // Проверка оффлайн дохода
+        this.checkOfflineEarnings();
+        
+        // Загрузка интерфейса
+        this.renderAll();
+        this.updateUI();
+        
+        // Ежедневное обновление квестов
+        this.setupDailyQuests();
+        
+        // Проверка событий
+        this.checkForEvents();
+        
+        // Восстановление анимаций
+        this.restoreAnimations();
     }
-
-    .tab-btn {
-        min-width: 60px;
-        padding: 12px 5px;
+    
+    start() {
+        // Запуск анимации вейпа
+        this.elements.vape.querySelector('.vape-image').classList.add('float-animation');
+        
+        // Восстановление буста если он был активен
+        if (this.boostActive) {
+            this.activateBoost();
+        }
+        
+        // Восстановление автокликера
+        if (this.upgrades.autoClicker.purchased) {
+            this.upgrades.autoClicker.effect(this);
+        }
+        
+        // Установка темы
+        if (this.darkMode) {
+            document.body.classList.add('dark-mode');
+            this.updateThemeIcon();
+        }
     }
-
-    .upgrade-item {
-        flex-direction: column;
-        text-align: center;
+    
+    // =====================
+    // ОСНОВНЫЕ ИГРОВЫЕ МЕХАНИКИ
+    // =====================
+    
+    handleClick(e) {
+        // Позиция клика
+        const rect = this.elements.vape.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        // Базовый доход за клик
+        let earned = this.clickValue * this.clickMultiplier * this.globalMultiplier;
+        let isCritical = false;
+        let isGolden = false;
+        let isQuantum = false;
+        
+        // Проверка на квантовый клик
+        if (this.quantumChance > 0 && Math.random() < this.quantumChance) {
+            earned *= this.quantumMultiplier;
+            isQuantum = true;
+            this.quantumHits++;
+            this.showNotification(`КВАНТОВЫЙ КЛИК! +${this.formatMoney(earned)} ₽`, 'quantum');
+            this.createConfetti(50, 'quantum');
+        } 
+        // Проверка на критический удар
+        else if (this.criticalChance > 0 && Math.random() < this.criticalChance) {
+            earned *= this.criticalMultiplier;
+            isCritical = true;
+            this.criticalHits++;
+            this.showNotification(`Критический удар! +${this.formatMoney(earned)} ₽`, 'critical');
+            this.createConfetti(30, 'critical');
+        } 
+        // Проверка на золотой клик
+        else if (this.goldenChance > 0 && Math.random() < this.goldenChance) {
+            earned *= this.goldenMultiplier;
+            isGolden = true;
+            this.goldenHits++;
+            this.showNotification(`Золотой клик! +${this.formatMoney(earned)} ₽`, 'golden');
+            this.createConfetti(20, 'golden');
+        }
+        
+        // Прогресс буста
+        if (this.boostUnlocked) {
+            this.boostProgress = Math.min(100, this.boostProgress + 2);
+            this.elements.boostProgress.style.width = `${this.boostProgress}%`;
+            this.elements.boostBtn.disabled = this.boostProgress < 100;
+        }
+        
+        // Начисление денег
+        this.addBalance(earned);
+        this.totalClicks++;
+        
+        // Обновление квестов
+        this.updateQuestProgress('click_500', 1);
+        
+        // Эффекты
+        this.createClickEffect(x, y, isQuantum ? 'quantum' : isCritical ? 'critical' : isGolden ? 'golden' : 'normal');
+        this.createClickText(x, y, earned, isQuantum ? 'quantum' : isCritical ? 'critical' : isGolden ? 'golden' : 'normal');
+        this.createVapeParticles(x, y, isQuantum ? 'quantum' : isCritical ? 'critical' : isGolden ? 'golden' : 'normal');
+        this.animateVape();
+        
+        // Проверка достижений
+        this.checkAchievements();
     }
-
-    .upgrade-price {
-        margin-left: 0;
-        padding-left: 0;
-        margin-top: 10px;
+    
+    addBalance(amount) {
+        // Применение временного множителя
+        amount *= this.temporaryIncomeMultiplier;
+        
+        this.balance += amount;
+        this.totalEarned += amount;
+        
+        // Обновление квеста по заработку
+        this.updateQuestProgress('earn_50000', amount);
+        
+        // Проверка на генерацию промокода
+        if (this.totalEarned >= this.nextPromocodeAt && this.prestige.level >= promocodes.minPrestige) {
+            this.generatePromocode();
+            this.nextPromocodeAt += promocodes.basePrice;
+        }
+        
+        // Обновление интерфейса
+        this.updateUI();
+        this.save();
     }
-
-    .upgrade-actions {
-        width: 100%;
+    
+    // =====================
+    // СИСТЕМА ТОВАРОВ
+    // =====================
+    
+    buyProduct(type) {
+        const product = this.products[type];
+        const price = this.getProductPrice(type);
+        
+        if (product.owned >= product.maxOwned) {
+            this.showNotification(`Максимум ${product.name} достигнут!`, 'error');
+            return;
+        }
+        
+        if (this.balance >= price) {
+            this.balance -= price;
+            product.owned++;
+            
+            // Применение специального эффекта
+            if (product.specialEffect) {
+                this.applyProductEffect(product);
+            }
+            
+            this.recalculatePassiveIncome();
+            
+            // Обновление интерфейса
+            this.updateProductUI(type);
+            this.showNotification(`Куплено: ${product.name}`, 'success');
+            this.createConfetti(10);
+            this.save();
+            
+            // Проверка достижений
+            this.checkAchievements();
+            // Обновление квеста
+            this.updateQuestProgress('buy_upgrades', 1);
+        } else {
+            this.showNotification('Недостаточно средств!', 'error');
+        }
     }
-
-    .multitouch-panel {
-        display: none;
+    
+    sellProduct(type) {
+        const product = this.products[type];
+        const price = Math.floor(this.getProductPrice(type) * 0.7); // 70% от цены
+        
+        if (product.owned <= 0) {
+            this.showNotification(`Нет ${product.name} для продажи!`, 'error');
+            return;
+        }
+        
+        product.owned--;
+        this.balance += price;
+        
+        // Отмена специального эффекта
+        if (product.specialEffect) {
+            this.revertProductEffect(product);
+        }
+        
+        this.recalculatePassiveIncome();
+        
+        // Обновление интерфейса
+        this.updateProductUI(type);
+        this.showNotification(`Продано: ${product.name} за ${this.formatMoney(price)} ₽`, 'info');
+        this.save();
     }
-
-    .promocodes-list {
-        grid-template-columns: 1fr;
+    
+    applyProductEffect(product) {
+        switch(product.specialEffect.type) {
+            case 'clickMultiplier':
+                this.clickMultiplier += product.specialEffect.value;
+                break;
+            case 'goldenChance':
+                this.goldenChance += product.specialEffect.value;
+                break;
+            case 'passiveMultiplier':
+                // Уже учтено в recalculatePassiveIncome
+                break;
+            case 'globalMultiplier':
+                this.globalMultiplier += product.specialEffect.value;
+                break;
+            case 'prestigeBonus':
+                this.prestige.bonusPerLevel += product.specialEffect.value;
+                break;
+        }
+    }
+    
+    revertProductEffect(product) {
+        switch(product.specialEffect.type) {
+            case 'clickMultiplier':
+                this.clickMultiplier -= product.specialEffect.value;
+                break;
+            case 'goldenChance':
+                this.goldenChance -= product.specialEffect.value;
+                break;
+            case 'passiveMultiplier':
+                // Уже учтено в recalculatePassiveIncome
+                break;
+            case 'globalMultiplier':
+                this.globalMultiplier -= product.specialEffect.value;
+                break;
+            case 'prestigeBonus':
+                this.prestige.bonusPerLevel -= product.specialEffect.value;
+                break;
+        }
+    }
+    
+    getProductPrice(type) {
+        const product = this.products[type];
+        const discount = this.prestige.upgrades.discount?.level * this.prestige.upgrades.discount?.bonusPerLevel || 0;
+        const priceMultiplier = this.priceMultiplier * (1 - discount);
+        return Math.floor(product.basePrice * Math.pow(1.15, product.owned) * priceMultiplier);
+    }
+    
+    recalculatePassiveIncome() {
+        let income = 0;
+        
+        // Суммируем доход от всех продуктов
+        for (const type in this.products) {
+            const product = this.products[type];
+            if (product.owned > 0) {
+                let productIncome = product.baseIncome * product.owned;
+                
+                // Применяем эффекты улучшений
+                if (product.specialEffect?.type === 'passiveMultiplier') {
+                    productIncome *= (1 + product.specialEffect.value);
+                }
+                
+                income += productIncome;
+            }
+        }
+        
+        // Применяем глобальные множители
+        this.passiveIncome = income * this.incomeMultiplier * this.globalMultiplier * this.prestige.bonus;
+    }
+    
+    // =====================
+    // СИСТЕМА УЛУЧШЕНИЙ
+    // =====================
+    
+    buyUpgrade(type) {
+        const upgrade = this.upgrades[type];
+        
+        if (upgrade.purchased) {
+            this.showNotification('Уже куплено!', 'error');
+            return;
+        }
+        
+        if (this.balance >= upgrade.price) {
+            this.balance -= upgrade.price;
+            upgrade.purchased = true;
+            
+            // Применение эффекта
+            upgrade.effect(this);
+            
+            // Разблокировка буста при покупке первого улучшения
+            if (!this.boostUnlocked && Object.values(this.upgrades).filter(u => u.purchased).length >= 1) {
+                this.boostUnlocked = true;
+                this.showNotification('Буст разблокирован! Заполняйте шкалу кликами', 'success');
+            }
+            
+            // Обновление интерфейса
+            this.updateUpgradeUI(type);
+            this.showNotification(`Куплено: ${upgrade.name}`, 'success');
+            this.createConfetti(15);
+            this.save();
+            
+            // Проверка достижений
+            this.checkAchievements();
+            // Обновление квеста
+            this.updateQuestProgress('buy_upgrades', 1);
+        } else {
+            this.showNotification('Недостаточно средств!', 'error');
+        }
+    }
+    
+    // =====================
+    // СИСТЕМА ПРЕСТИЖА
+    // =====================
+    
+    doPrestige() {
+        if (this.balance < this.prestige.nextRequirement) return;
+        
+        // Расчет престиж-очков
+        const earnedPoints = Math.floor(this.balance / this.prestige.nextRequirement);
+        this.prestige.level++;
+        this.prestige.points += earnedPoints;
+        
+        // Расчет бонуса престижа
+        this.prestige.bonus = 1 + (this.prestige.level * this.prestige.bonusPerLevel);
+        this.prestige.nextRequirement = this.prestige.baseRequirement * Math.pow(2, this.prestige.level);
+        
+        // Перманентный доход
+        let permIncomeBonus = 0;
+        if (this.prestige.upgrades.permIncome.level > 0) {
+            permIncomeBonus = this.passiveIncome * this.prestige.upgrades.permIncome.level * 
+                             this.prestige.upgrades.permIncome.bonusPerLevel;
+        }
+        
+        // Бонус за клик
+        if (this.prestige.upgrades.clickMastery.level > 0) {
+            this.clickValue = 1 + (this.prestige.upgrades.clickMastery.level * 
+                                  this.prestige.upgrades.clickMastery.bonusPerLevel);
+        } else {
+            this.clickValue = 1;
+        }
+        
+        // Сброс игры с сохранением престижа
+        this.balance = permIncomeBonus;
+        this.passiveIncome = permIncomeBonus;
+        this.clickMultiplier = 1;
+        this.incomeMultiplier = 1;
+        this.goldenChance = this.prestige.upgrades.goldenLuck.level * this.prestige.upgrades.goldenLuck.bonusPerLevel;
+        this.criticalChance = this.prestige.upgrades.criticalThinking.level * this.prestige.upgrades.criticalThinking.bonusPerLevel;
+        this.quantumChance = 0;
+        this.boostProgress = 0;
+        this.nextPromocodeAt = promocodes.basePrice;
+        
+        // Сброс товаров и улучшений
+        for (const type in this.products) {
+            this.products[type].owned = 0;
+        }
+        
+        for (const type in this.upgrades) {
+            this.upgrades[type].purchased = false;
+        }
+        
+        // Остановка автокликера
+        if (this.autoClickerInterval) {
+            clearInterval(this.autoClickerInterval);
+            this.autoClickerInterval = null;
+        }
+        
+        // Остановка буста
+        if (this.boostInterval) {
+            clearInterval(this.boostInterval);
+            this.boostInterval = null;
+            this.boostActive = false;
+        }
+        
+        // Эффекты
+        this.showNotification(
+            `Престиж ${this.prestige.level}! +${Math.round((this.prestige.bonus - 1) * 100)}% доход\n` +
+            `Получено ${earnedPoints} престиж-очков`, 
+            'success'
+        );
+        this.createPrestigeEffect();
+        this.createConfetti(100);
+        
+        // Обновление интерфейса
+        this.renderAll();
+        this.updateUI();
+        this.save();
+    }
+    
+    buyPermanentUpgrade(type) {
+        const upgrade = this.prestige.upgrades[type];
+        
+        if (upgrade.level >= upgrade.maxLevel) {
+            this.showNotification('Максимальный уровень!', 'error');
+            return;
+        }
+        
+        if (this.prestige.points >= upgrade.price) {
+            this.prestige.points -= upgrade.price;
+            upgrade.level++;
+            upgrade.price = Math.floor(upgrade.price * 1.5);
+            
+            // Применение эффекта
+            switch(type) {
+                case 'permIncome':
+                    // Уже применяется при престиже
+                    break;
+                case 'clickMastery':
+                    this.clickValue = 1 + (upgrade.level * upgrade.bonusPerLevel);
+                    break;
+                case 'goldenLuck':
+                    this.goldenChance = upgrade.level * upgrade.bonusPerLevel;
+                    break;
+                case 'criticalThinking':
+                    this.criticalChance = upgrade.level * upgrade.bonusPerLevel;
+                    break;
+                case 'boostExpert':
+                    this.boostMultiplier = 2 + (upgrade.level * upgrade.bonusPerLevel);
+                    break;
+                case 'timeLord':
+                    this.boostDuration = 30 / (1 + (upgrade.level * upgrade.bonusPerLevel));
+                    break;
+            }
+            
+            // Обновление интерфейса
+            this.updatePermanentUpgradesUI();
+            this.showNotification(`${upgrade.name} улучшено до уровня ${upgrade.level}`, 'success');
+            this.save();
+        } else {
+            this.showNotification('Недостаточно очков престижа!', 'error');
+        }
+    }
+    
+    // =====================
+    // ДРУГИЕ СИСТЕМЫ
+    // =====================
+    
+    activateBoost() {
+        if (this.boostProgress < 100 || this.boostActive) return;
+        
+        this.boostActive = true;
+        this.boostCount++;
+        this.boostProgress = 0;
+        this.boostTimer = this.boostDuration;
+        
+        // Сохранение оригинального множителя
+        const originalMultiplier = this.incomeMultiplier;
+        this.incomeMultiplier *= this.boostMultiplier;
+        this.recalculatePassiveIncome();
+        
+        // Обновление интерфейса
+        this.elements.boostProgress.style.width = '0%';
+        this.elements.boostBtn.disabled = true;
+        this.elements.boostBtn.classList.add('active');
+        this.showNotification(`Буст активирован! Доход x${this.boostMultiplier}`, 'warning');
+        
+        // Таймер буста
+        this.boostInterval = setInterval(() => {
+            this.boostTimer--;
+            this.elements.boostTimer.textContent = this.boostTimer;
+            
+            if (this.boostTimer <= 0) {
+                clearInterval(this.boostInterval);
+                this.boostActive = false;
+                this.incomeMultiplier = originalMultiplier;
+                this.recalculatePassiveIncome();
+                this.elements.boostBtn.classList.remove('active');
+                this.elements.boostTimer.textContent = '';
+                this.showNotification('Буст закончился', 'info');
+                this.save();
+            }
+        }, 1000);
+        
+        this.checkAchievements();
+        this.save();
+    }
+    
+    generatePromocode() {
+        if (this.prestige.level < promocodes.minPrestige) return;
+        
+        // Выбор награды
+        let reward;
+        const random = Math.random();
+        let cumulativeChance = 0;
+        
+        // Проверка на специальную награду
+        if (random < promocodes.specialChance) {
+            reward = promocodes.rewards.find(r => r.isSpecial);
+        } else {
+            // Обычная награда
+            for (const r of promocodes.rewards.filter(r => !r.isSpecial)) {
+                cumulativeChance += r.chance;
+                if (random <= cumulativeChance) {
+                    reward = r;
+                    break;
+                }
+            }
+        }
+        
+        // Создание промокода
+        const promocode = {
+            code: `VAPE-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
+            reward: reward,
+            date: new Date().toLocaleString(),
+            used: false
+        };
+        
+        this.promocodes.list.push(promocode);
+        this.promocodesGenerated++;
+        
+        // Показ модального окна
+        this.showPromocodeModal(promocode);
+        
+        // Обновление интерфейса
+        this.updateUI();
+        this.checkAchievements();
+        this.save();
+    }
+    
+    useCurrentPromocode() {
+        if (!this.currentPromocode) return;
+        this.usePromocode(this.currentPromocode);
+    }
+    
+    usePromocode(promocode) {
+        if (promocode.used) return;
+        
+        promocode.used = true;
+        
+        if (typeof promocode.reward.amount === 'number') {
+            this.addBalance(promocode.reward.amount);
+            this.showNotification(`Промокод применен! +${this.formatMoney(promocode.reward.amount)} ₽`, 'success');
+        } else if (promocode.reward.effect) {
+            promocode.reward.effect(this);
+            this.showNotification(`Активирован бонус: ${promocode.reward.amount}`, 'success');
+        }
+        
+        this.closePromocodeModal();
+        this.save();
+    }
+    
+    showPromocodeModal(promocode) {
+        this.currentPromocode = promocode;
+        this.elements.promocodeValue.textContent = promocode.code;
+        
+        if (typeof promocode.reward.amount === 'number') {
+            this.elements.promocodeDiscount.textContent = this.formatMoney(promocode.reward.amount);
+        } else {
+            this.elements.promocodeDiscount.textContent = promocode.reward.amount;
+        }
+        
+        this.elements.promocodeModal.classList.add('show');
+    }
+    
+    closePromocodeModal() {
+        this.currentPromocode = null;
+        this.elements.promocodeModal.classList.remove('show');
+    }
+    
+    // =====================
+    // СИСТЕМА ДОСТИЖЕНИЙ
+    // =====================
+    
+    checkAchievements() {
+        let unlockedCount = 0;
+        
+        this.achievements.forEach(achievement => {
+            if (!achievement.unlocked && achievement.condition(this)) {
+                achievement.unlocked = true;
+                this.addBalance(achievement.reward);
+                unlockedCount++;
+                
+                this.showNotification(
+                    `Достижение: ${achievement.name}!\nНаграда: ${this.formatMoney(achievement.reward)} ₽`, 
+                    'info'
+                );
+                
+                this.createConfetti(15);
+            }
+        });
+        
+        if (unlockedCount > 0) {
+            this.renderAchievements();
+            this.save();
+        }
+    }
+    
+    // =====================
+    // СИСТЕМА КВЕСТОВ
+    // =====================
+    
+    setupDailyQuests() {
+        // Проверка необходимости обновления квестов
+        const now = new Date();
+        const lastRefresh = new Date(this.lastDailyRefresh);
+        
+        if (now.getDate() !== lastRefresh.getDate() || 
+            now.getMonth() !== lastRefresh.getMonth() || 
+            now.getFullYear() !== lastRefresh.getFullYear()) {
+            this.refreshDailyQuests();
+        }
+        
+        // Обновление каждые 24 часа
+        this.dailyRefreshInterval = setInterval(() => {
+            this.refreshDailyQuests();
+        }, 24 * 60 * 60 * 1000);
+        
+        this.renderDailyQuests();
+    }
+    
+    refreshDailyQuests() {
+        const questTemplates = [
+            {
+                id: 'click_500',
+                name: '500 кликов',
+                description: 'Совершите 500 кликов',
+                reward: 1000,
+                required: 500
+            },
+            {
+                id: 'earn_50000',
+                name: 'Заработать 50,000₽',
+                description: 'Заработайте 50,000 рублей',
+                reward: 5000,
+                required: 50000
+            },
+            {
+                id: 'buy_upgrades',
+                name: 'Улучшения',
+                description: 'Купите 3 улучшения',
+                reward: 3000,
+                required: 3
+            }
+        ];
+        
+        // Выбор 2 случайных квестов
+        this.dailyQuests = [];
+        const shuffled = [...questTemplates].sort(() => 0.5 - Math.random());
+        
+        for (let i = 0; i < 2; i++) {
+            this.dailyQuests.push({
+                ...shuffled[i],
+                progress: 0,
+                completed: false
+            });
+        }
+        
+        this.lastDailyRefresh = Date.now();
+        this.renderDailyQuests();
+        this.save();
+    }
+    
+    updateQuestProgress(questId, amount = 1) {
+        const quest = this.dailyQuests.find(q => q.id === questId);
+        if (!quest || quest.completed) return;
+        
+        quest.progress += amount;
+        
+        if (quest.progress >= quest.required) {
+            quest.completed = true;
+            this.addBalance(quest.reward);
+            this.showNotification(`Квест выполнен: ${quest.name}\nНаграда: ${this.formatMoney(quest.reward)} ₽`, 'success');
+        }
+        
+        this.renderDailyQuests();
+        this.save();
+    }
+    
+    // =====================
+    // СИСТЕМА СОБЫТИЙ
+    // =====================
+    
+    checkForEvents() {
+        // 20% шанс на событие при загрузке
+        if (Math.random() < 0.2) {
+            this.startRandomEvent();
+        }
+    }
+    
+    startRandomEvent() {
+        const events = [
+            {
+                name: 'Вейп-фестиваль',
+                description: 'Специальное событие! Зарабатывайте больше в течение часа!',
+                duration: 60 * 60 * 1000, // 1 час
+                effect: (game) => {
+                    game.temporaryIncomeMultiplier = 1.5;
+                },
+                reward: 5000,
+                goal: 1000000 // Заработать 1,000,000 во время события
+            },
+            {
+                name: 'Научный прорыв',
+                description: 'Ученые разработали новые технологии! Все доходы увеличены!',
+                duration: 45 * 60 * 1000, // 45 минут
+                effect: (game) => {
+                    game.globalMultiplier = 1.3;
+                },
+                reward: 7500,
+                goal: 500000 // Заработать 500,000 во время события
+            }
+        ];
+        
+        // Выбор случайного события
+        const randomEvent = events[Math.floor(Math.random() * events.length)];
+        this.currentEvent = { ...randomEvent };
+        this.eventProgress = 0;
+        this.eventEndTime = Date.now() + randomEvent.duration;
+        
+        // Применение эффекта
+        this.currentEvent.effect(this);
+        
+        // Таймер события
+        this.eventInterval = setInterval(() => {
+            const timeLeft = this.eventEndTime - Date.now();
+            
+            if (timeLeft <= 0) {
+                this.endEvent();
+            } else {
+                this.updateEventTimer();
+            }
+        }, 1000);
+        
+        this.showNotification(`Началось событие: ${this.currentEvent.name}`, 'info');
+        this.renderEvent();
+        this.save();
+    }
+    
+    endEvent() {
+        clearInterval(this.eventInterval);
+        
+        // Проверка выполнения цели
+        if (this.eventProgress >= this.currentEvent.goal) {
+            this.addBalance(this.currentEvent.reward);
+            this.showNotification(
+                `Событие завершено! Цель достигнута!\nНаграда: ${this.formatMoney(this.currentEvent.reward)} ₽`, 
+                'success'
+            );
+        } else {
+            this.showNotification(`Событие завершено!`, 'info');
+        }
+        
+        // Сброс эффектов
+        this.temporaryIncomeMultiplier = 1;
+        this.globalMultiplier = 1;
+        
+        this.currentEvent = null;
+        this.renderEvent();
+        this.save();
+    }
+    
+    // =====================
+    // ОФФЛАЙН ДОХОД
+    // =====================
+    
+    checkOfflineEarnings() {
+        if (!this.offlineEarningsEnabled) return;
+        
+        const now = Date.now();
+        const offlineTime = now - this.lastPlayTime;
+        
+        // Максимальное время оффлайна - 24 часа
+        const maxOfflineTime = 24 * 60 * 60 * 1000;
+        const cappedOfflineTime = Math.min(offlineTime, maxOfflineTime);
+        
+        if (cappedOfflineTime > 10000) { // Минимум 10 секунд
+            const offlineIncome = this.passiveIncome * (cappedOfflineTime / 1000) * 0.5; // 50% от возможного дохода
+            
+            this.offlineEarnings = offlineIncome;
+            this.totalOfflineEarned += offlineIncome;
+            this.maxOfflineTime = Math.max(this.maxOfflineTime, cappedOfflineTime);
+            
+            // Показ окна оффлайн дохода
+            this.showOfflineEarnings(cappedOfflineTime, offlineIncome);
+        }
+        
+        this.lastPlayTime = now;
+        this.save();
+    }
+    
+    showOfflineEarnings(time, amount) {
+        this.elements.offlineAmount.textContent = this.formatMoney(amount);
+        this.elements.offlineTime.textContent = this.formatTime(time);
+        this.elements.offlineEarnings.classList.add('show');
+    }
+    
+    collectOfflineEarnings() {
+        if (this.offlineEarnings > 0) {
+            this.addBalance(this.offlineEarnings);
+            this.offlineEarnings = 0;
+            this.elements.offlineEarnings.classList.remove('show');
+            this.save();
+        }
+    }
+    
+    // =====================
+    // ГРАФИЧЕСКИЕ ЭФФЕКТЫ
+    // =====================
+    
+    createClickEffect(x, y, type = 'normal') {
+        const effect = this.elements.clickEffect.cloneNode(true);
+        effect.style.left = `${x}px`;
+        effect.style.top = `${y}px`;
+        effect.style.opacity = '1';
+        
+        switch(type) {
+            case 'golden':
+                effect.style.background = 'radial-gradient(circle at center, rgba(255,215,0,0.8) 0%, transparent 70%)';
+                break;
+            case 'critical':
+                effect.style.background = 'radial-gradient(circle at center, rgba(239, 68, 68, 0.8) 0%, transparent 70%)';
+                break;
+            case 'quantum':
+                effect.style.background = 'radial-gradient(circle at center, rgba(138, 43, 226, 0.8) 0%, transparent 70%)';
+                break;
+        }
+        
+        this.elements.vape.appendChild(effect);
+        setTimeout(() => effect.remove(), 500);
+    }
+    
+    createClickText(x, y, amount, type = 'normal') {
+        const counter = this.elements.clickCounter.cloneNode(true);
+        counter.style.left = `${x}px`;
+        counter.style.top = `${y}px`;
+        counter.textContent = `+${this.formatMoney(amount)}₽`;
+        
+        switch(type) {
+            case 'golden':
+                counter.classList.add('golden-click');
+                break;
+            case 'critical':
+                counter.classList.add('critical-click');
+                break;
+            case 'quantum':
+                counter.classList.add('quantum-click');
+                break;
+        }
+        
+        this.elements.vape.appendChild(counter);
+        setTimeout(() => counter.remove(), 1000);
+    }
+    
+    createVapeParticles(x, y, type = 'normal') {
+        const colors = {
+            normal: '#FF9800',
+            golden: '#FFD700',
+            critical: '#FF5722',
+            quantum: '#8A2BE2'
+        };
+        
+        for (let i = 0; i < 5; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'vape-particle';
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+            particle.style.backgroundColor = colors[type];
+            
+            // Случайный размер и скорость
+            const size = Math.random() * 5 + 3;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            
+            // Случайное направление
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.random() * 50 + 50;
+            
+            // Анимация
+            particle.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px)`;
+            
+            this.elements.vape.appendChild(particle);
+            setTimeout(() => particle.remove(), 2000);
+        }
+    }
+    
+    createConfetti(count = 20, type = 'normal') {
+        const colors = {
+            normal: `hsl(${Math.random() * 360}, 100%, 50%)`,
+            golden: 'var(--golden)',
+            critical: 'var(--critical)',
+            quantum: 'var(--primary)'
+        };
+        
+        for (let i = 0; i < count; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = `${Math.random() * 100}%`;
+            confetti.style.top = '100%';
+            confetti.style.backgroundColor = colors[type];
+            
+            confetti.style.animation = `confetti ${Math.random() * 3 + 2}s linear forwards`;
+            document.body.appendChild(confetti);
+            setTimeout(() => confetti.remove(), 5000);
+        }
+    }
+    
+    createPrestigeEffect() {
+        const effect = document.createElement('div');
+        effect.className = 'prestige-effect-overlay active';
+        document.body.appendChild(effect);
+        
+        setTimeout(() => {
+            effect.style.opacity = '0';
+            setTimeout(() => effect.remove(), 1000);
+        }, 3000);
+    }
+    
+    animateVape() {
+        const vape = this.elements.vape;
+        vape.style.transform = 'scale(0.95)';
+        
+        setTimeout(() => {
+            vape.style.transform = 'scale(1)';
+        }, 100);
+    }
+    
+    setupParticles() {
+        // Фоновые частицы
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            particle.style.width = `${Math.random() * 5 + 2}px`;
+            particle.style.height = particle.style.width;
+            particle.style.opacity = Math.random() * 0.5 + 0.1;
+            particle.style.animationDuration = `${Math.random() * 15 + 10}s`;
+            particle.style.animationDelay = `${Math.random() * 5}s`;
+            
+            document.getElementById('particles').appendChild(particle);
+        }
+        
+        // Дым
+        setInterval(() => {
+            const smoke = document.createElement('div');
+            smoke.className = 'smoke-particle';
+            smoke.style.left = `${Math.random() * 100}%`;
+            smoke.style.top = '100%';
+            smoke.style.width = `${Math.random() * 100 + 50}px`;
+            smoke.style.height = smoke.style.width;
+            
+            document.querySelector('.smoke-overlay').appendChild(smoke);
+            setTimeout(() => smoke.remove(), 3000);
+        }, 500);
+    }
+    
+    restoreAnimations() {
+        // Восстановление анимации вейпа
+        if (this.elements.vape.querySelector('.vape-image')) {
+            this.elements.vape.querySelector('.vape-image').classList.add('float-animation');
+        }
+    }
+    
+    // =====================
+    // ОБНОВЛЕНИЕ ИНТЕРФЕЙСА
+    // =====================
+    
+    updateUI() {
+        // Основные показатели
+        this.elements.balance.textContent = this.formatMoney(this.balance);
+        this.elements.income.textContent = this.formatMoney(this.passiveIncome);
+        this.elements.clickValue.textContent = this.formatMoney(this.clickValue * this.clickMultiplier * this.globalMultiplier);
+        this.elements.totalClicks.textContent = this.formatNumber(this.totalClicks);
+        
+        // Специальные клики
+        this.elements.goldenHits.textContent = this.goldenHits;
+        this.elements.criticalHits.textContent = this.criticalHits;
+        this.elements.clickMultiplier.textContent = `${(this.clickMultiplier * this.globalMultiplier).toFixed(1)}x`;
+        
+        // Престиж
+        const prestigeProgress = Math.min(100, (this.balance / this.prestige.nextRequirement) * 100);
+        this.elements.prestigeProgress.style.width = `${prestigeProgress}%`;
+        this.elements.prestigeLevel.textContent = this.prestige.level;
+        this.elements.prestigeBonusValue.textContent = Math.round((this.prestige.bonus - 1) * 100);
+        this.elements.prestigePrice.textContent = this.formatMoney(this.prestige.nextRequirement);
+        this.elements.prestigeRemaining.textContent = this.formatMoney(Math.max(0, this.prestige.nextRequirement - this.balance));
+        this.elements.prestigeBtn.disabled = this.balance < this.prestige.nextRequirement;
+        this.elements.prestigePoints.textContent = this.prestige.points;
+        
+        // Буст
+        if (this.boostUnlocked) {
+            this.elements.boostBtn.style.display = 'flex';
+            this.elements.boostBtn.disabled = this.boostProgress < 100 || this.boostActive;
+        } else {
+            this.elements.boostBtn.style.display = 'none';
+        }
+        
+        // Быстрое меню
+        for (const type in this.elements.quickBuyItems) {
+            this.elements.quickBuyItems[type].textContent = this.formatMoney(this.getProductPrice(type));
+        }
+        
+        // Статистика
+        this.elements.totalEarnedStat.textContent = this.formatMoney(this.totalEarned);
+        this.elements.totalClicksStat.textContent = this.formatNumber(this.totalClicks);
+        this.elements.goldenHitsStat.textContent = this.goldenHits;
+        this.elements.criticalHitsStat.textContent = this.criticalHits;
+        this.elements.quantumHitsStat.textContent = this.quantumHits;
+        this.elements.totalOfflineStat.textContent = this.formatMoney(this.totalOfflineEarned);
+        this.elements.maxOfflineTimeStat.textContent = this.formatTime(this.maxOfflineTime);
+        this.elements.prestigeLevelStat.textContent = this.prestige.level;
+        this.elements.prestigePointsStat.textContent = this.prestige.points;
+        this.elements.prestigeBonusStat.textContent = Math.round((this.prestige.bonus - 1) * 100);
+        
+        // Достижения
+        const completed = this.achievements.filter(a => a.unlocked).length;
+        this.elements.achievementsCompleted.textContent = completed;
+        this.elements.achievementsTotal.textContent = this.achievements.length;
+        
+        // Время игры
+        this.updatePlayTime();
+    }
+    
+    updateProductUI(type) {
+        const product = this.products[type];
+        const price = this.getProductPrice(type);
+        
+        // Обновление быстрого меню
+        if (this.elements.quickBuyItems[type]) {
+            this.elements.quickBuyItems[type].textContent = this.formatMoney(price);
+        }
+        
+        // Обновление карточки товара, если она отображается
+        const productCard = document.getElementById(`product-${type}`);
+        if (productCard) {
+            const buyBtn = productCard.querySelector('.buy-btn');
+            const sellBtn = productCard.querySelector('.sell-btn');
+            const progressFill = productCard.querySelector('.product-progress-fill');
+            
+            buyBtn.textContent = `Купить (${this.formatMoney(price)} ₽)`;
+            buyBtn.disabled = product.owned >= product.maxOwned || this.balance < price;
+            
+            sellBtn.disabled = product.owned <= 0;
+            
+            if (product.maxOwned !== Infinity) {
+                progressFill.style.width = `${(product.owned / product.maxOwned) * 100}%`;
+            } else {
+                progressFill.style.width = `${Math.min(100, (product.owned / 100) * 100)}%`;
+            }
+        }
+        
+        this.recalculatePassiveIncome();
+    }
+    
+    updateUpgradeUI(type) {
+        const upgrade = this.upgrades[type];
+        const upgradeCard = document.getElementById(`upgrade-${type}`);
+        
+        if (upgradeCard) {
+            const btn = upgradeCard.querySelector('.upgrade-btn');
+            btn.disabled = true;
+            btn.textContent = 'Куплено';
+        }
+    }
+    
+    updatePermanentUpgradesUI() {
+        for (const type in this.prestige.upgrades) {
+            const upgrade = this.prestige.upgrades[type];
+            
+            if (type === 'permIncome') {
+                this.elements.permIncomeLevel.textContent = `${upgrade.level}/${upgrade.maxLevel}`;
+                this.elements.permIncomePrice.textContent = upgrade.price;
+                this.elements.permIncomeBonus.textContent = upgrade.level * upgrade.bonusPerLevel * 100;
+                this.elements.buyPermIncome.disabled = 
+                    upgrade.level >= upgrade.maxLevel || 
+                    this.prestige.points < upgrade.price;
+            }
+        }
+    }
+    
+    updatePlayTime() {
+        // Время игры в секундах
+        const playTime = Math.floor((Date.now() - this.lastPlayTime) / 1000) + (this.totalPlayTime || 0);
+        
+        // Форматирование в HH:MM:SS
+        const hours = Math.floor(playTime / 3600);
+        const minutes = Math.floor((playTime % 3600) / 60);
+        const seconds = playTime % 60;
+        
+        this.elements.playTimeStat.textContent = 
+            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    updateEventTimer() {
+        if (!this.currentEvent) return;
+        
+        const timeLeft = this.eventEndTime - Date.now();
+        const minutes = Math.floor(timeLeft / 60000);
+        const seconds = Math.floor((timeLeft % 60000) / 1000);
+        
+        // Обновление таймера в интерфейсе
+        const eventTimer = document.getElementById('eventTimer');
+        if (eventTimer) {
+            eventTimer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+    }
+    
+    toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        this.darkMode = document.body.classList.contains('dark-mode');
+        this.updateThemeIcon();
+        this.save();
+    }
+    
+    updateThemeIcon() {
+        if (this.darkMode) {
+            this.elements.sunIcon.style.display = 'none';
+            this.elements.moonIcon.style.display = 'block';
+        } else {
+            this.elements.sunIcon.style.display = 'block';
+            this.elements.moonIcon.style.display = 'none';
+        }
+    }
+    
+    switchTab(tabId) {
+        // Переключение кнопок вкладок
+        this.elements.tabBtns.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === tabId);
+        });
+        
+        // Переключение содержимого вкладок
+        this.elements.tabContents.forEach(content => {
+            content.classList.toggle('active', content.id === tabId);
+        });
+        
+        // Обновление содержимого при переключении
+        if (tabId === 'products') {
+            this.renderProducts('all');
+        } else if (tabId === 'upgrades') {
+            this.renderUpgrades('all');
+        } else if (tabId === 'achievements') {
+            this.renderAchievements();
+        }
+    }
+    
+    // =====================
+    // РЕНДЕРИНГ ИНТЕРФЕЙСА
+    // =====================
+    
+    renderAll() {
+        this.renderProducts('all');
+        this.renderUpgrades('all');
+        this.renderAchievements();
+        this.renderDailyQuests();
+        this.renderEvent();
+        this.updatePermanentUpgradesUI();
+    }
+    
+    renderProducts(category = 'all') {
+        const container = this.elements.productsContainer;
+        container.innerHTML = '';
+        
+        let hasProducts = false;
+        
+        for (const type in this.products) {
+            const product = this.products[type];
+            
+            if (this.totalEarned < product.unlockAt) continue;
+            if (category !== 'all' && product.category !== category) continue;
+            
+            hasProducts = true;
+            
+            const productElement = document.createElement('div');
+            productElement.className = 'product-card';
+            productElement.id = `product-${type}`;
+            productElement.innerHTML = `
+                <div class="product-header">
+                    <div class="product-icon">${product.icon}</div>
+                    <div class="product-info">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-description">${product.description}</div>
+                    </div>
+                </div>
+                <div class="product-stats">
+                    <div class="product-stat">
+                        <i>📈</i> <span>${this.formatMoney(product.baseIncome * this.incomeMultiplier * this.prestige.bonus * this.globalMultiplier)}/сек</span>
+                    </div>
+                    <div class="product-stat">
+                        <i>🛒</i> <span>${product.owned}${product.maxOwned !== Infinity ? `/${product.maxOwned}` : ''}</span>
+                    </div>
+                    ${product.specialEffect ? `
+                    <div class="product-stat">
+                        <i>✨</i> <span>${product.specialEffect.description}</span>
+                    </div>` : ''}
+                </div>
+                <div class="product-progress">
+                    <div class="product-progress-fill" style="width: ${product.maxOwned !== Infinity ? 
+                        (product.owned / product.maxOwned) * 100 : 
+                        Math.min(100, (product.owned / 100) * 100)}%"></div>
+                </div>
+                <div class="product-actions">
+                    <button class="buy-btn" id="buy-${type}" ${product.owned >= product.maxOwned ? 'disabled' : ''}>
+                        <i>➕</i> Купить (${this.formatMoney(this.getProductPrice(type))} ₽)
+                    </button>
+                    <button class="sell-btn" id="sell-${type}" ${product.owned <= 0 ? 'disabled' : ''}>
+                        <i>➖</i> Продать
+                    </button>
+                </div>
+            `;
+            
+            container.appendChild(productElement);
+            
+            // Обработчики событий
+            document.getElementById(`buy-${type}`).addEventListener('click', () => this.buyProduct(type));
+            document.getElementById(`sell-${type}`).addEventListener('click', () => this.sellProduct(type));
+        }
+        
+        if (!hasProducts) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i>🛒</i>
+                    <p>${category === 'all' ? 'Покупайте товары для пассивного дохода' : 'Нет товаров в этой категории'}</p>
+                </div>
+            `;
+        }
+    }
+    
+    renderUpgrades(category = 'all') {
+        const container = this.elements.upgradesContainer;
+        container.innerHTML = '';
+        
+        let hasUpgrades = false;
+        
+        for (const type in this.upgrades) {
+            const upgrade = this.upgrades[type];
+            
+            if (this.totalEarned < upgrade.unlockAt) continue;
+            if (category !== 'all' && upgrade.category !== category) continue;
+            
+            hasUpgrades = true;
+            
+            const upgradeElement = document.createElement('div');
+            upgradeElement.className = 'upgrade-card';
+            upgradeElement.id = `upgrade-${type}`;
+            upgradeElement.innerHTML = `
+                <div class="upgrade-header">
+                    <div class="upgrade-icon">${upgrade.icon}</div>
+                    <div class="upgrade-info">
+                        <div class="upgrade-name">${upgrade.name}</div>
+                        <div class="upgrade-description">${upgrade.description}</div>
+                    </div>
+                </div>
+                <div class="upgrade-stats">
+                    <div class="upgrade-stat">
+                        <i>💰</i> <span>${this.formatMoney(upgrade.price)} ₽</span>
+                    </div>
+                    <div class="upgrade-stat">
+                        <i>📊</i> <span>Требуется: ${this.formatMoney(upgrade.unlockAt)} ₽</span>
+                    </div>
+                </div>
+                <div class="upgrade-action">
+                    <button class="upgrade-btn" id="upgrade-${type}-btn" ${upgrade.purchased ? 'disabled' : ''}>
+                        ${upgrade.purchased ? 'Куплено' : `Купить (${this.formatMoney(upgrade.price)} ₽)`}
+                    </button>
+                </div>
+            `;
+            
+            container.appendChild(upgradeElement);
+            
+            // Обработчик события
+            document.getElementById(`upgrade-${type}-btn`).addEventListener('click', () => this.buyUpgrade(type));
+        }
+        
+        if (!hasUpgrades) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i>⚡</i>
+                    <p>${category === 'all' ? 'Покупайте улучшения для усиления' : 'Нет улучшений в этой категории'}</p>
+                </div>
+            `;
+        }
+    }
+    
+    renderAchievements() {
+        const container = this.elements.achievementsContainer;
+        container.innerHTML = '';
+        
+        this.achievements.forEach(achievement => {
+            const achievementElement = document.createElement('div');
+            achievementElement.className = `achievement-card ${achievement.unlocked ? 'unlocked' : ''}`;
+            achievementElement.innerHTML = `
+                <div class="achievement-icon">${achievement.icon}</div>
+                <div class="achievement-info">
+                    <div class="achievement-name">${achievement.name}</div>
+                    <div class="achievement-desc">${achievement.description}</div>
+                    <div class="achievement-reward">Награда: ${this.formatMoney(achievement.reward)} ₽</div>
+                </div>
+                <div class="achievement-status">
+                    ${achievement.unlocked ? '✅' : '🔒'}
+                </div>
+            `;
+            
+            container.appendChild(achievementElement);
+        });
+    }
+    
+    renderDailyQuests() {
+        const container = document.getElementById('dailyQuestsContainer');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        this.dailyQuests.forEach(quest => {
+            const questElement = document.createElement('div');
+            questElement.className = `quest-card ${quest.completed ? 'completed' : ''}`;
+            questElement.innerHTML = `
+                <div class="quest-info">
+                    <h4>${quest.name}</h4>
+                    <p>${quest.description}</p>
+                    <div class="quest-progress">
+                        <progress value="${quest.progress}" max="${quest.required}"></progress>
+                        <span>${quest.progress}/${quest.required}</span>
+                    </div>
+                </div>
+                <div class="quest-reward">
+                    <span>${this.formatMoney(quest.reward)} ₽</span>
+                    ${quest.completed ? '✅' : '⌛'}
+                </div>
+            `;
+            
+            container.appendChild(questElement);
+        });
+    }
+    
+    renderEvent() {
+        const container = document.getElementById('eventContainer');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        if (this.currentEvent) {
+            const timeLeft = this.eventEndTime - Date.now();
+            const minutes = Math.floor(timeLeft / 60000);
+            const seconds = Math.floor((timeLeft % 60000) / 1000);
+            
+            const eventElement = document.createElement('div');
+            eventElement.className = 'event-card';
+            eventElement.innerHTML = `
+                <div class="event-header">
+                    <h3>${this.currentEvent.name}</h3>
+                    <div class="event-timer" id="eventTimer">
+                        ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}
+                    </div>
+                </div>
+                <p>${this.currentEvent.description}</p>
+                <div class="event-progress">
+                    <progress value="${this.eventProgress}" max="${this.currentEvent.goal}"></progress>
+                    <span>${this.formatMoney(this.eventProgress)}/${this.formatMoney(this.currentEvent.goal)} ₽</span>
+                </div>
+                <div class="event-reward">
+                    Награда: ${this.formatMoney(this.currentEvent.reward)} ₽
+                </div>
+            `;
+            
+            container.appendChild(eventElement);
+        } else {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i>🎉</i>
+                    <p>Событий нет. Проверяйте позже!</p>
+                </div>
+            `;
+        }
+    }
+    
+    // =====================
+    // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+    // =====================
+    
+    startGameLoop() {
+        // Остановка предыдущего цикла, если он был
+        if (this.gameLoopInterval) {
+            clearInterval(this.gameLoopInterval);
+        }
+        
+        // Запуск нового игрового цикла
+        this.gameLoopInterval = setInterval(() => {
+            // Пассивный доход
+            if (this.passiveIncome > 0) {
+                const income = this.passiveIncome * this.passiveSpeedMultiplier / 10;
+                this.addBalance(income);
+                
+                // Обновление прогресса события
+                if (this.currentEvent) {
+                    this.eventProgress += income;
+                }
+            }
+            
+            // Обновление времени игры
+            this.updatePlayTime();
+            
+        }, 100); // 10 раз в секунду для плавности
+    }
+    
+    formatMoney(amount) {
+        if (amount >= 1e12) return `${(amount / 1e12).toFixed(2)}T`;
+        if (amount >= 1e9) return `${(amount / 1e9).toFixed(2)}B`;
+        if (amount >= 1e6) return `${(amount / 1e6).toFixed(2)}M`;
+        if (amount >= 1e3) return `${(amount / 1e3).toFixed(2)}K`;
+        return Math.floor(amount).toString();
+    }
+    
+    formatNumber(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+    
+    formatTime(ms) {
+        if (ms < 1000) return 'менее секунды';
+        
+        const seconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+        
+        if (days > 0) return `${days}д ${hours % 24}ч`;
+        if (hours > 0) return `${hours}ч ${minutes % 60}м`;
+        if (minutes > 0) return `${minutes}м ${seconds % 60}с`;
+        return `${seconds}с`;
+    }
+    
+    showNotification(message, type) {
+        if (!this.notificationsEnabled) return;
+        
+        this.elements.notification.textContent = message;
+        this.elements.notification.className = `notification ${type}`;
+        this.elements.notification.classList.add('show');
+        
+        setTimeout(() => {
+            this.elements.notification.classList.remove('show');
+        }, 3000);
+    }
+    
+    save() {
+        const gameData = {
+            gameVersion: this.gameVersion,
+            // Все свойства состояния игры
+            ...Object.fromEntries(
+                Object.keys(defaultGameState)
+                    .filter(key => typeof this[key] !== 'function')
+                    .map(key => [key, this[key]])
+            ),
+            // Специальные поля
+            lastPlayTime: Date.now()
+        };
+        
+        localStorage.setItem('vapeEmpireSave', JSON.stringify(gameData));
     }
 }
 
-@media (max-width: 480px) {
-    .game-container {
-        padding: 10px;
-        gap: 15px;
+// Запуск игры при загрузке страницы
+document.addEventListener('DOMContentLoaded', () => {
+    const game = new VapeEmpireGame();
+    game.start();
+    
+    // Регистрация Service Worker для PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('ServiceWorker registration successful');
+                })
+                .catch(err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+        });
     }
-
-    .stat-box {
-        min-width: 100px;
-        padding: 10px 12px;
-    }
-
-    .upgrade-name {
-        white-space: normal;
-    }
-
-    .buy-btn, .sell-btn {
-        padding: 8px 10px;
-        font-size: 0.9rem;
-    }
-
-    .boost-btn {
-        padding: 10px 15px;
-        font-size: 0.9rem;
-    }
-}
-
-@media (orientation: landscape) and (max-height: 600px) {
-    .game-container {
-        flex-direction: row;
-        flex-wrap: wrap;
-        align-items: flex-start;
-    }
-
-    .game-header {
-        width: 100%;
-    }
-
-    .main-game-area {
-        flex: 1;
-        min-height: 200px;
-    }
-
-    .upgrades-section {
-        flex: 2;
-        min-width: 0;
-    }
-
-    .multitouch-panel, .boost-btn {
-        display: none;
-    }
-}
+});
