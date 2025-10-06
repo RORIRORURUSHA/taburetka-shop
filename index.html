@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taburetka shop - Премиальные жидкости</title>
+    <title>VapeCloud - Премиальные жидкости</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -28,6 +28,8 @@
             --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             --gradient-dark: linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%);
             --gradient-accent: linear-gradient(135deg, var(--accent) 0%, #c0392b 100%);
+            --gradient-gold: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+            --gradient-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
         * {
@@ -44,49 +46,52 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: var(--light);
+            background: var(--gradient-bg);
             color: var(--text);
             line-height: 1.6;
             overflow-x: hidden;
             min-height: 100vh;
-            padding-bottom: 80px; /* Space for bottom nav */
+            padding-bottom: 80px;
         }
 
         /* --- Header --- */
         header {
             background: var(--gradient-dark);
             color: white;
-            padding: 20px 0;
+            padding: 25px 0;
             text-align: center;
             position: relative;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            border-bottom: 3px solid var(--primary);
         }
 
         .logo {
-            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            font-size: clamp(2rem, 5vw, 3rem);
             font-weight: 800;
-            letter-spacing: 0.5px;
-            background: linear-gradient(90deg, #fff, #e0e0e0);
+            letter-spacing: 1px;
+            background: linear-gradient(90deg, #fff, #e0e0e0, #9b59b6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 15px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
 
         .logo-icon {
-            font-size: 1.2em;
+            font-size: 1.4em;
             color: var(--primary-light);
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
         }
 
         .tagline {
             font-style: italic;
-            color: var(--text-light);
-            font-size: clamp(0.85rem, 2vw, 1rem);
-            opacity: 0.9;
-            margin-top: 2px;
+            color: rgba(255,255,255,0.8);
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            margin-top: 5px;
+            font-weight: 300;
         }
 
         /* --- Mobile Navigation --- */
@@ -157,61 +162,74 @@
         /* --- Container & Titles --- */
         .container {
             max-width: 1200px;
-            margin: 20px auto;
-            padding: 0 15px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .main-content {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
         }
 
         .section-title {
             text-align: center;
-            margin-bottom: 15px;
-            font-size: clamp(1.6rem, 4vw, 2.2rem);
+            margin-bottom: 20px;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
             position: relative;
-            padding-bottom: 15px;
+            padding-bottom: 20px;
             color: var(--dark);
-            font-weight: 700;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .section-title::after {
             content: '';
             position: absolute;
-            width: 60px;
-            height: 4px;
+            width: 80px;
+            height: 5px;
             background: var(--gradient-primary);
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            border-radius: 2px;
+            border-radius: 3px;
         }
         
         .section-subtitle {
              text-align: center; 
-             margin-bottom: 30px; 
+             margin-bottom: 40px; 
              color: var(--text-light);
-             font-size: 1rem;
-             max-width: 600px;
+             font-size: 1.1rem;
+             max-width: 700px;
              margin-left: auto;
              margin-right: auto;
-             line-height: 1.6;
+             line-height: 1.7;
+             font-weight: 400;
         }
 
         /* --- Products --- */
         .products {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
         }
 
         .product {
             background-color: var(--card-bg);
-            border-radius: 16px;
+            border-radius: 20px;
             box-shadow: var(--card-shadow);
             overflow: hidden;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
             position: relative;
             display: flex;
             flex-direction: column;
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(30px);
+            border: 1px solid rgba(255,255,255,0.2);
         }
         
         .product.visible {
@@ -219,12 +237,17 @@
             transform: translateY(0);
         }
 
+        .product:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
         .product:active {
             transform: scale(0.98);
         }
 
         .product-image {
-            height: 200px;
+            height: 220px;
             overflow: hidden;
             position: relative;
         }
@@ -233,29 +256,29 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.5s ease;
+            transition: transform 0.7s ease;
         }
 
         .product:hover .product-image img {
-            transform: scale(1.05);
+            transform: scale(1.1);
         }
         
         .product-badge {
             position: absolute;
-            top: 12px;
-            left: 12px;
-            background: var(--gradient-accent);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 16px;
-            font-size: 0.75rem;
+            top: 15px;
+            left: 15px;
+            background: var(--gradient-gold);
+            color: #000;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
             font-weight: bold;
             z-index: 2;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
         .product-info {
-            padding: 20px;
+            padding: 25px;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
@@ -263,58 +286,60 @@
         
         .product-brand {
             color: var(--primary);
-            font-weight: 600;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
         }
         
         .product-title {
-            font-size: 1.3rem;
-            margin-bottom: 12px;
-            font-weight: 700;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            font-weight: 800;
             color: var(--dark);
             line-height: 1.3;
         }
 
         .flavor-selector {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .flavor-selector label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: 600;
             color: var(--text);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
         
         .flavor-selector select {
             width: 100%;
-            padding: 12px 15px;
+            padding: 14px 18px;
             border: 2px solid var(--border);
-            border-radius: 10px;
+            border-radius: 12px;
             background-color: white;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             appearance: none;
             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237f8c8d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
             background-repeat: no-repeat;
-            background-position: right 15px center;
-            background-size: 14px;
+            background-position: right 18px center;
+            background-size: 16px;
+            font-weight: 500;
         }
         
         .flavor-selector select:focus {
             border-color: var(--primary);
             outline: none;
-            box-shadow: 0 0 0 3px rgba(142, 68, 173, 0.15);
+            box-shadow: 0 0 0 4px rgba(142, 68, 173, 0.15);
         }
 
         .product-price {
             color: var(--primary);
-            font-weight: bold;
-            font-size: 1.6rem;
-            margin: 12px 0 15px;
+            font-weight: 800;
+            font-size: 1.8rem;
+            margin: 15px 0 20px;
             display: flex;
             align-items: center;
             gap: 5px;
@@ -325,28 +350,44 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
             background: var(--gradient-primary);
             color: white;
-            padding: 14px 20px;
-            border-radius: 10px;
+            padding: 16px 24px;
+            border-radius: 12px;
             text-decoration: none;
             border: none;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
             transition: all 0.3s ease;
             text-align: center;
-            font-size: 0.95rem;
-            box-shadow: 0 4px 12px rgba(142, 68, 173, 0.25);
+            font-size: 1rem;
+            box-shadow: 0 6px 15px rgba(142, 68, 173, 0.3);
             position: relative;
             overflow: hidden;
             touch-action: manipulation;
-            min-height: 48px; /* Better touch target */
+            min-height: 52px;
+            letter-spacing: 0.5px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 8px rgba(142, 68, 173, 0.3);
+            transform: translateY(3px);
+            box-shadow: 0 3px 10px rgba(142, 68, 173, 0.4);
         }
         
         .btn-block {
@@ -355,12 +396,12 @@
         
         .btn-secondary {
             background: linear-gradient(135deg, var(--secondary), #2980b9);
-            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.25);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.3);
         }
         
         .btn-accent {
             background: var(--gradient-accent);
-            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.25);
+            box-shadow: 0 6px 15px rgba(231, 76, 60, 0.3);
         }
         
         .btn-outline {
@@ -376,9 +417,9 @@
         }
 
         .btn-sm {
-            padding: 10px 16px;
-            font-size: 0.85rem;
-            min-height: 40px;
+            padding: 12px 18px;
+            font-size: 0.9rem;
+            min-height: 44px;
         }
 
         /* --- Cart --- */
@@ -411,13 +452,14 @@
             background-color: white;
             width: 100%;
             max-height: 85vh;
-            border-radius: 20px 20px 0 0;
-            box-shadow: 0 -5px 30px rgba(0,0,0,0.3);
+            border-radius: 25px 25px 0 0;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.4);
             display: flex;
             flex-direction: column;
-            animation: slideUp 0.4s ease;
+            animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             max-width: 500px;
             margin: 0 auto;
+            border: 1px solid rgba(255,255,255,0.2);
         }
         
         @keyframes slideUp {
@@ -435,6 +477,7 @@
             position: sticky;
             top: 0;
             z-index: 1;
+            border-radius: 25px 25px 0 0;
         }
         
         .modal-title {
@@ -551,7 +594,7 @@
             display: block; 
             margin-bottom: 8px; 
             font-weight: 600; 
-            color: var(--text-color);
+            color: var(--text);
             font-size: 0.9rem;
         }
         
@@ -564,7 +607,7 @@
             transition: all 0.3s ease;
             font-family: inherit;
             touch-action: manipulation;
-            min-height: 48px; /* Better touch target */
+            min-height: 48px;
         }
         
         .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
@@ -615,6 +658,7 @@
             border-top: 1px solid #eee;
             position: sticky;
             bottom: 0;
+            border-radius: 0 0 25px 25px;
         }
         
         .cart-total { 
@@ -629,26 +673,26 @@
         /* Notification */
         .notification {
             position: fixed;
-            top: 20px;
-            right: 15px;
-            left: 15px;
+            top: 25px;
+            right: 20px;
             background-color: var(--success);
             color: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            padding: 18px 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.25);
             z-index: 1200;
-            transform: translateY(-100px);
-            transition: transform 0.4s ease-in-out;
+            transform: translateX(400px);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             max-width: 400px;
-            margin: 0 auto;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
         
         .notification.show { 
-            transform: translateY(0); 
+            transform: translateX(0); 
         }
         
         .notification i {
@@ -825,6 +869,11 @@
         
         .search-box input {
             padding-left: 45px;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            height: 48px;
+            font-size: 1rem;
+            width: 100%;
         }
         
         .filter-select {
@@ -961,6 +1010,23 @@
             to { transform: rotate(360deg); }
         }
         
+        /* Sync Indicator */
+        .sync-indicator {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(10px);
+        }
+        
         /* --- Responsive --- */
         @media (min-width: 768px) {
             .mobile-nav {
@@ -1034,7 +1100,7 @@
             }
             
             .modal-content {
-                border-radius: 20px;
+                border-radius: 25px;
                 max-height: 80vh;
                 max-width: 600px;
             }
@@ -1062,6 +1128,10 @@
             .container {
                 margin: 15px auto;
                 padding: 0 10px;
+            }
+            
+            .main-content {
+                padding: 20px;
             }
             
             .products {
@@ -1160,12 +1230,17 @@
     </style>
 </head>
 <body>
+    <div class="sync-indicator" id="sync-indicator">
+        <i class="fas fa-cloud"></i>
+        <span>Синхронизация...</span>
+    </div>
+
     <header>
         <div class="logo">
             <i class="fas fa-cloud logo-icon"></i>
             VapeCloud
         </div>
-        <div class="tagline">Премиальные жидкости для вейпа</div>
+        <div class="tagline">Премиальные жидкости для вейпа с доставкой</div>
     </header>
     
     <nav class="desktop-nav">
@@ -1178,27 +1253,29 @@
     </nav>
     
     <div class="container">
-        <h1 class="section-title">Популярные жидкости</h1>
-        <p class="section-subtitle">Откройте для себя премиальные вкусы от ведущих производителей</p>
-        
-        <div class="search-filter">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" id="search-input" placeholder="Поиск...">
+        <div class="main-content">
+            <h1 class="section-title">Популярные жидкости</h1>
+            <p class="section-subtitle">Откройте для себя эксклюзивные вкусы от ведущих мировых производителей. Только оригинальная продукция с гарантией качества.</p>
+            
+            <div class="search-filter">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Поиск по товарам...">
+                </div>
+                <div class="form-group filter-select">
+                    <select id="sort-select">
+                        <option value="default">Сортировка</option>
+                        <option value="price-asc">Цена ↑</option>
+                        <option value="price-desc">Цена ↓</option>
+                        <option value="name-asc">Название А-Я</option>
+                        <option value="name-desc">Название Я-А</option>
+                    </select>
+                </div>
             </div>
-            <div class="form-group filter-select">
-                <select id="sort-select">
-                    <option value="default">Сортировка</option>
-                    <option value="price-asc">Цена ↑</option>
-                    <option value="price-desc">Цена ↓</option>
-                    <option value="name-asc">Название А-Я</option>
-                    <option value="name-desc">Название Я-А</option>
-                </select>
+            
+            <div class="products" id="products-container">
+                <!-- Products will be dynamically loaded here -->
             </div>
-        </div>
-        
-        <div class="products" id="products-container">
-            <!-- Products will be dynamically loaded here -->
         </div>
     </div>
     
@@ -1317,7 +1394,7 @@
     <footer id="contacts">
         <div class="footer-content">
             <h3>О магазине VapeCloud</h3>
-            <p>VapeCloud - премиальный магазин жидкостей для вейпа. Мы предлагаем только проверенную продукцию от ведущих производителей с 2018 года.</p>
+            <p>VapeCloud - премиальный магазин жидкостей для вейпа. Мы предлагаем только проверенную продукцию от ведущих производителей с 2018 года. Быстрая доставка и гарантия качества.</p>
         </div>
         <div class="footer-bottom">
             <p>&copy; 2023 VapeCloud. Все права защищены.</p>
@@ -1326,6 +1403,102 @@
     
     <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // --- DATA SYNC SOLUTION ---
+        // Используем localStorage как общее хранилище для демонстрации
+        // В реальном приложении здесь должен быть вызов к API/серверу
+        
+        const SYNC_KEY = 'vapecloud_shared_data';
+        const SYNC_INTERVAL = 5000; // Синхронизация каждые 5 секунд
+        
+        let syncInterval;
+        
+        // Функция загрузки данных из общего хранилища
+        const loadSharedData = () => {
+            try {
+                const sharedData = JSON.parse(localStorage.getItem(SYNC_KEY));
+                if (sharedData && sharedData.products) {
+                    return sharedData;
+                }
+            } catch (e) {
+                console.error('Error loading shared data:', e);
+            }
+            
+            // Если данных нет, возвращаем начальные
+            return {
+                products: initialProducts,
+                orders: []
+            };
+        };
+        
+        // Функция сохранения данных в общее хранилище
+        const saveSharedData = (data) => {
+            try {
+                localStorage.setItem(SYNC_KEY, JSON.stringify(data));
+                return true;
+            } catch (e) {
+                console.error('Error saving shared data:', e);
+                return false;
+            }
+        };
+        
+        // Синхронизация данных
+        const syncData = () => {
+            const data = loadSharedData();
+            return data;
+        };
+        
+        // Сохранение данных в "облако"
+        const saveDataToCloud = (data) => {
+            const success = saveSharedData(data);
+            if (success) {
+                showNotification('Изменения сохранены и синхронизированы', 'success');
+            } else {
+                showNotification('Ошибка сохранения данных', 'error');
+            }
+            return success;
+        };
+        
+        // Запуск синхронизации
+        const startSync = () => {
+            updateSyncIndicator(true);
+            const data = syncData();
+            products = data.products;
+            orders = data.orders;
+            renderProducts();
+            updateCartView();
+            updateSyncIndicator(false);
+            
+            // Периодическая синхронизация
+            syncInterval = setInterval(() => {
+                const freshData = syncData();
+                if (JSON.stringify(products) !== JSON.stringify(freshData.products)) {
+                    products = freshData.products;
+                    orders = freshData.orders;
+                    renderProducts();
+                    showNotification('Данные обновлены', 'success');
+                }
+            }, SYNC_INTERVAL);
+        };
+        
+        // Остановка синхронизации
+        const stopSync = () => {
+            if (syncInterval) {
+                clearInterval(syncInterval);
+            }
+            updateSyncIndicator(false);
+        };
+        
+        // Обновление индикатора синхронизации
+        const updateSyncIndicator = (syncing) => {
+            const indicator = document.getElementById('sync-indicator');
+            if (syncing) {
+                indicator.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i><span>Синхронизация...</span>';
+                indicator.style.display = 'flex';
+            } else {
+                indicator.style.display = 'none';
+            }
+        };
+
         // --- INITIAL DATA ---
         const initialProducts = [
             {
@@ -1333,7 +1506,7 @@
                 brand: 'DUALL',
                 name: '50MG',
                 price: 599,
-                badge: 'Хит',
+                badge: 'Хит продаж',
                 image: 'https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
                 flavors: [
                     { name: 'морозная вишня', available: false },
@@ -1384,9 +1557,9 @@
         ];
 
         // --- STATE MANAGEMENT ---
-        let products = JSON.parse(localStorage.getItem('products')) || initialProducts;
+        let products = [];
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        let orders = JSON.parse(localStorage.getItem('orders')) || [];
+        let orders = [];
         let adminActiveTab = 'products';
 
         // --- SELECTORS ---
@@ -1406,9 +1579,18 @@
         
         // --- FUNCTIONS ---
 
-        const saveProducts = () => localStorage.setItem('products', JSON.stringify(products));
+        const saveProducts = () => {
+            const data = syncData();
+            data.products = products;
+            return saveDataToCloud(data);
+        };
+
         const saveCart = () => localStorage.setItem('cart', JSON.stringify(cart));
-        const saveOrders = () => localStorage.setItem('orders', JSON.stringify(orders));
+        const saveOrders = () => {
+            const data = syncData();
+            data.orders = orders;
+            return saveDataToCloud(data);
+        };
 
         const openModal = (modal) => {
             modal.style.display = 'flex';
@@ -1592,11 +1774,16 @@
                             <div class="stat-value">${totalOrders}</div>
                             <div class="stat-label">Заказов</div>
                         </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${totalRevenue}</div>
+                            <div class="stat-label">Выручка (₽)</div>
+                        </div>
                     </div>
                     
                     <div class="admin-panel-controls">
                         <button class="btn" id="add-new-product"><i class="fas fa-plus"></i> Добавить товар</button>
-                        <button class="btn btn-secondary" id="export-data"><i class="fas fa-download"></i> Экспорт</button>
+                        <button class="btn btn-secondary" id="export-data"><i class="fas fa-download"></i> Экспорт данных</button>
+                        <button class="btn btn-accent" id="reset-data"><i class="fas fa-trash"></i> Сбросить данные</button>
                     </div>
                 </div>
                 
@@ -1621,11 +1808,11 @@
                             </div>
                             <div class="form-group">
                                 <label>Бейдж</label>
-                                <input type="text" class="admin-input" data-field="badge" value="${p.badge || ''}">
+                                <input type="text" class="admin-input" data-field="badge" value="${p.badge || ''}" placeholder="Новинка, Хит и т.д.">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>Изображение</label>
+                            <label>Изображение (URL)</label>
                             <input type="text" class="admin-input" data-field="image" value="${p.image}">
                             <div class="image-preview">
                                 <img src="${p.image}" alt="Preview" onerror="this.style.display='none'">
@@ -1637,7 +1824,7 @@
                             <ul class="flavor-list">
                             ${p.flavors.map((f, i) => `
                                 <li>
-                                    <span>${f.name} <small>(${f.available ? 'В наличии' : 'Нет'})</small></span>
+                                    <span>${f.name} <small>(${f.available ? 'В наличии' : 'Нет в наличии'})</small></span>
                                     <div>
                                         <button class="btn btn-sm ${f.available ? 'btn-outline' : ''}" data-action="toggle-flavor" data-index="${i}">
                                             ${f.available ? 'Скрыть' : 'Показать'}
@@ -1652,7 +1839,7 @@
                                  <button class="btn btn-sm" data-action="add-flavor">Добавить</button>
                             </div>
                         </div>
-                        <button class="btn btn-accent" data-action="delete-product"><i class="fas fa-trash"></i> Удалить</button>
+                        <button class="btn btn-accent" data-action="delete-product"><i class="fas fa-trash"></i> Удалить товар</button>
                     </div>
                     `).join('')}
                 </div>
@@ -1664,7 +1851,9 @@
                             <thead>
                                 <tr style="background: var(--light);">
                                     <th style="padding: 12px; text-align: left; font-size: 0.85rem;">Номер</th>
+                                    <th style="padding: 12px; text-align: left; font-size: 0.85rem;">Дата</th>
                                     <th style="padding: 12px; text-align: left; font-size: 0.85rem;">Сумма</th>
+                                    <th style="padding: 12px; text-align: left; font-size: 0.85rem;">Telegram</th>
                                     <th style="padding: 12px; text-align: left; font-size: 0.85rem;">Статус</th>
                                 </tr>
                             </thead>
@@ -1672,7 +1861,9 @@
                                 ${orders.map((order, index) => `
                                 <tr>
                                     <td style="padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.85rem;">${order.id}</td>
+                                    <td style="padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.85rem;">${new Date(order.date).toLocaleDateString()}</td>
                                     <td style="padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.85rem;">${order.total} ₽</td>
+                                    <td style="padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.85rem;">${order.telegram}</td>
                                     <td style="padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.85rem;">
                                         <span style="padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; background: ${order.status === 'new' ? 'rgba(52, 152, 219, 0.1)' : 'rgba(46, 204, 113, 0.1)'}; color: ${order.status === 'new' ? 'var(--secondary)' : 'var(--success)'}">
                                             ${order.status === 'new' ? 'Новый' : 'Выполнен'}
@@ -1900,6 +2091,19 @@
                 showNotification('Данные экспортированы');
                 return;
             }
+            
+            // Reset data
+            if(e.target.id === 'reset-data'){
+                showConfirmation('Вы уверены, что хотите сбросить все данные? Это действие нельзя отменить.', () => {
+                    products = [...initialProducts];
+                    orders = [];
+                    saveProducts();
+                    renderAdminPanel();
+                    renderProducts();
+                    showNotification('Данные сброшены к начальным значениям');
+                });
+                return;
+            }
 
             // Delete product
             if(e.target.dataset.action === 'delete-product'){
@@ -1991,7 +2195,6 @@
                 
                 saveProducts();
                 renderProducts();
-                showNotification('Данные обновлены', 'success');
             }
         });
         
@@ -2043,8 +2246,12 @@
         };
 
         // --- INITIALIZATION ---
-        renderProducts();
-        updateCartView();
+        startSync();
+        
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            stopSync();
+        });
     });
     </script>
 </body>
